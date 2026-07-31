@@ -1,0 +1,155 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String         @id @default(cuid())
+  email     String         @unique
+  password  String
+  name      String?
+  role      String         @default("user") // "user" | "admin"
+  createdAt DateTime       @default(now())
+  progress  UserProgress[]
+  videos    Video[]
+
+  // Communauté
+  invitesCreated      Invite[]
+  friendshipsSent     Friendship[] @relation("FriendshipRequester")
+  friendshipsReceived Friendship[] @relation("FriendshipAddressee")
+
+  // Séjours
+  tripsCreated     Trip[]          @relation("TripCreator")
+  tripMemberships  TripMember[]
+  challengesCreated TripChallenge[] @relation("ChallengeCreator")
+}
+
+model Figure {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  category    String
+  description String
+  steps       String // JSON.stringify(string[])
+  order       Int      @default(0)
+
+  prerequisites Figure[] @relation("Prerequisites")
+  unlocks       Figure[] @relation("Prerequisites")
+
+  progress   UserProgress[]
+  videos     Video[]
+  challenges TripChallenge[]
+}
+
+model UserProgress {
+  id          String    @id @default(cuid())
+  userId      String
+  figureId    String
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  figure Figure @relation(fields: [figureId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, figureId])
+}
+
+model Video {
+  id        String   @id @default(cuid())
+  figureId  String
+  userId    String
+  url       String
+  title     String?
+  createdAt DateTime @default(now())
+
+  figure Figure @relation(fields: [figureId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+/// Demande / lien d'amitié entre deux riders
+model Friendship {
+  id          String   @id @default(cuid())
+  requesterId String
+  addresseeId String
+  status      String   @default("pending") // pending | accepted | declined
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  requester User @relation("FriendshipRequester", fields: [requesterId], references: [id], onDelete: Cascade)
+  addressee User @relation("FriendshipAddressee", fields: [addresseeId], references: [id], onDelete: Cascade)
+
+  @@unique([requesterId, addresseeId])
+  @@index([addresseeId, status])
+  @@index([requesterId, status])
+}
+
+/// Lien d'invitation partageable (code) — l'ami s'inscrit et devient ami auto
+model Invite {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  creatorId String
+  createdAt DateTime  @default(now())
+  expiresAt DateTime?
+  usedCount Int       @default(0)
+  maxUses   Int       @default(50)
+
+  creator User @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId])
+}
+
+/// Séjour kite (ex: Dakhla 12 jours) — XP via completedAt dans la fenêtre de dates
+model Trip {
+  id          String   @id @default(cuid())
+  name        String
+  location    String?
+  description String?
+  startDate   DateTime
+  endDate     DateTime
+  inviteCode  String   @unique
+  creatorId   String
+  createdAt   DateTime @default(now())
+
+  creator    User            @relation("TripCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members    TripMember[]
+  challenges TripChallenge[]
+
+  @@index([startDate, endDate])
+  @@index([creatorId])
+}
+
+model TripMember {
+  id       String   @id @default(cuid())
+  tripId   String
+  userId   String
+  role     String   @default("member") // owner | member
+  joinedAt DateTime @default(now())
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tripId, userId])
+  @@index([userId])
+}
+
+/// Défi lancé pendant un séjour (lié à une figure, validé si acquis pendant les dates)
+model TripChallenge {
+  id          String   @id @default(cuid())
+  tripId      String
+  figureId    String?
+  title       String
+  description String?
+  createdById String
+  xpBonus     Int      @default(25)
+  createdAt   DateTime @default(now())
+
+  trip      Trip    @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  figure    Figure? @relation(fields: [figureId], references: [id], onDelete: SetNull)
+  createdBy User    @relation("ChallengeCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+}
