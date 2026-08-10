@@ -1,5 +1,6 @@
 datasource db {
-  provider = "sqlite"
+  // Prod / Supabase = postgresql. En local, pointe DATABASE_URL vers Supabase aussi.
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 

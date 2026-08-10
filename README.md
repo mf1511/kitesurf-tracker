@@ -35,8 +35,9 @@ Espace `/community` pour jouer entre potes :
 - **Demande d'ami par email** si le compte existe déjà
 - **Classement XP** entre amis + **fil d'activité** (figures validées)
 
-SQL à exécuter toi-même (Supabase) si besoin :
-`prisma/sql/2026-07-31-community.sql`
+**SQL Supabase (Postgres) — un seul fichier :**  
+`prisma/sql/supabase-full.sql`  
+(ne pas utiliser les migrations SQLite `DATETIME` — Postgres refuse.)
 
 ## Séjours (trips)
 
@@ -48,7 +49,7 @@ Espace `/trips` pour les sessions en crew (ex. 12 jours à Dakhla) :
 - Lancer des **défis** liés à une figure (+ bonus XP séjour)
 - Voir le fil d’activité du trip et le classement « séjours les plus skillants »
 
-SQL Supabase : `prisma/sql/2026-07-31-trips.sql`
+(inclus dans `prisma/sql/supabase-full.sql`)
 
 ## Espace admin
 
@@ -182,3 +183,16 @@ npm run db:seed
 ### Checklist mobile
 - Teste sur ton iPhone : menu burger, figures, cocher une figure, communauté (copier le lien d’invite).
 - Partage le lien d’invite WhatsApp → tes potes s’inscrivent depuis le téléphone.
+
+## Keepalive Supabase (anti-pause free tier)
+
+Le free tier Supabase **pause** le projet après ~7 jours sans activité.
+Un cron GitHub Actions ping la DB chaque jour.
+
+1. Repo GitHub → **Settings → Secrets and variables → Actions**
+2. New secret : `DATABASE_URL` = ton URI **pooler** Supabase (port 6543)
+3. Push le workflow `.github/workflows/supabase-keepalive.yml`
+4. **Actions** → “Supabase keepalive” → **Run workflow** (test manuel)
+
+Option Vercel : `GET /api/cron/keepalive` avec header  
+`Authorization: Bearer $CRON_SECRET` (ajoute aussi `CRON_SECRET` dans Vercel).

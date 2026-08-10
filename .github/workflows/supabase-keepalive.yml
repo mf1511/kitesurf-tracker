@@ -1,0 +1,33 @@
+# Ping quotidien de la DB Supabase (free tier se pause après ~7j d'inactivité).
+# Prérequis : secret repo DATABASE_URL (URI pooler Postgres Supabase)
+
+name: Supabase keepalive
+
+on:
+  schedule:
+    # Tous les jours à 06:15 UTC
+    - cron: "15 6 * * *"
+  workflow_dispatch: # bouton "Run workflow" manuel dans GitHub Actions
+
+jobs:
+  keepalive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+
+      - name: Ping database
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: npm run db:keepalive

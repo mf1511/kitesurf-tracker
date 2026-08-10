@@ -10,6 +10,7 @@
     "db:migrate": "prisma migrate dev",
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
+    "db:keepalive": "tsx scripts/keepalive.ts",
     "make-admin": "tsx scripts/make-admin.ts"
   },
   "prisma": {

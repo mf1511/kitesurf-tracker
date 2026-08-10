@@ -1,5 +1,16 @@
 # Changelog
 
+## 2026-08-10
+
+### ✨ Added
+- Keepalive Supabase anti-pause : cron GitHub Actions quotidien + `npm run db:keepalive`
+- Endpoint optionnel `GET /api/cron/keepalive` (Bearer `CRON_SECRET`)
+
+## 2026-08-06
+
+### 📚 Documentation
+- Charte graphique extraite de l’UI : `CHARTE-GRAPHIQUE.md`
+
 ## 2026-07-31
 
 ### ✨ Added
