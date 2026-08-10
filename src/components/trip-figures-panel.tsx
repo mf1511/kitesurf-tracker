@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import CrewRiderChips from "@/components/crew-rider-chips";
-import type { CrewRiderChip, MyObjectiveRow, TripFigureRow } from "@/lib/trips";
+import type {
+  CrewRider,
+  CrewRiderChip,
+  MyObjectiveRow,
+  TripFigureRow,
+} from "@/lib/trips";
 import { sortCategories } from "@/lib/gamification";
 import { figureHref } from "@/lib/nav-return";
 import { useConfirm } from "@/components/ui/confirm-dialog";
@@ -40,10 +45,18 @@ export default function TripFiguresPanel({
   const [showMemberAdd, setShowMemberAdd] = useState(false);
   /** Déjà réussies (acquis perso) masquées par défaut */
   const [showDone, setShowDone] = useState(false);
+  // État local : objectifs sans attendre un refresh serveur complet
+  const [figures, setFigures] = useState(tripFigures);
+  const [objectives, setObjectives] = useState(myObjectives);
+
+  useEffect(() => {
+    setFigures(tripFigures);
+    setObjectives(myObjectives);
+  }, [tripFigures, myObjectives]);
 
   const listedIds = useMemo(
-    () => new Set(tripFigures.map((f) => f.figureId)),
-    [tripFigures]
+    () => new Set(figures.map((f) => f.figureId)),
+    [figures]
   );
 
   /** Figures encore ajoutables (pas déjà sur la liste) — select membre */
@@ -80,13 +93,13 @@ export default function TripFiguresPanel({
     );
   }, [allFigures, query]);
 
-  const doneHiddenCount = tripFigures.filter((f) => f.alreadyDone).length;
+  const doneHiddenCount = figures.filter((f) => f.alreadyDone).length;
 
   // Liste séjour : catégories (ordre arbre) + order pédagogique, filtre réussies
   const listedByCategory = useMemo(() => {
     const filtered = showDone
-      ? tripFigures
-      : tripFigures.filter((f) => !f.alreadyDone);
+      ? figures
+      : figures.filter((f) => !f.alreadyDone);
     const map = new Map<string, TripFigureRow[]>();
     for (const f of filtered) {
       const list = map.get(f.category) ?? [];
@@ -101,7 +114,47 @@ export default function TripFiguresPanel({
     return sortCategories([...map.keys()]).map(
       (cat) => [cat, map.get(cat)!] as const
     );
-  }, [tripFigures, showDone]);
+  }, [figures, showDone]);
+
+  /** Avatar « moi » pour maj optimiste des holders */
+  function meAsHolder(): CrewRider {
+    for (const f of figures) {
+      const h = f.objectiveHolders.find((x) => x.userId === meId);
+      if (h) return h;
+      const k = f.knownBy.find((x) => x.userId === meId);
+      if (k) {
+        return {
+          userId: meId,
+          label: k.firstName,
+          isMe: true,
+          image: k.image,
+          initials: k.initials,
+          hue: k.hue,
+        };
+      }
+    }
+    for (const chips of Object.values(crewKnownBy)) {
+      const k = chips.find((x) => x.userId === meId);
+      if (k) {
+        return {
+          userId: meId,
+          label: k.firstName,
+          isMe: true,
+          image: k.image,
+          initials: k.initials,
+          hue: k.hue,
+        };
+      }
+    }
+    return {
+      userId: meId,
+      label: "Moi",
+      isMe: true,
+      image: null,
+      initials: "•",
+      hue: 200,
+    };
+  }
 
   function toggleSelect(id: string) {
     if (listedIds.has(id)) return; // déjà sur la liste
@@ -176,6 +229,49 @@ export default function TripFiguresPanel({
   }
 
   async function toggleObjective(fid: string, isMine: boolean) {
+    if (busy === `obj-${fid}`) return;
+    const fig = figures.find((f) => f.figureId === fid);
+    if (!fig) return;
+
+    const prevFigures = figures;
+    const prevObjectives = objectives;
+    const me = meAsHolder();
+
+    // Optimistic UI — pas de router.refresh (trop lent sur la fiche séjour)
+    setFigures((list) =>
+      list.map((f) => {
+        if (f.figureId !== fid) return f;
+        if (isMine) {
+          return {
+            ...f,
+            isMyObjective: false,
+            objectiveHolders: f.objectiveHolders.filter(
+              (h) => h.userId !== meId
+            ),
+          };
+        }
+        const holders = f.objectiveHolders.some((h) => h.userId === meId)
+          ? f.objectiveHolders
+          : [...f.objectiveHolders, me];
+        return { ...f, isMyObjective: true, objectiveHolders: holders };
+      })
+    );
+    setObjectives((list) => {
+      if (isMine) return list.filter((o) => o.figureId !== fid);
+      if (list.some((o) => o.figureId === fid)) return list;
+      return [
+        ...list,
+        {
+          figureId: fid,
+          name: fig.name,
+          slug: fig.slug,
+          category: fig.category,
+          active: fig.active,
+          done: fig.iCompleted,
+        },
+      ];
+    });
+
     setBusy(`obj-${fid}`);
     setError("");
     const res = await fetch(`/api/trips/${tripId}/objectives`, {
@@ -186,13 +282,13 @@ export default function TripFiguresPanel({
     const data = await res.json().catch(() => ({}));
     setBusy(null);
     if (!res.ok) {
+      setFigures(prevFigures);
+      setObjectives(prevObjectives);
       setError(data.error || "Erreur");
-      return;
     }
-    router.refresh();
   }
 
-  const doneCount = myObjectives.filter((o) => o.done).length;
+  const doneCount = objectives.filter((o) => o.done).length;
   // Select membre : top résultats filtrés
   const memberOptions = available.slice(0, 50);
 
@@ -204,17 +300,17 @@ export default function TripFiguresPanel({
           Choisis des figures dans la liste du séjour. Validées pendant les
           dates = objectif coché.
         </p>
-        {myObjectives.length === 0 ? (
+        {objectives.length === 0 ? (
           <p className="quest-empty">
             Aucun objectif — clique « Mon objectif » sur une figure ci-dessous.
           </p>
         ) : (
           <>
             <p className="feed-meta">
-              {doneCount} / {myObjectives.length} validés pendant le séjour
+              {doneCount} / {objectives.length} validés pendant le séjour
             </p>
             <ul className="challenge-list">
-              {myObjectives.map((o) => (
+              {objectives.map((o) => (
                 <li key={o.figureId}>
                   <div>
                     <strong>
@@ -271,7 +367,7 @@ export default function TripFiguresPanel({
           )}
         </div>
 
-        {tripFigures.length === 0 ? (
+        {figures.length === 0 ? (
           <p className="quest-empty">
             {isOwner
               ? "Liste vide — coche les figures dans la zone créateur."

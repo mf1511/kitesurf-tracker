@@ -6,7 +6,12 @@ const withPWA = require("@ducanh2912/next-pwa").default({
   disable: process.env.NODE_ENV === "development",
   cacheOnFrontEndNav: true,
   aggressiveFrontEndNavCaching: true,
-  reloadOnOnline: true,
+  // false : un micro-drop 4G pendant un gros download ne doit PAS recharger Safari
+  reloadOnOnline: false,
+  // Fallback document si NetworkFirst n’a rien (évite l’erreur FetchEvent.respondWith)
+  fallbacks: {
+    document: "/~offline",
+  },
   workboxOptions: {
     disableDevLogs: true,
     // Les vidéos Storage restent en téléchargement explicite (Cache Storage app)
@@ -28,12 +33,14 @@ const withPWA = require("@ducanh2912/next-pwa").default({
         },
       },
       {
-        urlPattern: /\/(?:figures|trips|offline|dashboard)(?:\/.*)?$/i,
+        // ignoreSearch : ?from=/offline ne doit pas rater le cache
+        urlPattern: /\/(?:figures|trips|offline|dashboard|~offline)(?:\/.*)?$/i,
         handler: "NetworkFirst",
         options: {
           cacheName: "kitequest-pages",
-          networkTimeoutSeconds: 8,
-          expiration: { maxEntries: 48, maxAgeSeconds: 60 * 60 * 24 * 7 },
+          networkTimeoutSeconds: 5,
+          matchOptions: { ignoreSearch: true },
+          expiration: { maxEntries: 64, maxAgeSeconds: 60 * 60 * 24 * 7 },
         },
       },
     ],

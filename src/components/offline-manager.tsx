@@ -1,17 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import {
   clearAllOfflineVideos,
   estimateStorage,
+  getOfflineObjectUrl,
   listOfflineMeta,
   removeOfflineVideo,
   type OfflineVideoMeta,
 } from "@/lib/offline-videos";
 import { formatBytes } from "@/lib/videos";
-import { figureHref } from "@/lib/nav-return";
 import { useConfirm } from "@/components/ui/confirm-dialog";
+import VideoPlayer from "@/components/video-player";
 
 export default function OfflineManager() {
   const confirmDialog = useConfirm();
@@ -20,6 +20,8 @@ export default function OfflineManager() {
     null
   );
   const [msg, setMsg] = useState("");
+  const [playingId, setPlayingId] = useState<string | null>(null);
+  const [playSrc, setPlaySrc] = useState<string | null>(null);
 
   function reload() {
     setItems(listOfflineMeta());
@@ -30,7 +32,36 @@ export default function OfflineManager() {
     reload();
   }, []);
 
+  // Libère l’object URL à la fermeture / changement
+  useEffect(() => {
+    return () => {
+      if (playSrc) URL.revokeObjectURL(playSrc);
+    };
+  }, [playSrc]);
+
+  async function play(v: OfflineVideoMeta) {
+    if (playingId === v.id) {
+      if (playSrc) URL.revokeObjectURL(playSrc);
+      setPlayingId(null);
+      setPlaySrc(null);
+      return;
+    }
+    const src = await getOfflineObjectUrl(v.id);
+    if (!src) {
+      setMsg("Vidéo introuvable dans le cache.");
+      return;
+    }
+    if (playSrc) URL.revokeObjectURL(playSrc);
+    setPlayingId(v.id);
+    setPlaySrc(src);
+  }
+
   async function removeOne(id: string) {
+    if (playingId === id) {
+      if (playSrc) URL.revokeObjectURL(playSrc);
+      setPlayingId(null);
+      setPlaySrc(null);
+    }
     await removeOfflineVideo(id);
     setMsg("Vidéo retirée.");
     reload();
@@ -44,6 +75,9 @@ export default function OfflineManager() {
       danger: true,
     });
     if (!ok) return;
+    if (playSrc) URL.revokeObjectURL(playSrc);
+    setPlayingId(null);
+    setPlaySrc(null);
     await clearAllOfflineVideos();
     setMsg("Cache vidéos vidé.");
     reload();
@@ -84,16 +118,24 @@ export default function OfflineManager() {
                   {v.figureName || v.figureSlug || v.figureId} ·{" "}
                   {formatBytes(v.sizeBytes)}
                 </p>
+                {/* Lecture inline : pas de navigation (évite le crash SW Safari) */}
+                {playingId === v.id && playSrc && (
+                  <div className="offline-inline-player">
+                    <VideoPlayer
+                      src={playSrc}
+                      title={v.title || v.figureName || "Vidéo"}
+                    />
+                  </div>
+                )}
               </div>
               <div className="offline-actions">
-                {v.figureSlug && (
-                  <Link
-                    href={figureHref(v.figureSlug, "/offline")}
-                    className="btn btn-ghost"
-                  >
-                    Voir
-                  </Link>
-                )}
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => void play(v)}
+                >
+                  {playingId === v.id ? "Fermer" : "Lire"}
+                </button>
                 <button
                   type="button"
                   className="btn btn-ghost"

@@ -50,6 +50,20 @@ export async function getOfflineObjectUrl(videoId: string): Promise<string | nul
   return URL.createObjectURL(blob);
 }
 
+/** Met la fiche figure en cache SW (navigation hors-ligne) */
+async function cacheFigureDocument(slug: string) {
+  if (typeof caches === "undefined" || !slug) return;
+  try {
+    const path = `/figures/${slug}`;
+    const res = await fetch(path, { credentials: "same-origin" });
+    if (!res.ok) return;
+    const cache = await caches.open("kitequest-pages");
+    await cache.put(path, res.clone());
+  } catch (err) {
+    console.warn("[offline] cache page", slug, err);
+  }
+}
+
 export async function downloadVideoOffline(
   video: OfflineVideoMeta,
   onProgress?: (ratio: number) => void
@@ -58,7 +72,8 @@ export async function downloadVideoOffline(
     throw new Error("Cache Storage non disponible sur ce navigateur");
   }
 
-  const res = await fetch(video.url);
+  // Pas de navigation pendant le fetch (évite les reloads Safari iOS)
+  const res = await fetch(video.url, { credentials: "omit", cache: "no-store" });
   if (!res.ok) throw new Error(`Téléchargement échoué (${res.status})`);
 
   const total = Number(res.headers.get("content-length") || video.sizeBytes || 0);
@@ -70,6 +85,7 @@ export async function downloadVideoOffline(
     const map = readMeta();
     map[video.id] = { ...video, sizeBytes: blob.size };
     writeMeta(map);
+    if (video.figureSlug) await cacheFigureDocument(video.figureSlug);
     onProgress?.(1);
     return;
   }
@@ -103,6 +119,7 @@ export async function downloadVideoOffline(
   const map = readMeta();
   map[video.id] = { ...video, sizeBytes: blob.size };
   writeMeta(map);
+  if (video.figureSlug) await cacheFigureDocument(video.figureSlug);
   onProgress?.(1);
 }
 
@@ -110,6 +127,26 @@ export async function downloadManyOffline(
   videos: OfflineVideoMeta[],
   onItem?: (videoId: string, ratio: number) => void
 ): Promise<{ ok: string[]; failed: string[] }> {
+  // Demande au navigateur de ne pas purger le cache (surtout iOS)
+  try {
+    await navigator.storage?.persist?.();
+  } catch {
+    /* ignore */
+  }
+
+  // Cache les shells hors-ligne pendant qu’on a encore du réseau
+  try {
+    if (typeof caches !== "undefined") {
+      const pageCache = await caches.open("kitequest-pages");
+      for (const path of ["/offline", "/~offline"]) {
+        const res = await fetch(path, { credentials: "same-origin" });
+        if (res.ok) await pageCache.put(path, res.clone());
+      }
+    }
+  } catch (err) {
+    console.warn("[offline] cache shells", err);
+  }
+
   const ok: string[] = [];
   const failed: string[] = [];
   for (const v of videos) {

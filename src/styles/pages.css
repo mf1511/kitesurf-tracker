@@ -1118,12 +1118,23 @@ span.prereq-chip.inactive:hover {
 .offline-manager-list li {
   display: flex;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 12px;
-  align-items: center;
+  align-items: flex-start;
   padding: 12px 14px;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: var(--card);
+}
+.offline-manager-list li > div:first-child {
+  flex: 1;
+  min-width: min(100%, 220px);
+}
+.offline-inline-player {
+  margin-top: 10px;
+}
+.offline-inline-player .video-player-wrap {
+  max-width: 100%;
 }
 
 .admin-videos { margin-top: 36px; }

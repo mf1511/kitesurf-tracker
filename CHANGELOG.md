@@ -2,6 +2,12 @@
 
 ## 2026-08-10
 
+### 🐛 Fixed
+- Hors-ligne : plus de reload Safari pendant le téléchargement (`reloadOnOnline` off) + lecture inline des vidéos en cache (évite l’erreur `FetchEvent.respondWith` / no-response)
+
+### 🚀 Improved
+- Séjour : cocher / décocher un objectif est instantané (maj locale, plus de refresh page entier)
+
 ### 🔧 Changed
 - Figures inactives (admin) : visibles catalogue / arbre / séjour, non cliquables, libellé « Bientôt disponible » — fiche détail réservée admin
 - Figures : on peut marquer acquise même sans avoir validé les prérequis
