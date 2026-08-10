@@ -19,6 +19,7 @@ const userSelect = {
   id: true,
   name: true,
   email: true,
+  username: true,
   image: true,
 } as const;
 
@@ -27,6 +28,10 @@ export default async function CommunityPage() {
   if (!session?.user?.id) redirect("/login");
 
   const me = session.user.id;
+  const meRow = await prisma.user.findUnique({
+    where: { id: me },
+    select: { username: true },
+  });
   const invite = await ensureInviteForUser(me);
   const friendIds = await getFriendIds(me);
 
@@ -84,6 +89,18 @@ export default async function CommunityPage() {
           />
         </div>
       </header>
+
+      {!meRow?.username && (
+        <section className="community-card">
+          <h2>Choisis ton @pseudo</h2>
+          <p className="community-lead">
+            C&apos;est comme ça que tes amis te trouveront — pas avec ton email.
+          </p>
+          <Link href="/parametres" className="btn btn-primary">
+            Définir mon pseudo
+          </Link>
+        </section>
+      )}
 
       <CommunityFriendsPanel
         friends={friends}

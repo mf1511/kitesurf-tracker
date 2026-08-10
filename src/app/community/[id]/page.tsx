@@ -42,6 +42,7 @@ export default async function FriendProfilePage({
         <div>
           <h1>{user.label}</h1>
           <p className="subtitle">
+            {user.username ? `@${user.username} · ` : null}
             Niveau {stats.level} · {stats.title} · {stats.xp} XP
           </p>
         </div>

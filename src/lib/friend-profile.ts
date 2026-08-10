@@ -23,7 +23,7 @@ export async function getFriendProfile(meId: string, friendId: string) {
     await Promise.all([
       prisma.user.findUnique({
         where: { id: friendId },
-        select: { id: true, name: true, email: true, image: true },
+        select: { id: true, name: true, email: true, username: true, image: true },
       }),
       prisma.figure.findMany({
         where: { active: true },
@@ -92,6 +92,7 @@ export async function getFriendProfile(meId: string, friendId: string) {
       id: user.id,
       name: user.name,
       email: user.email,
+      username: user.username,
       image: user.image,
       label: riderLabel(user),
     },

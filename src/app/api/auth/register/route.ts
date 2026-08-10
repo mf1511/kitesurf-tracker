@@ -2,10 +2,12 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { ensureAcceptedFriendship } from "@/lib/community";
+import { normalizeUsername, usernameError } from "@/lib/username";
 
 /** Inscription fermée : pré-invite, lien ami, ou code séjour */
 export async function POST(req: Request) {
-  const { email, password, name, inviteCode, tripCode } = await req.json();
+  const { email, password, name, username, inviteCode, tripCode } =
+    await req.json();
 
   if (!email || !password) {
     return NextResponse.json(
@@ -19,6 +21,14 @@ export async function POST(req: Request) {
       { status: 400 }
     );
   }
+
+  const userErr = usernameError(
+    typeof username === "string" ? username : ""
+  );
+  if (userErr) {
+    return NextResponse.json({ error: userErr }, { status: 400 });
+  }
+  const normalizedUsername = normalizeUsername(String(username));
 
   const fromInvite =
     typeof inviteCode === "string" ? inviteCode.trim().toLowerCase() : "";
@@ -34,12 +44,19 @@ export async function POST(req: Request) {
 
   const normalizedEmail = String(email).trim().toLowerCase();
 
-  const existing = await prisma.user.findUnique({
-    where: { email: normalizedEmail },
-  });
-  if (existing) {
+  const [existingEmail, existingUsername] = await Promise.all([
+    prisma.user.findUnique({ where: { email: normalizedEmail } }),
+    prisma.user.findUnique({ where: { username: normalizedUsername } }),
+  ]);
+  if (existingEmail) {
     return NextResponse.json(
       { error: "Un compte existe déjà avec cet email" },
+      { status: 409 }
+    );
+  }
+  if (existingUsername) {
+    return NextResponse.json(
+      { error: "Ce pseudo est déjà pris" },
       { status: 409 }
     );
   }
@@ -68,6 +85,7 @@ export async function POST(req: Request) {
       data: {
         email: normalizedEmail,
         password: hashed,
+        username: normalizedUsername,
         name: displayName || pre.name || null,
         image: pre.image,
         imagePath: pre.imagePath,
@@ -108,6 +126,7 @@ export async function POST(req: Request) {
       data: {
         email: normalizedEmail,
         password: hashed,
+        username: normalizedUsername,
         name: displayName,
       },
     });
@@ -133,6 +152,7 @@ export async function POST(req: Request) {
       data: {
         email: normalizedEmail,
         password: hashed,
+        username: normalizedUsername,
         name: displayName,
       },
     });

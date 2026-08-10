@@ -14,7 +14,13 @@ export default async function ParametresPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { email: true, name: true, weightKg: true, image: true },
+    select: {
+      email: true,
+      name: true,
+      username: true,
+      weightKg: true,
+      image: true,
+    },
   });
   if (!user) redirect("/login");
 
@@ -27,10 +33,20 @@ export default async function ParametresPage() {
         </div>
       </header>
 
+      {!user.username && (
+        <section className="community-card">
+          <h2>Choisis ton pseudo</h2>
+          <p className="community-lead">
+            Tes amis te retrouveront avec un @pseudo unique (pas ton email).
+          </p>
+        </section>
+      )}
+
       <section className="community-card">
         <h2>Profil</h2>
         <ProfileSettingsForm
           initialName={user.name ?? ""}
+          initialUsername={user.username ?? ""}
           initialWeightKg={user.weightKg}
           initialImage={user.image}
           email={user.email}

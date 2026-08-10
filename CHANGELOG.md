@@ -25,6 +25,7 @@
 - Social sans compétition : retrait du classement potes, des défis, des leaderboards séjour / « séjours skillants » et de la comparaison amis sur les figures — fil d’activité et invites conservés (célébration, pas classement)
 
 ### ✨ Added
+- Pseudo `@username` unique : inscription + profil, recherche d’amis par pseudo (sinon invite email) — SQL `019-user-username.sql`
 - Figures **Surface Backroll Transition**, **Surface Backroll 360**, **Backroll to Toeside**, **Blind to Toeside Transition** — SQL `015`–`018`
 - Séjour : le créateur peut retirer un rider (Participants invités → Retirer) — libère place + objectifs
 - Vidéos figures : bouton de vitesse de lecture (0.5× → 2×)

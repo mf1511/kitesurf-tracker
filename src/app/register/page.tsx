@@ -12,6 +12,7 @@ function RegisterForm() {
   const seatId = searchParams.get("seat") || "";
 
   const [name, setName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [inviteCode, setInviteCode] = useState(inviteFromUrl);
@@ -38,6 +39,7 @@ function RegisterForm() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         name,
+        username,
         email,
         password,
         inviteCode: viaTrip ? undefined : code,
@@ -112,6 +114,24 @@ function RegisterForm() {
       <label>
         Prénom
         <input type="text" value={name} onChange={(e) => setName(e.target.value)} />
+      </label>
+      <label>
+        Pseudo
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          required
+          autoComplete="username"
+          placeholder="marin_kite"
+          minLength={3}
+          maxLength={20}
+          pattern="[A-Za-z0-9_]+"
+          title="3–20 caractères : lettres, chiffres, _"
+        />
+        <span className="field-hint">
+          Tes amis te retrouveront avec @{username.trim() || "tonpseudo"}
+        </span>
       </label>
       <label>
         Email

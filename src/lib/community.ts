@@ -10,8 +10,16 @@ export type PublicRider = {
   image?: string | null;
 };
 
-export function riderLabel(user: { name?: string | null; email: string }): string {
-  return user.name?.trim() || user.email.split("@")[0];
+export function riderLabel(user: {
+  name?: string | null;
+  email: string;
+  username?: string | null;
+}): string {
+  return (
+    user.name?.trim() ||
+    (user.username ? `@${user.username}` : null) ||
+    user.email.split("@")[0]
+  );
 }
 
 /** Prénom affiché (1er mot du name, sinon local-part email) */

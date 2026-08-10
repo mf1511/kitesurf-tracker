@@ -6,11 +6,13 @@ import UserAvatar from "@/components/user-avatar";
 
 export default function ProfileSettingsForm({
   initialName,
+  initialUsername,
   initialWeightKg,
   initialImage,
   email,
 }: {
   initialName: string;
+  initialUsername: string;
   initialWeightKg?: number | null;
   initialImage?: string | null;
   email: string;
@@ -18,6 +20,7 @@ export default function ProfileSettingsForm({
   const { update } = useSession();
   const fileRef = useRef<HTMLInputElement>(null);
   const [name, setName] = useState(initialName);
+  const [username, setUsername] = useState(initialUsername);
   const [weightKg, setWeightKg] = useState(
     initialWeightKg != null ? String(initialWeightKg) : ""
   );
@@ -36,7 +39,11 @@ export default function ProfileSettingsForm({
     const res = await fetch("/api/account", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name, weightKg: weightKg.trim() === "" ? null : weightKg }),
+      body: JSON.stringify({
+        name,
+        username,
+        weightKg: weightKg.trim() === "" ? null : weightKg,
+      }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -45,6 +52,7 @@ export default function ProfileSettingsForm({
       return;
     }
 
+    setUsername(data.user.username ?? username);
     await update({ name: data.user.name ?? "" });
     setBusy(false);
     setOk("Profil enregistré.");
@@ -127,6 +135,23 @@ export default function ProfileSettingsForm({
       <label>
         Email
         <input value={email} disabled readOnly />
+      </label>
+      <label>
+        Pseudo
+        <input
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="marin_kite"
+          required
+          autoComplete="username"
+          minLength={3}
+          maxLength={20}
+          pattern="[A-Za-z0-9_]+"
+          title="3–20 caractères : lettres, chiffres, _"
+        />
+        <span className="field-hint">
+          Tes amis te cherchent avec @{username.trim() || "tonpseudo"}
+        </span>
       </label>
       <label>
         Nom d’affichage

@@ -13,6 +13,8 @@ model User {
   email     String         @unique
   password  String
   name      String?
+  /// Pseudo public unique (@marin) — pour retrouver ses amis
+  username  String?        @unique
   /// URL publique photo de profil (Supabase Storage)
   image     String?
   /// Chemin Storage pour remplacer / supprimer

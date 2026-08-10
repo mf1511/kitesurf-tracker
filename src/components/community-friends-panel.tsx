@@ -12,6 +12,7 @@ export type FriendCard = {
   id: string;
   name: string | null;
   email: string;
+  username?: string | null;
   image: string | null;
   label: string;
   xp: number;
@@ -79,7 +80,9 @@ export default function CommunityFriendsPanel({
                   />
                   <div>
                     <strong>{r.label}</strong>
-                    <span>{r.email}</span>
+                    <span>
+                      {r.username ? `@${r.username}` : r.email}
+                    </span>
                   </div>
                 </div>
                 <div className="friend-actions">
@@ -121,7 +124,9 @@ export default function CommunityFriendsPanel({
                   />
                   <div>
                     <strong>{r.label}</strong>
-                    <span>Demande envoyée</span>
+                    <span>
+                      {r.username ? `@${r.username}` : "Demande envoyée"}
+                    </span>
                   </div>
                 </div>
                 <button
@@ -156,7 +161,9 @@ export default function CommunityFriendsPanel({
                     className="friend-card-avatar"
                   />
                   <strong>{r.label}</strong>
-                  <span>
+                  <span className="friend-card-meta">
+                    {r.username ? `@${r.username}` : null}
+                    {r.username ? " · " : null}
                     {r.done} figures · {r.xp} XP
                   </span>
                 </Link>

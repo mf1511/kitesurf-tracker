@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/toast";
 
-/** Bouton « Inviter un ami » + dialog (lien + ajout par email) */
+/** Bouton « Inviter un ami » + dialog (lien + ajout par @pseudo / email) */
 export default function CommunityInviteDialog({
   initialCode,
   initialPath,
@@ -28,16 +28,17 @@ export default function CommunityInviteDialog({
   const [copied, setCopied] = useState(false);
   const [regenBusy, setRegenBusy] = useState(false);
 
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [emailOk, setEmailOk] = useState("");
-  const [emailBusy, setEmailBusy] = useState(false);
+  const [query, setQuery] = useState("");
+  const [emailFallback, setEmailFallback] = useState("");
+  const [showEmailFallback, setShowEmailFallback] = useState(false);
+  const [error, setError] = useState("");
+  const [ok, setOk] = useState("");
+  const [busy, setBusy] = useState(false);
 
   useEffect(() => {
     setUrl(`${window.location.origin}${path}`);
   }, [path]);
 
-  // Escape + focus trap léger
   useEffect(() => {
     if (!open) return;
     closeRef.current?.focus();
@@ -77,25 +78,46 @@ export default function CommunityInviteDialog({
     }
   }
 
-  async function sendRequest(e: React.FormEvent) {
-    e.preventDefault();
-    setEmailError("");
-    setEmailOk("");
-    setEmailBusy(true);
+  async function sendFriendRequest(payload: { query?: string; email?: string }) {
+    setBusy(true);
+    setError("");
+    setOk("");
     const res = await fetch("/api/friends", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
+      body: JSON.stringify(payload),
     });
     const data = await res.json().catch(() => ({}));
-    setEmailBusy(false);
+    setBusy(false);
+
     if (!res.ok) {
-      setEmailError(data.error || "Erreur");
+      if (data.code === "USERNAME_NOT_FOUND") {
+        setShowEmailFallback(true);
+        setError(data.error || "Pseudo introuvable");
+        return;
+      }
+      setError(data.error || "Erreur");
       return;
     }
-    setEmailOk(data.autoAccepted ? "Vous êtes maintenant amis !" : "Demande envoyée");
-    setEmail("");
+
+    setOk(
+      data.autoAccepted ? "Vous êtes maintenant amis !" : "Demande envoyée"
+    );
+    setQuery("");
+    setEmailFallback("");
+    setShowEmailFallback(false);
     router.refresh();
+  }
+
+  async function onSubmitQuery(e: React.FormEvent) {
+    e.preventDefault();
+    setShowEmailFallback(false);
+    await sendFriendRequest({ query });
+  }
+
+  async function onSubmitEmail(e: React.FormEvent) {
+    e.preventDefault();
+    await sendFriendRequest({ email: emailFallback });
   }
 
   return (
@@ -128,51 +150,68 @@ export default function CommunityInviteDialog({
             </div>
 
             <section className="invite-dialog-block">
+              <h3>Ajouter par pseudo</h3>
+              <p className="community-lead">
+                Cherche son @pseudo. S&apos;il n&apos;a pas encore de compte, tu
+                pourras l&apos;inviter par email.
+              </p>
+              <form onSubmit={onSubmitQuery} className="friend-email-form">
+                <input
+                  type="text"
+                  placeholder="@marin_kite ou email"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  required
+                  autoComplete="off"
+                />
+                <button type="submit" className="btn btn-primary" disabled={busy}>
+                  {busy ? "…" : "Ajouter"}
+                </button>
+              </form>
+
+              {showEmailFallback && (
+                <form onSubmit={onSubmitEmail} className="friend-email-form" style={{ marginTop: 10 }}>
+                  <input
+                    type="email"
+                    placeholder="ami@email.com"
+                    value={emailFallback}
+                    onChange={(e) => setEmailFallback(e.target.value)}
+                    required
+                  />
+                  <button type="submit" className="btn btn-secondary" disabled={busy}>
+                    {busy ? "…" : "Inviter par email"}
+                  </button>
+                </form>
+              )}
+
+              {error && <p className="form-error">{error}</p>}
+              {ok && <p className="form-ok">{ok}</p>}
+            </section>
+
+            <section className="invite-dialog-block">
               <h3>Lien d&apos;invitation</h3>
               <p className="community-lead">
-                Partage ce lien : ton pote crée son compte et vous devenez amis automatiquement.
+                Pour quelqu&apos;un qui n&apos;a pas encore de compte KiteQuest.
               </p>
               <div className="invite-link-row">
                 <code className="invite-code">{url}</code>
-                <button type="button" className="btn btn-primary" onClick={copy}>
-                  {copied ? "Copié !" : "Copier"}
+                <button type="button" className="btn btn-secondary" onClick={() => void copy()}>
+                  {copied ? "Copié" : "Copier"}
                 </button>
               </div>
               <div className="invite-meta">
                 <span>
-                  Code <strong>{code}</strong> · {usedCount}/{maxUses} utilisations
+                  {usedCount}/{maxUses} utilisations · code {code}
                 </span>
                 <button
                   type="button"
-                  className="btn btn-secondary"
-                  onClick={regenerate}
+                  className="btn btn-ghost"
                   disabled={regenBusy}
+                  onClick={() => void regenerate()}
                 >
                   Nouveau lien
                 </button>
               </div>
-            </section>
-
-            <section className="invite-dialog-block">
-              <h3>Ajouter par email</h3>
-              <p className="community-lead">
-                S&apos;il a déjà un compte, envoie une demande. Sinon, utilise ton lien
-                d&apos;invitation.
-              </p>
-              <form onSubmit={sendRequest} className="friend-email-form">
-                <input
-                  type="email"
-                  placeholder="ami@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <button type="submit" className="btn btn-primary" disabled={emailBusy}>
-                  {emailBusy ? "…" : "Inviter"}
-                </button>
-              </form>
-              {emailError && <p className="form-error">{emailError}</p>}
-              {emailOk && <p className="form-ok">{emailOk}</p>}
             </section>
           </div>
         </div>
