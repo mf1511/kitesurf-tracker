@@ -1,5 +1,7 @@
--- Remplace les défis par : liste de figures du séjour + objectifs perso
--- À exécuter toi-même dans Supabase SQL Editor.
+-- =============================================================================
+-- 003 · trip-objectives — Liste figures séjour + objectifs perso
+-- Ordre : après 002-trips (supprime TripChallenge)
+-- =============================================================================
 
 -- Ancien système défis
 DROP TABLE IF EXISTS "TripChallenge";

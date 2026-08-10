@@ -3,152 +3,307 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { computeGameStats, medalForPct, xpForCategory } from "@/lib/gamification";
+import {
+  computeGameStats,
+  medalForPct,
+  xpForCategory,
+} from "@/lib/gamification";
+import { tripStatus } from "@/lib/trips";
+import BadgeSlider from "@/components/badge-slider";
+
+const STATUS_LABEL = {
+  live: "En cours",
+  upcoming: "À venir",
+  past: "Terminé",
+} as const;
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
 
-  const figures = await prisma.figure.findMany({
-    where: { active: true },
-    include: {
-      prerequisites: { select: { id: true } },
-      progress: { where: { userId: session.user.id, completed: true } },
-    },
-    orderBy: [{ category: "asc" }, { order: "asc" }],
-  });
+  const userId = session.user.id;
+  const now = new Date();
+
+  const [figures, myTrips, myObjectives] = await Promise.all([
+    prisma.figure.findMany({
+      where: { active: true },
+      include: {
+        prerequisites: { select: { id: true } },
+        progress: { where: { userId, completed: true } },
+      },
+      orderBy: [{ category: "asc" }, { order: "asc" }],
+    }),
+    prisma.trip.findMany({
+      where: {
+        members: { some: { userId } },
+        endDate: { gte: now },
+      },
+      include: {
+        _count: { select: { members: true, figures: true } },
+      },
+      orderBy: { startDate: "asc" },
+    }),
+    prisma.tripMemberObjective.findMany({
+      where: {
+        userId,
+        trip: { endDate: { gte: now } },
+      },
+      include: {
+        figure: { select: { id: true, slug: true, name: true, category: true } },
+        trip: { select: { id: true, name: true, startDate: true, endDate: true } },
+      },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
 
   const stats = computeGameStats(figures);
   const categories = Array.from(new Set(figures.map((f) => f.category)));
-  const circumference = 314;
-  const dashOffset = circumference - (stats.overallPct / 100) * circumference;
+  const doneIds = new Set(
+    figures.filter((f) => f.progress.length > 0).map((f) => f.id)
+  );
+
+  // Prochain séjour : live d’abord, sinon le plus proche
+  const rankedTrips = [...myTrips].sort((a, b) => {
+    const sa = tripStatus(a.startDate, a.endDate, now);
+    const sb = tripStatus(b.startDate, b.endDate, now);
+    if (sa === "live" && sb !== "live") return -1;
+    if (sb === "live" && sa !== "live") return 1;
+    return a.startDate.getTime() - b.startDate.getTime();
+  });
+  const nextTrip = rankedTrips[0] ?? null;
+  const nextTripStatus = nextTrip
+    ? tripStatus(nextTrip.startDate, nextTrip.endDate, now)
+    : null;
+
+  const openObjectives = myObjectives
+    .filter((o) => !doneIds.has(o.figureId))
+    .slice(0, 5);
+
+  const badges = [...stats.badges].sort(
+    (a, b) => Number(b.earned) - Number(a.earned)
+  );
+  const badgesEarned = badges.filter((b) => b.earned).length;
+
+  const firstName = session.user.name?.trim().split(/\s+/)[0];
+
+  // Mondes triés : en cours d’abord, puis % décroissant
+  const worlds = categories
+    .map((cat) => {
+      const catFigures = figures.filter((f) => f.category === cat);
+      const catDone = catFigures.filter((f) => f.progress.length > 0).length;
+      const pct = catFigures.length
+        ? Math.round((catDone / catFigures.length) * 100)
+        : 0;
+      return {
+        cat,
+        catDone,
+        total: catFigures.length,
+        pct,
+        medal: medalForPct(pct),
+        xpHint: xpForCategory(cat),
+      };
+    })
+    .sort((a, b) => {
+      if (a.pct === 100 && b.pct !== 100) return 1;
+      if (b.pct === 100 && a.pct !== 100) return -1;
+      if (a.pct === 0 && b.pct > 0) return 1;
+      if (b.pct === 0 && a.pct > 0) return -1;
+      return b.pct - a.pct;
+    });
 
   return (
     <div className="dashboard">
-      <div className="dashboard-header">
-        <div className="level-card">
-          <span className="level-title">Niveau {stats.level} · {stats.title}</span>
-          <h1>Salut{session.user.name ? `, ${session.user.name}` : ""} !</h1>
-          <p className="subtitle">
-            {stats.totalDone} / {stats.totalFigures} figures · {stats.xp} XP
+      {/* Header : identité + progression — une seule composition */}
+      <header className="dash-hero">
+        <div className="dash-hero-text">
+          <p className="dash-level-tag">
+            Niv. {stats.level} · {stats.title}
           </p>
-          <div className="xp-bar-wrap">
-            <div className="xp-bar-meta">
-              <span>XP vers niveau {stats.level + 1}</span>
-              <span>
-                {stats.xpIntoLevel} / {stats.xpForNextLevel}
-              </span>
-            </div>
-            <div className="xp-bar" aria-hidden>
-              <div className="xp-bar-fill" style={{ width: `${stats.xpProgressPct}%` }} />
-            </div>
+          <h1>Salut{firstName ? `, ${firstName}` : ""}</h1>
+          <p className="dash-hero-lead">
+            {stats.totalDone} figures validées · {stats.xp} XP · {stats.overallPct}
+            % du lexique
+          </p>
+        </div>
+
+        <div className="dash-hero-progress">
+          <div className="xp-bar-meta">
+            <span>Vers niveau {stats.level + 1}</span>
+            <span>
+              {stats.xpIntoLevel} / {stats.xpForNextLevel} XP
+            </span>
+          </div>
+          <div
+            className="xp-bar"
+            role="progressbar"
+            aria-valuenow={stats.xpProgressPct}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-label="Progression vers le prochain niveau"
+          >
+            <div
+              className="xp-bar-fill"
+              style={{ width: `${stats.xpProgressPct}%` }}
+            />
           </div>
         </div>
 
-        <div className="gauge-stack">
-          <div className="gauge">
-            <svg width="100" height="100" viewBox="0 0 120 120">
-              <circle className="gauge-track" cx="60" cy="60" r="50" />
-              <circle
-                className="gauge-fill"
-                cx="60"
-                cy="60"
-                r="50"
-                strokeDasharray={circumference}
-                strokeDashoffset={dashOffset}
-              />
-            </svg>
-            <div className="gauge-label">
-              <span className="pct">{stats.overallPct}%</span>
-              <span className="pct-sub">global</span>
-            </div>
-          </div>
+        <nav className="dash-quick" aria-label="Raccourcis">
+          <Link href="/figures" className="dash-quick-link">
+            Figures
+          </Link>
+          <Link href="/trips" className="dash-quick-link">
+            Séjours
+          </Link>
+          <Link href="/community" className="dash-quick-link">
+            Communauté
+          </Link>
+        </nav>
+      </header>
 
-          <div className="streak-pill" title="Jours consécutifs avec au moins une figure validée">
-            <span className="streak-fire" aria-hidden>🔥</span>
-            <strong>{stats.streak}</strong>
-            <span>streak</span>
-          </div>
+      {/* Action principale : quoi faire maintenant */}
+      <section className="dash-block">
+        <div className="dash-block-head">
+          <h2>À faire maintenant</h2>
+          <Link href="/figures" className="dash-panel-link">
+            Toutes les figures
+          </Link>
         </div>
-      </div>
-
-      <section className="game-section teaser-row">
-        <Link href="/trips" className="community-teaser">
-          <strong>Séjours</strong>
-          <span>Dakhla, objectifs crew, leaderboard du trip →</span>
-        </Link>
-        <Link href="/community" className="community-teaser">
-          <strong>Communauté</strong>
-          <span>Invite tes amis, classement XP global →</span>
-        </Link>
-      </section>
-
-      <section className="game-section">
-        <h2>🎯 Prochaines quêtes</h2>
         {stats.quests.length === 0 ? (
-          <p className="quest-empty">
+          <p className="dash-empty-line">
             {stats.totalDone === 0
-              ? "Commence par une figure de base pour lancer l’aventure !"
-              : "Toutes les quêtes débloquées sont validées — explore d’autres catégories."}
+              ? "Commence par une figure de base pour lancer l’aventure."
+              : "Rien d’ouvert pour l’instant — explore une autre catégorie."}
           </p>
         ) : (
-          <div className="quest-grid">
-            {stats.quests.map((q, i) => (
-              <Link key={q.id} href={`/figures/${q.slug}`} className="quest-card">
-                <span className="quest-label">Quête {i + 1}</span>
-                <strong>{q.name}</strong>
-                <span className="quest-meta">{q.category}</span>
-                <span className="quest-xp">+{q.xp} XP</span>
-              </Link>
+          <ol className="dash-quest-list">
+            {stats.quests.map((q) => (
+              <li key={q.id}>
+                <Link href={`/figures/${q.slug}`} className="dash-quest-row">
+                  <span className="dash-quest-main">
+                    <strong>{q.name}</strong>
+                    <span>{q.category}</span>
+                  </span>
+                  <span className="xp-pill">+{q.xp} XP</span>
+                </Link>
+              </li>
             ))}
-          </div>
+          </ol>
         )}
       </section>
 
-      <section className="game-section">
-        <h2>🏅 Badges</h2>
-        <div className="badge-shelf">
-          {stats.badges.map((b) => (
-            <div
-              key={b.id}
-              className={`badge-item ${b.earned ? "earned" : "locked"}`}
-              title={b.description}
-            >
-              <div className="badge-icon" aria-hidden>{b.icon}</div>
-              <strong>{b.name}</strong>
-              <span>{b.earned ? "Débloqué !" : b.description}</span>
+      {/* Séjour + objectifs */}
+      <section className="dash-hub">
+        <article className="dash-panel">
+          <div className="dash-panel-head">
+            <h2>Séjour</h2>
+            <Link href="/trips" className="dash-panel-link">
+              Tous
+            </Link>
+          </div>
+          {nextTrip && nextTripStatus ? (
+            <Link href={`/trips/${nextTrip.id}`} className="dash-trip-card">
+              <span className={`trip-status-pill ${nextTripStatus}`}>
+                {STATUS_LABEL[nextTripStatus]}
+              </span>
+              <strong>{nextTrip.name}</strong>
+              <span className="trip-meta">
+                {nextTrip.location || "Spot libre"} ·{" "}
+                {nextTrip.startDate.toLocaleDateString("fr-FR")} →{" "}
+                {nextTrip.endDate.toLocaleDateString("fr-FR")}
+              </span>
+              <span className="trip-meta">
+                {nextTrip._count.members} riders · {nextTrip._count.figures}{" "}
+                figures
+              </span>
+            </Link>
+          ) : (
+            <div className="dash-empty">
+              <p>Aucun séjour à venir.</p>
+              <Link href="/trips/new" className="btn btn-primary">
+                Créer un séjour
+              </Link>
             </div>
-          ))}
-        </div>
+          )}
+        </article>
+
+        <article className="dash-panel">
+          <div className="dash-panel-head">
+            <h2>Objectifs trip</h2>
+            {nextTrip ? (
+              <Link href={`/trips/${nextTrip.id}`} className="dash-panel-link">
+                Ouvrir
+              </Link>
+            ) : null}
+          </div>
+          {openObjectives.length === 0 ? (
+            <div className="dash-empty">
+              <p>
+                {myObjectives.length === 0
+                  ? "Ajoute des figures en objectif sur un séjour."
+                  : "Tous tes objectifs actifs sont déjà validés."}
+              </p>
+              <Link href="/trips" className="btn btn-ghost">
+                Séjours
+              </Link>
+            </div>
+          ) : (
+            <ul className="dash-objective-list">
+              {openObjectives.map((o) => (
+                <li key={o.id}>
+                  <Link href={`/figures/${o.figure.slug}`}>
+                    <strong>{o.figure.name}</strong>
+                    <span>
+                      {o.trip.name} · {o.figure.category}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
       </section>
 
-      <section className="game-section">
-        <h2>🗺️ Mondes</h2>
-        <div className="category-grid">
-          {categories.map((cat) => {
-            const catFigures = figures.filter((f) => f.category === cat);
-            const catDone = catFigures.filter((f) => f.progress.length > 0).length;
-            const pct = Math.round((catDone / catFigures.length) * 100);
-            const medal = medalForPct(pct);
-            const xpHint = xpForCategory(cat);
-            return (
+      {/* Badges : slider horizontal */}
+      <section className="dash-block">
+        <div className="dash-block-head">
+          <h2>Badges</h2>
+          <span className="dash-panel-meta">
+            {badgesEarned}/{badges.length}
+          </span>
+        </div>
+        <BadgeSlider badges={badges} />
+      </section>
+
+      {/* Mondes : liste compacte, pas une grille de cartes lourdes */}
+      <section className="dash-block">
+        <div className="dash-block-head">
+          <h2>Mondes</h2>
+          <Link href="/figures" className="dash-panel-link">
+            Explorer
+          </Link>
+        </div>
+        <ul className="dash-world-list">
+          {worlds.map((w) => (
+            <li key={w.cat}>
               <Link
-                key={cat}
-                href={`/figures?category=${encodeURIComponent(cat)}`}
-                className="category-card"
+                href={`/figures?category=${encodeURIComponent(w.cat)}`}
+                className="dash-world-row"
               >
-                {medal && <span className="cat-medal" aria-label="médaille">{medal}</span>}
-                <h3>{cat}</h3>
-                <div className="cat-progress-bar">
-                  <div className="cat-progress-fill" style={{ width: `${pct}%` }} />
-                </div>
-                <span className="cat-progress-text">
-                  {catDone}/{catFigures.length} · {pct}% · {xpHint} XP/figure
+                <span className="dash-world-label">
+                  {w.medal ? <span aria-hidden>{w.medal}</span> : null}
+                  <strong>{w.cat}</strong>
+                </span>
+                <span className="dash-world-bar" aria-hidden>
+                  <span style={{ width: `${w.pct}%` }} />
+                </span>
+                <span className="dash-world-meta">
+                  {w.catDone}/{w.total}
                 </span>
               </Link>
-            );
-          })}
-        </div>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

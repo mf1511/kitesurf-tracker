@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { computeTripStats } from "@/lib/trips";
 import TripInviteCopy from "@/components/trip-invite-copy";
 import TripFiguresPanel from "@/components/trip-figures-panel";
+import OfflinePackButton from "@/components/offline-pack-button";
 
 export default async function TripDetailPage({
   params,
@@ -78,6 +79,17 @@ export default async function TripDetailPage({
           Partage ce lien WhatsApp — ils rejoignent le séjour automatiquement.
         </p>
         <TripInviteCopy code={trip.inviteCode} />
+      </section>
+
+      <section className="community-card">
+        <h2>Hors-ligne</h2>
+        <p className="community-lead">
+          Télécharge les tutos des figures de ce séjour pour le spot sans 4G.
+        </p>
+        <OfflinePackButton
+          tripId={trip.id}
+          label="Télécharger les vidéos du séjour"
+        />
       </section>
 
       <TripFiguresPanel

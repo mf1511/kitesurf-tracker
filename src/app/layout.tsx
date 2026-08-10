@@ -8,10 +8,16 @@ export const metadata: Metadata = {
   description:
     "KiteQuest — progression ludique sur les figures de kitesurf : XP, quêtes, séjours crew.",
   metadataBase: new URL("https://kitequest.fr"),
+  manifest: "/manifest.webmanifest",
+  applicationName: "KiteQuest",
   appleWebApp: {
     capable: true,
     title: "KiteQuest",
     statusBarStyle: "default",
+  },
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    apple: [{ url: "/brand-mark.svg", type: "image/svg+xml" }],
   },
 };
 

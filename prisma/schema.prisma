@@ -28,6 +28,9 @@ model User {
   tripMemberships       TripMember[]
   tripFiguresAdded      TripFigure[]          @relation("TripFigureAdder")
   tripMemberObjectives  TripMemberObjective[]
+
+  // Matériel kite perso
+  gear                  Gear[]
 }
 
 model Figure {
@@ -64,15 +67,23 @@ model UserProgress {
 }
 
 model Video {
-  id        String   @id @default(cuid())
-  figureId  String
-  userId    String
-  url       String
-  title     String?
-  createdAt DateTime @default(now())
+  id          String   @id @default(cuid())
+  figureId    String
+  userId      String
+  /// URL publique Supabase Storage
+  url         String
+  /// Chemin dans le bucket figure-videos (ex. figureId/videoId.mp4)
+  storagePath String
+  title       String?
+  mimeType    String?
+  sizeBytes   Int?
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
 
   figure Figure @relation(fields: [figureId], references: [id], onDelete: Cascade)
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([figureId, order])
 }
 
 /// Demande / lien d'amitié entre deux riders
@@ -173,4 +184,34 @@ model TripMemberObjective {
   @@unique([tripId, userId, figureId])
   @@index([tripId, userId])
   @@index([tripId, figureId])
+}
+
+/// Pièce de matériel kite (aile, barre, planche…) — propriétaire = user
+model Gear {
+  id            String    @id @default(cuid())
+  userId        String
+  /// aile | barre | harnais | planche | straps | pads | foil | casque | combinaison | leash | pompe | ailerons | wing | accessoire | autre
+  category      String
+  brand         String?
+  model         String
+  /// Surnom optionnel (ex. "la 9m freeride")
+  name          String?
+  /// Taille libre : "9m", "138×41", "M"…
+  size          String?
+  year          Int?
+  purchaseDate  DateTime?
+  purchasePrice Float?
+  /// Nombre de sorties / sessions
+  sessionCount  Int       @default(0)
+  notes         String?
+  invoiceName   String?
+  invoiceMime   String?
+  invoiceData   Bytes?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, category])
+  @@index([userId])
 }

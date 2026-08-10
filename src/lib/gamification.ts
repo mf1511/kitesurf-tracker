@@ -1,6 +1,6 @@
 /**
  * Gamification dérivée de UserProgress — aucune table dédiée.
- * XP / niveau / streak / badges / quêtes calculés à la volée.
+ * XP / niveau / badges / quêtes calculés à la volée.
  */
 
 export type FigureLike = {
@@ -9,7 +9,9 @@ export type FigureLike = {
   name: string;
   category: string;
   prerequisites?: { id: string }[];
-  progress?: { completed: boolean; completedAt?: Date | string | null }[] | null;
+  progress?:
+    | { completed: boolean; completedAt?: Date | string | null }[]
+    | null;
 };
 
 /** Points XP selon la catégorie (plus technique = plus de points) */
@@ -30,7 +32,10 @@ const CATEGORY_XP: Record<string, number> = {
 const DEFAULT_XP = 20;
 
 /** Paliers de niveau (XP cumulé requis pour atteindre le niveau) */
-const LEVEL_THRESHOLDS = [0, 50, 120, 220, 350, 520, 740, 1000, 1350, 1800, 2400, 3200, 4200, 5500, 7000];
+const LEVEL_THRESHOLDS = [
+  0, 50, 120, 220, 350, 520, 740, 1000, 1350, 1800, 2400, 3200, 4200, 5500,
+  7000,
+];
 
 const LEVEL_TITLES = [
   "Débutant plage",
@@ -76,7 +81,6 @@ export type GameStats = {
   xpIntoLevel: number;
   xpForNextLevel: number;
   xpProgressPct: number;
-  streak: number;
   badges: Badge[];
   quests: Quest[];
 };
@@ -94,7 +98,12 @@ export function isUnlocked(figure: FigureLike, doneIds: Set<string>): boolean {
   return figure.prerequisites.every((p) => doneIds.has(p.id));
 }
 
-function levelFromXp(xp: number): { level: number; title: string; into: number; need: number } {
+function levelFromXp(xp: number): {
+  level: number;
+  title: string;
+  into: number;
+  need: number;
+} {
   let level = 1;
   for (let i = LEVEL_THRESHOLDS.length - 1; i >= 0; i--) {
     if (xp >= LEVEL_THRESHOLDS[i]) {
@@ -110,36 +119,6 @@ function levelFromXp(xp: number): { level: number; title: string; into: number; 
   return { level, title, into, need };
 }
 
-/** Jours consécutifs se terminant aujourd'hui (ou hier si pas encore d'activité aujourd'hui). */
-export function computeStreak(completedDates: (Date | string | null | undefined)[]): number {
-  const days = new Set<string>();
-  for (const d of completedDates) {
-    if (!d) continue;
-    const date = typeof d === "string" ? new Date(d) : d;
-    if (Number.isNaN(date.getTime())) continue;
-    days.add(date.toISOString().slice(0, 10));
-  }
-  if (days.size === 0) return 0;
-
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const fmt = (dt: Date) => dt.toISOString().slice(0, 10);
-
-  // Si pas d'activité aujourd'hui, on commence depuis hier
-  let cursor = new Date(today);
-  if (!days.has(fmt(cursor))) {
-    cursor.setDate(cursor.getDate() - 1);
-    if (!days.has(fmt(cursor))) return 0;
-  }
-
-  let streak = 0;
-  while (days.has(fmt(cursor))) {
-    streak++;
-    cursor.setDate(cursor.getDate() - 1);
-  }
-  return streak;
-}
-
 export function medalForPct(pct: number): string | null {
   if (pct >= 100) return "🥇";
   if (pct >= 60) return "🥈";
@@ -147,7 +126,11 @@ export function medalForPct(pct: number): string | null {
   return null;
 }
 
-function buildBadges(figures: FigureLike[], doneIds: Set<string>, totalDone: number): Badge[] {
+function buildBadges(
+  figures: FigureLike[],
+  doneIds: Set<string>,
+  totalDone: number,
+): Badge[] {
   const done = figures.filter((f) => doneIds.has(f.id));
   const cats = Array.from(new Set(figures.map((f) => f.category)));
 
@@ -162,18 +145,78 @@ function buildBadges(figures: FigureLike[], doneIds: Set<string>, totalDone: num
   const completedCats = cats.filter(catComplete).length;
 
   const defs: Omit<Badge, "earned">[] = [
-    { id: "first", name: "Premier trick", description: "Valide ta 1ère figure", icon: "🌊" },
-    { id: "ten", name: "Décathlon", description: "10 figures acquises", icon: "🔟" },
-    { id: "twentyfive", name: "Quarter century", description: "25 figures acquises", icon: "🎯" },
-    { id: "fifty", name: "Half century", description: "50 figures acquises", icon: "🏆" },
-    { id: "hundred", name: "Centurion", description: "100 figures acquises", icon: "💯" },
-    { id: "bases", name: "Fondations", description: "Complète Bases et transitions", icon: "🧱" },
-    { id: "loop", name: "Looper", description: "Acquiers un kiteloop", icon: "🌀" },
-    { id: "unhooked", name: "Décroché", description: "Premier unhooked freestyle", icon: "🔓" },
-    { id: "pass", name: "Handle Pass", description: "Premier handle pass / mobe", icon: "🔄" },
-    { id: "wave", name: "Surfeur", description: "Figure wave / strapless", icon: "🏄" },
-    { id: "foil", name: "Foil flyer", description: "Figure foil validée", icon: "🪽" },
-    { id: "worlds", name: "Explorateur", description: "3 catégories 100%", icon: "🗺️" },
+    {
+      id: "first",
+      name: "Premier trick",
+      description: "Valide ta 1ère figure",
+      icon: "🌊",
+    },
+    {
+      id: "ten",
+      name: "Décathlon",
+      description: "10 figures acquises",
+      icon: "🔟",
+    },
+    {
+      id: "twentyfive",
+      name: "Quarter century",
+      description: "25 figures acquises",
+      icon: "🎯",
+    },
+    {
+      id: "fifty",
+      name: "Half century",
+      description: "50 figures acquises",
+      icon: "🏆",
+    },
+    {
+      id: "hundred",
+      name: "Centurion",
+      description: "100 figures acquises",
+      icon: "💯",
+    },
+    {
+      id: "bases",
+      name: "Fondations",
+      description: "Complète Bases et transitions",
+      icon: "🧱",
+    },
+    {
+      id: "loop",
+      name: "Looper",
+      description: "Acquiers un kiteloop",
+      icon: "🌀",
+    },
+    {
+      id: "unhooked",
+      name: "Décroché",
+      description: "Premier unhooked freestyle",
+      icon: "🔓",
+    },
+    {
+      id: "pass",
+      name: "Handle Pass",
+      description: "Premier handle pass / mobe",
+      icon: "🔄",
+    },
+    {
+      id: "wave",
+      name: "Surfeur",
+      description: "Figure wave / strapless",
+      icon: "🏄",
+    },
+    {
+      id: "foil",
+      name: "Foil flyer",
+      description: "Figure foil validée",
+      icon: "🪽",
+    },
+    {
+      id: "worlds",
+      name: "Explorateur",
+      description: "3 catégories 100%",
+      icon: "🗺️",
+    },
   ];
 
   const earnedMap: Record<string, boolean> = {
@@ -198,19 +241,17 @@ export function computeGameStats(figures: FigureLike[]): GameStats {
   const doneIds = new Set(figures.filter(isCompleted).map((f) => f.id));
   const totalDone = doneIds.size;
   const totalFigures = figures.length;
-  const overallPct = totalFigures ? Math.round((totalDone / totalFigures) * 100) : 0;
+  const overallPct = totalFigures
+    ? Math.round((totalDone / totalFigures) * 100)
+    : 0;
 
   let xp = 0;
-  const completedDates: (Date | string | null | undefined)[] = [];
   for (const f of figures) {
     if (!doneIds.has(f.id)) continue;
     xp += xpForCategory(f.category);
-    const prog = f.progress?.find((p) => p.completed);
-    completedDates.push(prog?.completedAt);
   }
 
   const { level, title, into, need } = levelFromXp(xp);
-  const streak = computeStreak(completedDates);
   const badges = buildBadges(figures, doneIds, totalDone);
 
   // Quêtes : débloquées, pas encore faites, max 3 (priorité XP croissante)
@@ -236,7 +277,6 @@ export function computeGameStats(figures: FigureLike[]): GameStats {
     xpIntoLevel: into,
     xpForNextLevel: need,
     xpProgressPct: need ? Math.min(100, Math.round((into / need) * 100)) : 100,
-    streak,
     badges,
     quests,
   };

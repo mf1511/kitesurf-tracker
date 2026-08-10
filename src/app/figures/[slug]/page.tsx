@@ -1,12 +1,11 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import FigureCheckbox from "@/components/FigureCheckbox";
-import VideoForm from "@/components/VideoForm";
 import AddFigureToTrip from "@/components/add-figure-to-trip";
-import { getEmbedUrl } from "@/lib/videoEmbed";
+import FigureVideosPanel from "@/components/figure-videos-panel";
 import { xpForCategory } from "@/lib/gamification";
 
 export default async function FigureDetailPage({
@@ -15,42 +14,41 @@ export default async function FigureDetailPage({
   params: { slug: string };
 }) {
   const session = await getServerSession(authOptions);
-  const userId = session?.user?.id;
+  if (!session?.user?.id) redirect("/login");
+  const userId = session.user.id;
 
   const figure = await prisma.figure.findUnique({
     where: { slug: params.slug },
     include: {
       prerequisites: {
-        include: { progress: userId ? { where: { userId } } : false },
+        include: { progress: { where: { userId } } },
       },
       unlocks: true,
       videos: {
-        include: { user: { select: { name: true, email: true } } },
-        orderBy: { createdAt: "desc" },
+        where: { storagePath: { not: "" } },
+        orderBy: [{ order: "asc" }, { createdAt: "desc" }],
       },
-      progress: userId ? { where: { userId } } : false,
+      progress: { where: { userId } },
     },
   });
 
   if (!figure) notFound();
   // Inactive = masquée pour les users (admin peut toujours ouvrir)
-  if (!figure.active && session?.user?.role !== "admin") notFound();
+  if (!figure.active && session.user.role !== "admin") notFound();
 
   // Séjours où l’user est membre (+ si la figure y est déjà)
-  const myTrips = userId
-    ? await prisma.trip.findMany({
-        where: { members: { some: { userId } } },
-        select: {
-          id: true,
-          name: true,
-          figures: {
-            where: { figureId: figure.id },
-            select: { id: true },
-          },
-        },
-        orderBy: { startDate: "desc" },
-      })
-    : [];
+  const myTrips = await prisma.trip.findMany({
+    where: { members: { some: { userId } } },
+    select: {
+      id: true,
+      name: true,
+      figures: {
+        where: { figureId: figure.id },
+        select: { id: true },
+      },
+    },
+    orderBy: { startDate: "desc" },
+  });
 
   const steps: string[] = JSON.parse(figure.steps);
   const completed = !!figure.progress?.[0]?.completed;
@@ -79,39 +77,31 @@ export default async function FigureDetailPage({
           <span className="xp-pill">+{xp} XP</span>
         </div>
 
-        {userId ? (
-          <>
-            <div className="status-row">
-              <FigureCheckbox
-                figureId={figure.id}
-                initialCompleted={completed}
-                locked={locked && !completed}
-                xpReward={xp}
-              />
-              <span>
-                {locked && !completed
-                  ? "Prérequis non validés"
-                  : completed
-                  ? "Figure acquise — bien joué !"
-                  : "Marquer comme acquise"}
-              </span>
-            </div>
-            <div className="status-row add-to-trip-row">
-              <AddFigureToTrip
-                figureId={figure.id}
-                trips={myTrips.map((t) => ({
-                  id: t.id,
-                  name: t.name,
-                  already: t.figures.length > 0,
-                }))}
-              />
-            </div>
-          </>
-        ) : (
-          <p className="login-hint">
-            <Link href="/login">Connecte-toi</Link> pour suivre ta progression et gagner de l’XP.
-          </p>
-        )}
+        <div className="status-row">
+          <FigureCheckbox
+            figureId={figure.id}
+            initialCompleted={completed}
+            locked={locked && !completed}
+            xpReward={xp}
+          />
+          <span>
+            {locked && !completed
+              ? "Prérequis non validés"
+              : completed
+              ? "Figure acquise — bien joué !"
+              : "Marquer comme acquise"}
+          </span>
+        </div>
+        <div className="status-row add-to-trip-row">
+          <AddFigureToTrip
+            figureId={figure.id}
+            trips={myTrips.map((t) => ({
+              id: t.id,
+              name: t.name,
+              already: t.figures.length > 0,
+            }))}
+          />
+        </div>
       </div>
 
       {figure.prerequisites.length > 0 && (
@@ -158,41 +148,20 @@ export default async function FigureDetailPage({
 
       <section className="figure-block">
         <h2>Vidéos</h2>
-        {figure.videos.length === 0 && (
-          <p className="empty-hint">Aucune vidéo pour l&apos;instant.</p>
-        )}
-        <div className="video-list">
-          {figure.videos.map((v) => {
-            const embed = getEmbedUrl(v.url);
-            return (
-              <div key={v.id} className="video-item">
-                {embed ? (
-                  <div className="video-embed">
-                    <iframe
-                      src={embed}
-                      title={v.title || figure.name}
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    />
-                  </div>
-                ) : (
-                  <a href={v.url} target="_blank" rel="noreferrer" className="video-link">
-                    {v.title || v.url}
-                  </a>
-                )}
-                {v.title && embed && <p className="video-title">{v.title}</p>}
-                <p className="video-meta">Ajoutée par {v.user.name || v.user.email}</p>
-              </div>
-            );
-          })}
-        </div>
-
-        {userId && (
-          <div className="video-add">
-            <h3>Ajouter une vidéo</h3>
-            <VideoForm slug={figure.slug} />
-          </div>
-        )}
+        <FigureVideosPanel
+          figureName={figure.name}
+          videos={figure.videos.map((v) => ({
+            id: v.id,
+            url: v.url,
+            storagePath: v.storagePath,
+            title: v.title,
+            mimeType: v.mimeType,
+            sizeBytes: v.sizeBytes,
+            figureId: figure.id,
+            figureSlug: figure.slug,
+            figureName: figure.name,
+          }))}
+        />
       </section>
     </div>
   );

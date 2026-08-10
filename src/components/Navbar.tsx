@@ -1,22 +1,39 @@
 "use client";
 
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import BrandMark from "@/components/brand-mark";
+import NavProfileMenu from "@/components/nav-profile-menu";
+
+/** Liens produit — réservés aux sessions connectées (logout = LP + Connexion) */
+const PRIMARY_LINKS = [
+  { href: "/dashboard", label: "Home", auth: true },
+  { href: "/figures", label: "Figures", auth: true },
+  { href: "/trips", label: "Séjours", auth: true },
+  { href: "/community", label: "Communauté", auth: true },
+] as const;
+
+function linkActive(pathname: string, href: string) {
+  if (href === "/figures") {
+    return pathname === "/figures" || pathname.startsWith("/figures/");
+  }
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export default function Navbar() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
+  const authed = status === "authenticated";
 
-  // Ferme le menu au changement de page
+  // Ferme le drawer au changement de page
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  // Empêche le scroll body quand le menu est ouvert
+  // Empêche le scroll body quand le menu mobile est ouvert
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     return () => {
@@ -24,10 +41,12 @@ export default function Navbar() {
     };
   }, [open]);
 
+  const primary = PRIMARY_LINKS.filter((l) => !("auth" in l && l.auth) || authed);
+
   return (
     <nav className={`navbar ${open ? "nav-open" : ""}`}>
       <div className="nav-bar-row">
-        <Link href={status === "authenticated" ? "/dashboard" : "/"} className="brand">
+        <Link href={authed ? "/dashboard" : "/"} className="brand">
           <BrandMark className="brand-mark" />
           <span>
             Kite<span className="brand-accent">Quest</span>
@@ -47,16 +66,61 @@ export default function Navbar() {
         </button>
 
         <div className="nav-links nav-links-desktop">
-          <NavLinks session={session} status={status} />
+          {primary.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={linkActive(pathname, l.href) ? "nav-link-active" : undefined}
+              aria-current={linkActive(pathname, l.href) ? "page" : undefined}
+            >
+              {l.label}
+            </Link>
+          ))}
+          {authed ? (
+            <NavProfileMenu variant="desktop" />
+          ) : status === "unauthenticated" ? (
+            <>
+              <Link href="/login">Connexion</Link>
+              <Link href="/register" className="nav-cta">
+                Inscription
+              </Link>
+            </>
+          ) : null}
         </div>
       </div>
 
-      {/* Panneau mobile */}
       <div className={`nav-drawer ${open ? "open" : ""}`} id="nav-drawer">
         <div className="nav-links nav-links-mobile">
-          <NavLinks session={session} status={status} />
+          {primary.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              className={linkActive(pathname, l.href) ? "nav-link-active" : undefined}
+              aria-current={linkActive(pathname, l.href) ? "page" : undefined}
+              onClick={() => setOpen(false)}
+            >
+              {l.label}
+            </Link>
+          ))}
+          {authed ? (
+            <>
+              <div className="nav-mobile-sep" />
+              <NavProfileMenu variant="mobile" onNavigate={() => setOpen(false)} />
+            </>
+          ) : status === "unauthenticated" ? (
+            <>
+              <div className="nav-mobile-sep" />
+              <Link href="/login" onClick={() => setOpen(false)}>
+                Connexion
+              </Link>
+              <Link href="/register" className="nav-cta" onClick={() => setOpen(false)}>
+                Inscription
+              </Link>
+            </>
+          ) : null}
         </div>
       </div>
+
       {open && (
         <button
           type="button"
@@ -66,41 +130,5 @@ export default function Navbar() {
         />
       )}
     </nav>
-  );
-}
-
-function NavLinks({
-  session,
-  status,
-}: {
-  session: ReturnType<typeof useSession>["data"];
-  status: string;
-}) {
-  return (
-    <>
-      <Link href="/figures">Figures</Link>
-      {status === "authenticated" && (
-        <>
-          <Link href="/dashboard">Mon aventure</Link>
-          <Link href="/trips">Séjours</Link>
-          <Link href="/community">Communauté</Link>
-          {session?.user?.role === "admin" && (
-            <Link href="/admin" className="nav-admin">Admin</Link>
-          )}
-          <span className="nav-email">{session?.user?.email}</span>
-          <button className="nav-btn" onClick={() => signOut({ callbackUrl: "/login" })}>
-            Déconnexion
-          </button>
-        </>
-      )}
-      {status === "unauthenticated" && (
-        <>
-          <Link href="/login">Connexion</Link>
-          <Link href="/register" className="nav-cta">
-            Jouer
-          </Link>
-        </>
-      )}
-    </>
   );
 }

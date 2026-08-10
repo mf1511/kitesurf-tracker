@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import AdminFigureForm from "@/components/AdminFigureForm";
+import AdminFigureVideos from "@/components/admin-figure-videos";
 
 export default async function EditFigurePage({
   params,
@@ -15,7 +16,10 @@ export default async function EditFigurePage({
 
   const figure = await prisma.figure.findUnique({
     where: { slug: params.slug },
-    include: { prerequisites: { select: { slug: true } } },
+    include: {
+      prerequisites: { select: { slug: true } },
+      videos: { orderBy: [{ order: "asc" }, { createdAt: "asc" }] },
+    },
   });
   if (!figure) notFound();
 
@@ -41,6 +45,18 @@ export default async function EditFigurePage({
           order: figure.order,
           prerequisiteSlugs: figure.prerequisites.map((p) => p.slug),
         }}
+      />
+      <AdminFigureVideos
+        slug={figure.slug}
+        initialVideos={figure.videos.map((v) => ({
+          id: v.id,
+          url: v.url,
+          storagePath: v.storagePath,
+          title: v.title,
+          mimeType: v.mimeType,
+          sizeBytes: v.sizeBytes,
+          order: v.order,
+        }))}
       />
     </div>
   );

@@ -1,6 +1,8 @@
 -- =============================================================================
 -- Kitesurf Tracker — schéma COMPLET pour Supabase (PostgreSQL)
--- Colle TOUT ce fichier d'un coup dans SQL Editor → Run
+-- Greenfield uniquement : colle TOUT ce fichier d'un coup → Run
+-- Si la base existe déjà : utilise les migrations numérotées 001…007
+-- (voir prisma/sql/README.md)
 -- Projet : https://psumzbomklrflallniuy.supabase.co
 -- =============================================================================
 
@@ -40,17 +42,22 @@ CREATE TABLE IF NOT EXISTS "UserProgress" (
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "UserProgress_userId_figureId_key" ON "UserProgress"("userId", "figureId");
 
--- Video
+-- Video (fichiers Supabase Storage — bucket figure-videos)
 CREATE TABLE IF NOT EXISTS "Video" (
     "id" TEXT NOT NULL PRIMARY KEY,
     "figureId" TEXT NOT NULL,
     "userId" TEXT NOT NULL,
     "url" TEXT NOT NULL,
+    "storagePath" TEXT NOT NULL,
     "title" TEXT,
+    "mimeType" TEXT,
+    "sizeBytes" INTEGER,
+    "order" INTEGER NOT NULL DEFAULT 0,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT "Video_figureId_fkey" FOREIGN KEY ("figureId") REFERENCES "Figure"("id") ON DELETE CASCADE ON UPDATE CASCADE,
     CONSTRAINT "Video_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
+CREATE INDEX IF NOT EXISTS "Video_figureId_order_idx" ON "Video"("figureId", "order");
 
 -- Prérequis figures (many-to-many Prisma)
 CREATE TABLE IF NOT EXISTS "_Prerequisites" (
@@ -149,3 +156,27 @@ CREATE TABLE IF NOT EXISTS "TripMemberObjective" (
 CREATE UNIQUE INDEX IF NOT EXISTS "TripMemberObjective_tripId_userId_figureId_key" ON "TripMemberObjective"("tripId", "userId", "figureId");
 CREATE INDEX IF NOT EXISTS "TripMemberObjective_tripId_userId_idx" ON "TripMemberObjective"("tripId", "userId");
 CREATE INDEX IF NOT EXISTS "TripMemberObjective_tripId_figureId_idx" ON "TripMemberObjective"("tripId", "figureId");
+
+-- Gear (matériel kite perso)
+CREATE TABLE IF NOT EXISTS "Gear" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "category" TEXT NOT NULL,
+  "brand" TEXT,
+  "model" TEXT NOT NULL,
+  "name" TEXT,
+  "size" TEXT,
+  "year" INTEGER,
+  "purchaseDate" TIMESTAMP(3),
+  "purchasePrice" DOUBLE PRECISION,
+  "sessionCount" INTEGER NOT NULL DEFAULT 0,
+  "notes" TEXT,
+  "invoiceName" TEXT,
+  "invoiceMime" TEXT,
+  "invoiceData" BYTEA,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "Gear_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE INDEX IF NOT EXISTS "Gear_userId_category_idx" ON "Gear"("userId", "category");
+CREATE INDEX IF NOT EXISTS "Gear_userId_idx" ON "Gear"("userId");

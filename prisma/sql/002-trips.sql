@@ -1,5 +1,7 @@
--- Séjours kite + défis (Postgres / SQLite-compatible-ish)
--- À exécuter toi-même dans Supabase SQL Editor.
+-- =============================================================================
+-- 002 · trips — Séjours kite (+ ancien modèle défis)
+-- Ordre : après 001-community
+-- =============================================================================
 
 CREATE TABLE IF NOT EXISTS "Trip" (
   "id" TEXT NOT NULL PRIMARY KEY,

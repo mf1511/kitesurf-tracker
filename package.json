@@ -19,6 +19,7 @@
   },
   "dependencies": {
     "@prisma/client": "^5.20.0",
+    "@supabase/supabase-js": "^2.49.8",
     "bcryptjs": "^2.4.3",
     "next": "14.2.15",
     "next-auth": "^4.24.7",
@@ -26,6 +27,7 @@
     "react-dom": "^18.3.1"
   },
   "devDependencies": {
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",

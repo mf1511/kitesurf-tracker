@@ -2,14 +2,16 @@
 
 [kitequest.fr](https://kitequest.fr) — application Next.js (App Router) + TypeScript
 pour suivre sa progression sur les figures de kitesurf : XP, quêtes, séjours crew,
-fiches détaillées et vidéos (YouTube/Vimeo).
+fiches détaillées, vidéos Supabase Storage, PWA hors-ligne.
 
 ## Stack
 
 - **Next.js 14** (App Router) + **TypeScript**
 - **NextAuth.js** (Credentials provider, email + mot de passe, sessions JWT)
-- **Prisma** + **SQLite** (facile à faire tourner en local, migrable vers Postgres/MySQL en prod)
-- Aucune dépendance UI externe : CSS custom, thème "navy / sable"
+- **Prisma** + **Postgres Supabase**
+- **Supabase Storage** (bucket `figure-videos`)
+- **PWA** (`@ducanh2912/next-pwa`) — installable + cache shell / pages
+- Aucune dépendance UI externe : CSS custom (charte KiteQuest)
 
 ## Fonctionnalités
 
@@ -22,8 +24,8 @@ fiches détaillées et vidéos (YouTube/Vimeo).
   - Figures à maîtriser avant (prérequis), cliquables, avec statut acquis/non acquis
   - Figures débloquées ensuite
   - Case à cocher "acquis" (verrouillée tant que les prérequis ne sont pas validés)
-  - Vidéos : ajout d'un lien (YouTube/Vimeo → lecteur intégré automatiquement,
-    sinon simple lien cliquable), partagées entre tous les comptes
+  - Vidéos multi-fichiers (mp4/webm/mov) hébergées sur Supabase Storage
+  - Téléchargement hors-ligne : par vidéo, par figure, pack séjour, catalogue
 
 ## Communauté
 
@@ -50,6 +52,18 @@ Espace `/trips` pour les sessions en crew (ex. 12 jours à Dakhla) :
 
 (inclus dans `prisma/sql/supabase-full.sql`)
 
+## Matériel
+
+Espace `/materiel` pour ton quiver perso :
+
+- Catégories : aile, barre, harnais, planche, straps, pads, foil, casque,
+  combinaison, leash, pompe, ailerons, wing, accessoire…
+- Date / prix d’achat, notes, compteur de sorties (+/−)
+- Facture jointe (PDF ou image, max 4 Mo, stockée en base)
+
+Migration incrémentale : `prisma/sql/007-gear.sql`  
+(voir l’ordre dans `prisma/sql/README.md` — aussi dans `supabase-full.sql`)
+
 ## Espace admin
 
 Un espace `/admin` permet de créer, modifier et supprimer n'importe quelle
@@ -70,9 +84,33 @@ reconnecté. Depuis `/admin` tu peux :
 - créer une nouvelle figure (`/admin/figures/new`)
 - modifier une figure existante, y compris son slug et ses prérequis
   (`/admin/figures/[slug]/edit`)
+- **uploader plusieurs vidéos** par figure (Supabase Storage) depuis la page d’édition
 - supprimer une figure (supprime aussi la progression des utilisateurs et
   les vidéos associées, mais retire proprement les liens de prérequis des
   autres figures)
+
+## Vidéos Supabase Storage + PWA
+
+### Setup Storage (manuel)
+
+1. Dashboard Supabase → **Storage** → New bucket **`figure-videos`** (public).
+2. Exécute `prisma/sql/005-figure-videos-storage.sql` (colonnes Video).
+3. Exécute `prisma/sql/006-figure-videos-storage-policies.sql` (lecture publique).
+4. Ajoute dans `.env` / Vercel :
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `SUPABASE_SERVICE_ROLE_KEY` (jamais exposée au client)
+
+Les uploads admin passent par une **signed upload URL** (pas de gros body via Vercel).
+
+### Hors-ligne
+
+- Page `/offline` : packs + gestion du cache local
+- Par vidéo / figure sur `/figures/[slug]`
+- Pack séjour sur `/trips/[id]`
+- Pack catalogue sur `/figures` ou `/offline`
+
+Le service worker (build prod) cache le shell et les navigations ; les fichiers vidéo
+ne sont téléchargés que sur action explicite (Cache Storage `kitequest-offline-videos`).
 
 ## Démarrage
 
@@ -113,9 +151,11 @@ src/
     api/auth/[...nextauth]/      -> NextAuth
     api/auth/register/           -> inscription
     api/progress/                 -> toggle "figure acquise"
-    api/figures/[slug]/video/     -> ajout/suppression de vidéo
-  components/          -> Navbar, checkbox de progression, formulaire vidéo
-  lib/                 -> prisma client, config NextAuth, helper embed vidéo
+    api/admin/figures/[slug]/videos/ -> upload / CRUD vidéos Storage (admin)
+    api/videos/catalog/              -> catalogue pour packs hors-ligne
+    offline/                         -> gestion cache vidéos
+  components/          -> Navbar, players, offline packs, admin vidéos
+  lib/                 -> prisma, auth, supabase-admin, offline-videos
 ```
 
 ## Notes / pistes d'évolution
@@ -124,11 +164,7 @@ src/
   point de départ solide (contenu réel et cohérent) — libre à toi de les
   enrichir/corriger, c'est un simple `UPDATE` en base ou un `npm run db:seed`
   après modification du fichier.
-- Les vidéos sont stockées comme des **liens** (YouTube/Vimeo/Drive...), pas
-  comme des fichiers uploadés : plus simple à mettre en place sans service de
-  stockage cloud (S3, etc.), et ça évite les gros fichiers vidéo dans ta base.
-  Si tu veux du vrai upload de fichier plus tard, il faudra brancher un
-  service de stockage (Cloudflare R2, S3, Supabase Storage...).
+
 ## Mise en ligne (Vercel + Supabase) — pas à pas
 
 SQLite ne marche pas bien en prod serverless. On utilise **Postgres Supabase** + **Vercel**.
@@ -160,7 +196,7 @@ npx prisma migrate deploy
 npm run db:seed
 ```
    Ou exécute toi-même les SQL dans le SQL Editor Supabase  
-   (`prisma/migrations/.../migration.sql` + `prisma/sql/2026-07-31-community.sql`),  
+   (`prisma/sql/supabase-full.sql` ou les migrations `001…` dans l’ordre),  
    puis `npm run db:seed` avec `DATABASE_URL` pointant sur Supabase.
 
 ### 3. Déployer sur Vercel
@@ -170,6 +206,8 @@ npm run db:seed
    - `DATABASE_URL` = URI Supabase (idéalement **pooled** + `?pgbouncer=true` si demandé par Prisma)
    - `NEXTAUTH_SECRET` = `openssl rand -base64 32`
    - `NEXTAUTH_URL` = `https://ton-projet.vercel.app` (ou ton domaine custom)
+   - `NEXT_PUBLIC_SUPABASE_URL` = URL projet Supabase
+   - `SUPABASE_SERVICE_ROLE_KEY` = clé service role (Storage uploads admin)
 4. Deploy. Après le premier deploy, mets à jour `NEXTAUTH_URL` si l’URL Vercel diffère, puis **Redeploy**.
 
 ### 4. Après le go-live

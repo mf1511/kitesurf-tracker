@@ -1,12 +1,18 @@
 /** Picto marque KiteQuest (aile + flèche) */
-export default function BrandMark({ className = "" }: { className?: string }) {
+export default function BrandMark({
+  className = "",
+  size = 28,
+}: {
+  className?: string;
+  size?: number;
+}) {
   return (
     <svg
       className={className}
       xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 40 40"
-      width="28"
-      height="28"
+      width={size}
+      height={size}
       aria-hidden
     >
       <circle cx="20" cy="20" r="19" fill="#d4eef8" />

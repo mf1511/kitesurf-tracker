@@ -1,5 +1,7 @@
--- Communauté : invites + amitiés
--- À exécuter dans Supabase / SQL editor si tu migres hors Prisma local.
+-- =============================================================================
+-- 001 · community — Invites + amitiés
+-- Ordre : après User / Figure (schéma de base)
+-- =============================================================================
 
 CREATE TABLE IF NOT EXISTS "Invite" (
   "id" TEXT NOT NULL PRIMARY KEY,

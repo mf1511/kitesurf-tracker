@@ -104,28 +104,8 @@ async function main() {
   }
   console.log(`✓ progress: ${migrated} (skipped ${skipped})`);
 
-  let vOk = 0;
-  for (const v of videos) {
-    const newUserId = oldUserIdToNew.get(v.userId);
-    const slug = slugByOldId.get(v.figureId);
-    const newFigureId = slug ? newIdBySlug.get(slug) : undefined;
-    if (!newUserId || !newFigureId) continue;
-    const existing = await prisma.video.findFirst({
-      where: { userId: newUserId, figureId: newFigureId, url: v.url },
-    });
-    if (existing) continue;
-    await prisma.video.create({
-      data: {
-        userId: newUserId,
-        figureId: newFigureId,
-        url: v.url,
-        title: v.title,
-        createdAt: new Date(v.createdAt),
-      },
-    });
-    vOk++;
-  }
-  console.log(`✓ videos: ${vOk}`);
+  // Anciens liens YouTube/Vimeo : non migrés — re-upload admin via Supabase Storage
+  console.log(`✓ videos: skipped ${videos.length} legacy URL link(s)`);
 
   console.log("Supabase now:", {
     users: await prisma.user.count(),
