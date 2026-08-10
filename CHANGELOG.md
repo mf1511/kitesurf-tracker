@@ -5,6 +5,22 @@
 ### ✨ Added
 - Keepalive Supabase anti-pause : cron GitHub Actions quotidien + `npm run db:keepalive`
 - Endpoint optionnel `GET /api/cron/keepalive` (Bearer `CRON_SECRET`)
+- Séjours : liste de figures partagée + objectifs perso (à la place des défis)
+- Admin : colonne « Actif » pour masquer / afficher une figure sur `/figures`
+
+### 🔧 Changed
+- Suppression du système de défis / bonus XP séjour (`TripChallenge` → `TripFigure` + `TripMemberObjective`)
+- SQL migration : `prisma/sql/2026-08-10-trip-objectives.sql`
+- Rebrand **KiteQuest** (kitequest.fr) : logos, wordmark, metadata, docs
+
+### 🚀 Improved
+- Séjours : checklist figures réservée au créateur ; membres voient la liste + « Ajouter une figure »
+- Page figure : bouton « Ajouter à un séjour » → choix du trip
+- Séjours : à côté des figures, avatars + prénoms des riders qui l’ont déjà en acquis perso
+
+### 📚 Documentation
+- README séjours mis à jour (objectifs au lieu de défis)
+- SQL : `prisma/sql/2026-08-10-figure-active.sql`
 
 ## 2026-08-06
 

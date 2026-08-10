@@ -1,9 +1,8 @@
-# Kitesurf Tracker
+# KiteQuest
 
-Application Next.js (App Router) + TypeScript pour suivre sa progression
-personnelle sur toutes les figures de kitesurf : compte utilisateur,
-fiches détaillées par figure (description, étapes, prérequis), et
-ajout de vidéos (liens YouTube/Vimeo embarqués).
+[kitequest.fr](https://kitequest.fr) — application Next.js (App Router) + TypeScript
+pour suivre sa progression sur les figures de kitesurf : XP, quêtes, séjours crew,
+fiches détaillées et vidéos (YouTube/Vimeo).
 
 ## Stack
 
@@ -46,7 +45,7 @@ Espace `/trips` pour les sessions en crew (ex. 12 jours à Dakhla) :
 - Créer un séjour avec **dates** → l’XP des figures cochées entre ces dates
   compte automatiquement pour le leaderboard du trip (via `completedAt`)
 - Inviter le crew avec un lien `/trips/join/[code]`
-- Lancer des **défis** liés à une figure (+ bonus XP séjour)
+- Construire une **liste de figures** partagée + **objectifs perso** pour chaque rider
 - Voir le fil d’activité du trip et le classement « séjours les plus skillants »
 
 (inclus dans `prisma/sql/supabase-full.sql`)

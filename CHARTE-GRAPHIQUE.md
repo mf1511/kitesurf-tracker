@@ -1,4 +1,4 @@
-# Charte graphique — Kitesurf Tracker
+# Charte graphique — KiteQuest
 
 Document de référence extrait de l’UI actuelle (`src/app/globals.css`, `src/app/layout.tsx`).  
 À utiliser pour écrans, docs, posts, stickers crew, etc.
@@ -9,8 +9,9 @@ Document de référence extrait de l’UI actuelle (`src/app/globals.css`, `src/
 
 | | |
 |---|---|
-| **Nom** | Kitesurf Tracker |
-| **Univers** | Côtier soft, ludique, “aventure entre potes” |
+| **Nom** | KiteQuest |
+| **Domaine** | [kitequest.fr](https://kitequest.fr) |
+| **Univers** | Côtier soft, ludique, “quête entre potes” |
 | **Ton** | Fun, clair, motivant — pas dark, pas corporate |
 | **Promesse visuelle** | Ciel + lagune + sable + énergie coral |
 
@@ -20,14 +21,13 @@ Document de référence extrait de l’UI actuelle (`src/app/globals.css`, `src/
 
 ## 2. Logo / marque
 
-- **Nom affiché :** `Kitesurf Tracker` (pas d’acronyme)
+- **Nom affiché :** `KiteQuest` (`Kite` navy + `Quest` aqua)
+- **Picto :** aile kite + flèche de quête (`public/brand-mark.svg`, `BrandMark`)
 - **Police :** Fredoka Bold (700)
 - **Couleur défaut :** Aqua deep `#2a9bb0`
 - **Hover / accent :** Coral `#ff7a6e`
 - **Cas :** Title Case (pas FULL CAPS)
 - **Letter-spacing :** léger `0.01em`
-
-Pas de logo image officiel pour l’instant — le wordmark typographique fait office de marque.
 
 ---
 
@@ -202,7 +202,7 @@ Peu de motion, intentionnelle — pas de parallaxe lourde ni glow pulsé.
 ## 10. Voix & microcopy
 
 - Tutoiement, énergie positive
-- Verbes d’action : « Commencer l’aventure », « Inviter le crew », « Lancer un défi »
+- Verbes d’action : « Lancer ma quête », « Inviter le crew », « Mon objectif »
 - Vocabulaire mixte FR + kite (XP, trip, crew, spot, straps)
 - Pas de jargon admin côté user
 

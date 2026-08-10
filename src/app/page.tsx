@@ -10,13 +10,13 @@ export default async function Home() {
     redirect("/dashboard");
   }
 
-  const figureCount = await prisma.figure.count();
+  const figureCount = await prisma.figure.count({ where: { active: true } });
 
   return (
     <div className="hero">
-      <span className="hero-kicker">Ton aventure kitesurf commence ici</span>
+      <span className="hero-kicker">kitequest.fr</span>
       <h1>
-        Kitesurf <span>Tracker</span>
+        Kite<span>Quest</span>
       </h1>
       <p>
         Gagne de l’XP, débloque des badges, enchaîne les quêtes et conquiers
@@ -25,7 +25,7 @@ export default async function Home() {
       </p>
       <div className="hero-actions">
         <Link href="/register" className="btn btn-primary">
-          Commencer l’aventure
+          Lancer ma quête
         </Link>
         <Link href="/login" className="btn btn-ghost">
           Se connecter

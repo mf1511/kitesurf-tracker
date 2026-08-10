@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
+import BrandMark from "@/components/brand-mark";
 
 export default function Navbar() {
   const { data: session, status } = useSession();
@@ -27,7 +28,10 @@ export default function Navbar() {
     <nav className={`navbar ${open ? "nav-open" : ""}`}>
       <div className="nav-bar-row">
         <Link href={status === "authenticated" ? "/dashboard" : "/"} className="brand">
-          Kitesurf Tracker
+          <BrandMark className="brand-mark" />
+          <span>
+            Kite<span className="brand-accent">Quest</span>
+          </span>
         </Link>
 
         <button

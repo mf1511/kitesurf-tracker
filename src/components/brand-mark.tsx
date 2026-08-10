@@ -1,0 +1,30 @@
+/** Picto marque KiteQuest (aile + flèche) */
+export default function BrandMark({ className = "" }: { className?: string }) {
+  return (
+    <svg
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 40 40"
+      width="28"
+      height="28"
+      aria-hidden
+    >
+      <circle cx="20" cy="20" r="19" fill="#d4eef8" />
+      <path d="M8 22c6-14 18-14 24 0-8 2-16 2-24 0Z" fill="#2a9bb0" />
+      <path
+        d="M20 10v18"
+        stroke="#ff7a6e"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+      />
+      <path
+        d="M20 28l-4.5-5.5M20 28l4.5-5.5"
+        stroke="#ff7a6e"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="20" cy="10" r="2.2" fill="#0f2740" />
+    </svg>
+  );
+}

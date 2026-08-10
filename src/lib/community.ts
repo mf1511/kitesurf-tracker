@@ -13,6 +13,28 @@ export function riderLabel(user: { name?: string | null; email: string }): strin
   return user.name?.trim() || user.email.split("@")[0];
 }
 
+/** Prénom affiché (1er mot du name, sinon local-part email) */
+export function riderFirstName(user: { name?: string | null; email: string }): string {
+  return riderLabel(user).split(/\s+/)[0] || "?";
+}
+
+/** Initiales pour avatar (1–2 lettres) */
+export function riderInitials(user: { name?: string | null; email: string }): string {
+  const label = riderLabel(user);
+  const parts = label.split(/[\s._-]+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[1][0]).toUpperCase();
+  }
+  return label.slice(0, 2).toUpperCase();
+}
+
+/** Couleur stable par userId (avatar) */
+export function riderAvatarHue(userId: string): number {
+  let h = 0;
+  for (let i = 0; i < userId.length; i++) h = (h * 31 + userId.charCodeAt(i)) % 360;
+  return h;
+}
+
 /** Génère un code invite court lisible */
 export function generateInviteCode(): string {
   return randomBytes(4).toString("hex"); // 8 chars

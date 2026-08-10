@@ -68,10 +68,10 @@ export default async function InvitePage({
     <div className="hero">
       <span className="hero-kicker">Invitation de {host}</span>
       <h1>
-        Rejoins <span>l&apos;aventure</span>
+        Rejoins <span>KiteQuest</span>
       </h1>
       <p>
-        {host} t&apos;invite sur Kitesurf Tracker. Crée ton compte pour comparer vos
+        {host} t&apos;invite sur KiteQuest. Crée ton compte pour comparer vos
         progressions, le classement XP et célébrer les figures validées ensemble.
       </p>
       <div className="hero-actions">

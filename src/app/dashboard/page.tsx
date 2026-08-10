@@ -10,6 +10,7 @@ export default async function DashboardPage() {
   if (!session?.user?.id) redirect("/login");
 
   const figures = await prisma.figure.findMany({
+    where: { active: true },
     include: {
       prerequisites: { select: { id: true } },
       progress: { where: { userId: session.user.id, completed: true } },
@@ -74,7 +75,7 @@ export default async function DashboardPage() {
       <section className="game-section teaser-row">
         <Link href="/trips" className="community-teaser">
           <strong>Séjours</strong>
-          <span>Dakhla, défis crew, leaderboard du trip →</span>
+          <span>Dakhla, objectifs crew, leaderboard du trip →</span>
         </Link>
         <Link href="/community" className="community-teaser">
           <strong>Communauté</strong>

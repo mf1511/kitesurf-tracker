@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import FigureCheckbox from "@/components/FigureCheckbox";
 import VideoForm from "@/components/VideoForm";
+import AddFigureToTrip from "@/components/add-figure-to-trip";
 import { getEmbedUrl } from "@/lib/videoEmbed";
 import { xpForCategory } from "@/lib/gamification";
 
@@ -32,6 +33,24 @@ export default async function FigureDetailPage({
   });
 
   if (!figure) notFound();
+  // Inactive = masquée pour les users (admin peut toujours ouvrir)
+  if (!figure.active && session?.user?.role !== "admin") notFound();
+
+  // Séjours où l’user est membre (+ si la figure y est déjà)
+  const myTrips = userId
+    ? await prisma.trip.findMany({
+        where: { members: { some: { userId } } },
+        select: {
+          id: true,
+          name: true,
+          figures: {
+            where: { figureId: figure.id },
+            select: { id: true },
+          },
+        },
+        orderBy: { startDate: "desc" },
+      })
+    : [];
 
   const steps: string[] = JSON.parse(figure.steps);
   const completed = !!figure.progress?.[0]?.completed;
@@ -61,21 +80,33 @@ export default async function FigureDetailPage({
         </div>
 
         {userId ? (
-          <div className="status-row">
-            <FigureCheckbox
-              figureId={figure.id}
-              initialCompleted={completed}
-              locked={locked && !completed}
-              xpReward={xp}
-            />
-            <span>
-              {locked && !completed
-                ? "Prérequis non validés"
-                : completed
-                ? "Figure acquise — bien joué !"
-                : "Marquer comme acquise"}
-            </span>
-          </div>
+          <>
+            <div className="status-row">
+              <FigureCheckbox
+                figureId={figure.id}
+                initialCompleted={completed}
+                locked={locked && !completed}
+                xpReward={xp}
+              />
+              <span>
+                {locked && !completed
+                  ? "Prérequis non validés"
+                  : completed
+                  ? "Figure acquise — bien joué !"
+                  : "Marquer comme acquise"}
+              </span>
+            </div>
+            <div className="status-row add-to-trip-row">
+              <AddFigureToTrip
+                figureId={figure.id}
+                trips={myTrips.map((t) => ({
+                  id: t.id,
+                  name: t.name,
+                  already: t.figures.length > 0,
+                }))}
+              />
+            </div>
+          </>
         ) : (
           <p className="login-hint">
             <Link href="/login">Connecte-toi</Link> pour suivre ta progression et gagner de l’XP.

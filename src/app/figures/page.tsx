@@ -14,6 +14,7 @@ export default async function FiguresPage({
   const userId = session?.user?.id;
 
   const figures = await prisma.figure.findMany({
+    where: { active: true },
     include: {
       prerequisites: { select: { id: true } },
       progress: userId ? { where: { userId } } : false,

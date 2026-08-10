@@ -14,7 +14,7 @@ export async function GET() {
   const trips = await prisma.trip.findMany({
     where: { members: { some: { userId: session.user.id } } },
     include: {
-      _count: { select: { members: true, challenges: true } },
+      _count: { select: { members: true, figures: true } },
       creator: { select: { name: true, email: true } },
     },
     orderBy: { startDate: "desc" },

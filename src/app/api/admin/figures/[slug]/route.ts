@@ -2,6 +2,34 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession, slugify } from "@/lib/admin";
 
+/** Toggle rapide actif / inactif (colonne admin) */
+export async function PATCH(
+  req: Request,
+  { params }: { params: { slug: string } }
+) {
+  const session = await requireAdminSession();
+  if (!session) {
+    return NextResponse.json({ error: "Accès réservé aux administrateurs" }, { status: 403 });
+  }
+
+  const figure = await prisma.figure.findUnique({ where: { slug: params.slug } });
+  if (!figure) {
+    return NextResponse.json({ error: "Figure introuvable" }, { status: 404 });
+  }
+
+  const body = await req.json();
+  if (typeof body.active !== "boolean") {
+    return NextResponse.json({ error: "active (boolean) requis" }, { status: 400 });
+  }
+
+  const updated = await prisma.figure.update({
+    where: { slug: params.slug },
+    data: { active: body.active },
+  });
+
+  return NextResponse.json(updated);
+}
+
 // Mise à jour d'une figure existante
 export async function PUT(
   req: Request,

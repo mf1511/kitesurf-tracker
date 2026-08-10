@@ -5,7 +5,7 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { computeTripStats } from "@/lib/trips";
 import TripInviteCopy from "@/components/trip-invite-copy";
-import TripChallengeForm from "@/components/trip-challenge-form";
+import TripFiguresPanel from "@/components/trip-figures-panel";
 
 export default async function TripDetailPage({
   params,
@@ -31,9 +31,19 @@ export default async function TripDetailPage({
   const stats = await computeTripStats(params.id, session.user.id);
   if (!stats) notFound();
 
-  const { trip, status, leaderboard, feed, challengeCompletions, totals } = stats;
+  const {
+    trip,
+    status,
+    leaderboard,
+    feed,
+    tripFigures,
+    myObjectives,
+    crewKnownBy,
+    totals,
+  } = stats;
 
   const figures = await prisma.figure.findMany({
+    where: { active: true },
     select: { id: true, name: true, category: true },
     orderBy: [{ category: "asc" }, { order: "asc" }],
   });
@@ -58,7 +68,7 @@ export default async function TripDetailPage({
       <div className="trip-stat-strip">
         <div><strong>{totals.totalXp}</strong><span>XP crew</span></div>
         <div><strong>{totals.totalTricks}</strong><span>tricks</span></div>
-        <div><strong>{totals.xpPerDay}</strong><span>XP/jour</span></div>
+        <div><strong>{totals.figures}</strong><span>figures liste</span></div>
         <div><strong>{totals.members}</strong><span>riders</span></div>
       </div>
 
@@ -70,11 +80,21 @@ export default async function TripDetailPage({
         <TripInviteCopy code={trip.inviteCode} />
       </section>
 
+      <TripFiguresPanel
+        tripId={trip.id}
+        allFigures={figures}
+        tripFigures={tripFigures}
+        myObjectives={myObjectives}
+        crewKnownBy={crewKnownBy}
+        meId={session.user.id}
+        isOwner={member.role === "owner"}
+      />
+
       <div className="community-grid">
         <section className="community-card">
           <h2>Leaderboard séjour</h2>
           <p className="community-lead">
-            XP des figures validées pendant les dates + bonus défis.
+            XP des figures validées pendant les dates du séjour.
           </p>
           {leaderboard.every((r) => r.total === 0) ? (
             <p className="quest-empty">
@@ -93,7 +113,9 @@ export default async function TripDetailPage({
                     </strong>
                     <span>
                       {row.total} XP · {row.tricks} tricks
-                      {row.challengeBonus > 0 ? ` · +${row.challengeBonus} défis` : ""}
+                      {row.objectivesTotal > 0
+                        ? ` · objectifs ${row.objectivesDone}/${row.objectivesTotal}`
+                        : ""}
                     </span>
                   </div>
                 </li>
@@ -129,42 +151,6 @@ export default async function TripDetailPage({
           )}
         </section>
       </div>
-
-      <section className="community-card">
-        <h2>Défis</h2>
-        {trip.challenges.length === 0 ? (
-          <p className="quest-empty">Aucun défi — lance le premier (ex. Kiteloop).</p>
-        ) : (
-          <ul className="challenge-list">
-            {trip.challenges.map((ch) => {
-              const done = challengeCompletions[ch.id]?.completers ?? [];
-              return (
-                <li key={ch.id}>
-                  <div>
-                    <strong>{ch.title}</strong>
-                    <span className="feed-meta">
-                      +{ch.xpBonus} XP bonus · {done.length} / {trip.members.length}{" "}
-                      riders
-                      {ch.figure && (
-                        <>
-                          {" "}
-                          · <Link href={`/figures/${ch.figure.slug}`}>{ch.figure.name}</Link>
-                        </>
-                      )}
-                    </span>
-                    {done.length > 0 && (
-                      <span className="feed-meta">
-                        Validé par : {done.map((d) => d.label).join(", ")}
-                      </span>
-                    )}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        )}
-        <TripChallengeForm tripId={trip.id} figures={figures} />
-      </section>
     </div>
   );
 }

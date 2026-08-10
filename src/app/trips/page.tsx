@@ -13,7 +13,7 @@ export default async function TripsPage() {
     prisma.trip.findMany({
       where: { members: { some: { userId: session.user.id } } },
       include: {
-        _count: { select: { members: true, challenges: true } },
+        _count: { select: { members: true, figures: true } },
       },
       orderBy: { startDate: "desc" },
     }),
@@ -32,8 +32,8 @@ export default async function TripsPage() {
         <div>
           <h1>Séjours</h1>
           <p className="subtitle">
-            Crée un trip (ex. Dakhla 12j), invite le crew, lance des défis — l’XP
-            validée pendant les dates compte auto.
+            Crée un trip (ex. Dakhla 12j), invite le crew, choisis des figures et
+            tes objectifs — l’XP validée pendant les dates compte auto.
           </p>
         </div>
         <Link href="/trips/new" className="btn btn-primary">
@@ -61,7 +61,7 @@ export default async function TripsPage() {
                     {t.endDate.toLocaleDateString("fr-FR")}
                   </span>
                   <span className="trip-meta">
-                    {t._count.members} riders · {t._count.challenges} défis
+                    {t._count.members} riders · {t._count.figures} figures
                   </span>
                 </Link>
               );
@@ -73,7 +73,7 @@ export default async function TripsPage() {
       <section className="game-section">
         <h2>Séjours les plus skillants</h2>
         <p className="community-lead">
-          Classés par XP total du crew pendant le séjour (figures + bonus défis).
+          Classés par XP total du crew pendant le séjour.
         </p>
         {skillant.length === 0 ? (
           <p className="quest-empty">Pas encore de data — à vos straps.</p>

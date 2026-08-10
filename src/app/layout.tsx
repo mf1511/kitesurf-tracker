@@ -4,11 +4,13 @@ import Providers from "@/components/Providers";
 import Navbar from "@/components/Navbar";
 
 export const metadata: Metadata = {
-  title: "Kitesurf Tracker",
-  description: "Suivi ludique de ta progression sur les figures de kitesurf",
+  title: "KiteQuest",
+  description:
+    "KiteQuest — progression ludique sur les figures de kitesurf : XP, quêtes, séjours crew.",
+  metadataBase: new URL("https://kitequest.fr"),
   appleWebApp: {
     capable: true,
-    title: "Kitesurf Tracker",
+    title: "KiteQuest",
     statusBarStyle: "default",
   },
 };

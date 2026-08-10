@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import AdminFigureActiveToggle from "@/components/admin-figure-active-toggle";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
@@ -15,6 +16,7 @@ export default async function AdminPage() {
   });
 
   const categories = Array.from(new Set(figures.map((f) => f.category)));
+  const activeCount = figures.filter((f) => f.active).length;
 
   return (
     <div className="admin-page">
@@ -24,12 +26,15 @@ export default async function AdminPage() {
           + Nouvelle figure
         </Link>
       </div>
-      <p className="subtitle">{figures.length} figures au total, {categories.length} catégories</p>
+      <p className="subtitle">
+        {figures.length} figures · {activeCount} actives · {categories.length} catégories
+      </p>
 
       <div className="admin-table-wrap">
       <table className="admin-table">
         <thead>
           <tr>
+            <th>Actif</th>
             <th>Nom</th>
             <th>Catégorie</th>
             <th>Prérequis</th>
@@ -39,7 +44,10 @@ export default async function AdminPage() {
         </thead>
         <tbody>
           {figures.map((f) => (
-            <tr key={f.id}>
+            <tr key={f.id} className={f.active ? undefined : "admin-row-inactive"}>
+              <td>
+                <AdminFigureActiveToggle slug={f.slug} initialActive={f.active} />
+              </td>
               <td>{f.name}</td>
               <td><span className="badge sm">{f.category}</span></td>
               <td>{f._count.prerequisites}</td>
