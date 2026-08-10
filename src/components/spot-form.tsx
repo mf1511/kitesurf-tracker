@@ -1,68 +1,57 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { WATER_TYPES } from "@/lib/spots";
+import { WATER_TYPES, suggestSpotNames } from "@/lib/spot-names";
 import { useToast } from "@/components/ui/toast";
 
-/** Formulaire de création de spot — coordonnées manuelles ou géolocalisation */
-export function SpotForm() {
+/** Formulaire spot — nom + suggestions similaires (pas de lat/lng) */
+export function SpotForm({ knownNames }: { knownNames: string[] }) {
   const router = useRouter();
   const toast = useToast();
   const [name, setName] = useState("");
-  const [latitude, setLatitude] = useState("");
-  const [longitude, setLongitude] = useState("");
   const [windOrientation, setWindOrientation] = useState("");
   const [waterType, setWaterType] = useState("");
   const [busy, setBusy] = useState(false);
-  const [locating, setLocating] = useState(false);
   const [error, setError] = useState("");
+  const [similar, setSimilar] = useState<string[]>([]);
 
-  /** Remplit lat/lng depuis la position du device */
-  function useMyPosition() {
-    if (!navigator.geolocation) {
-      toast("Géolocalisation non disponible sur cet appareil", "error");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setLatitude(pos.coords.latitude.toFixed(5));
-        setLongitude(pos.coords.longitude.toFixed(5));
-        setLocating(false);
-      },
-      () => {
-        toast("Impossible de récupérer ta position", "error");
-        setLocating(false);
-      },
-      { timeout: 10000 }
-    );
-  }
+  const suggestions = useMemo(
+    () => suggestSpotNames(name, knownNames, 5),
+    [name, knownNames]
+  );
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
+  async function createSpot(force = false) {
     setError("");
+    setSimilar([]);
     setBusy(true);
 
     try {
       const res = await fetch("/api/spots", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, latitude, longitude, windOrientation, waterType }),
+        body: JSON.stringify({
+          name,
+          windOrientation,
+          waterType,
+          force,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error || "Erreur");
+        if (Array.isArray(data.similar) && data.similar.length) {
+          setSimilar(data.similar);
+          setError(data.error || "Spot similaire trouvé");
+        } else {
+          setError(data.error || "Erreur");
+        }
         setBusy(false);
         return;
       }
-      // Reset + refresh de la liste serveur
       setName("");
-      setLatitude("");
-      setLongitude("");
       setWindOrientation("");
       setWaterType("");
-      toast(`Spot « ${data.spot.name} » ajouté 🤙`, "success");
+      toast(`Spot « ${data.spot.name} » ajouté`, "success");
       router.refresh();
     } catch {
       setError("Erreur réseau — réessaie");
@@ -71,49 +60,53 @@ export function SpotForm() {
     }
   }
 
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    await createSpot(false);
+  }
+
   return (
     <form onSubmit={submit} className="auth-form trip-form spot-form">
       <label>
         Nom du spot
         <input
           value={name}
-          onChange={(e) => setName(e.target.value)}
+          onChange={(e) => {
+            setName(e.target.value);
+            setSimilar([]);
+            setError("");
+          }}
           placeholder="Almanarre, Leucate, Dakhla…"
           required
           maxLength={80}
+          autoComplete="off"
         />
       </label>
 
-      <div className="spot-coords-row">
-        <label>
-          Latitude
-          <input
-            value={latitude}
-            onChange={(e) => setLatitude(e.target.value)}
-            placeholder="43.0937"
-            inputMode="decimal"
-            required
-          />
-        </label>
-        <label>
-          Longitude
-          <input
-            value={longitude}
-            onChange={(e) => setLongitude(e.target.value)}
-            placeholder="6.1489"
-            inputMode="decimal"
-            required
-          />
-        </label>
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={useMyPosition}
-          disabled={locating}
-        >
-          {locating ? "Localisation…" : "📍 Ma position"}
-        </button>
-      </div>
+      {suggestions.length > 0 && (
+        <div className="spot-suggest" role="listbox" aria-label="Spots similaires">
+          <p className="feed-meta">Spots existants proches :</p>
+          <ul>
+            {suggestions.map((s) => (
+              <li key={s.name}>
+                <button
+                  type="button"
+                  className="btn btn-ghost"
+                  onClick={() => {
+                    setName(s.name);
+                    setSimilar([]);
+                    setError("");
+                  }}
+                >
+                  {s.exact ? "Déjà connu — " : "Tu voulais dire "}
+                  <strong>{s.name}</strong>
+                  {" ?"}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <label>
         Orientations de vent qui marchent (optionnel)
@@ -138,6 +131,32 @@ export function SpotForm() {
       </label>
 
       {error && <p className="form-error">{error}</p>}
+      {similar.length > 0 && (
+        <div className="spot-suggest">
+          <ul>
+            {similar.map((n) => (
+              <li key={n}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setName(n)}
+                >
+                  Utiliser « {n} »
+                </button>
+              </li>
+            ))}
+          </ul>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            disabled={busy}
+            onClick={() => void createSpot(true)}
+          >
+            Créer quand même « {name.trim()} »
+          </button>
+        </div>
+      )}
+
       <button type="submit" className="btn btn-primary" disabled={busy}>
         {busy ? "Ajout…" : "Ajouter le spot"}
       </button>

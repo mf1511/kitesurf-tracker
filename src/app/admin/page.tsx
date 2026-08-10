@@ -22,9 +22,14 @@ export default async function AdminPage() {
     <div className="admin-page">
       <div className="admin-page-header">
         <h1>Administration des figures</h1>
-        <Link href="/admin/figures/new" className="btn btn-primary">
-          + Nouvelle figure
-        </Link>
+        <div className="trip-figure-actions">
+          <Link href="/admin/invites" className="btn btn-secondary">
+            Pré-invitations
+          </Link>
+          <Link href="/admin/figures/new" className="btn btn-primary">
+            + Nouvelle figure
+          </Link>
+        </div>
       </div>
       <p className="subtitle">
         {figures.length} figures · {activeCount} actives · {categories.length} catégories

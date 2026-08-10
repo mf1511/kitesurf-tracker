@@ -2,9 +2,16 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { getUserSpots, parseSpotFields } from "@/lib/spots";
+import {
+  findUserSpotByName,
+  getKnownSpotNames,
+  getUserSpots,
+  normalizeSpotName,
+  parseSpotFields,
+  suggestSpotNames,
+} from "@/lib/spots";
 
-/** Liste des spots de l'utilisateur (favoris d'abord) */
+/** Liste des spots de l'utilisateur (favori + usage) */
 export async function GET() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -15,7 +22,7 @@ export async function GET() {
   return NextResponse.json({ spots });
 }
 
-/** Créer un spot (JSON). Le premier spot devient favori automatiquement. */
+/** Créer un spot (JSON, sans lat/lng requis). Bloque les doublons de nom. */
 export async function POST(req: Request) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {
@@ -34,7 +41,32 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
-  // Premier spot du user → favori d'office (widget dashboard)
+  const dup = await findUserSpotByName(session.user.id, parsed.data.name);
+  if (dup) {
+    return NextResponse.json(
+      { error: `Tu as déjà « ${dup.name} » dans tes spots`, spotId: dup.id },
+      { status: 409 }
+    );
+  }
+
+  // Suggestions si très proche d’un spot connu et pas forcé
+  const force = raw.force === true;
+  if (!force) {
+    const known = await getKnownSpotNames();
+    const similar = suggestSpotNames(parsed.data.name, known, 3).filter(
+      (s) => normalizeSpotName(s.name) !== normalizeSpotName(parsed.data.name)
+    );
+    if (similar.length && similar[0].score >= 0.72) {
+      return NextResponse.json(
+        {
+          error: "Un spot similaire existe déjà",
+          similar: similar.map((s) => s.name),
+        },
+        { status: 409 }
+      );
+    }
+  }
+
   const count = await prisma.spot.count({ where: { userId: session.user.id } });
 
   const spot = await prisma.spot.create({

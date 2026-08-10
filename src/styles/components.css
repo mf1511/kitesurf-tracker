@@ -154,6 +154,11 @@
   font-weight: 800;
   letter-spacing: 0.02em;
   flex-shrink: 0;
+  object-fit: cover;
+}
+.nav-avatar.has-photo {
+  background: var(--line);
+  padding: 0;
 }
 .nav-caret {
   width: 0;
@@ -491,6 +496,102 @@ button.linkish:disabled {
   white-space: pre-line;
 }
 .confirm-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* Dialog inviter un ami (lien + email) */
+.invite-dialog {
+  width: min(520px, 100%);
+  max-height: min(90vh, 720px);
+  overflow: auto;
+}
+.invite-dialog-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.invite-dialog-head h2 { margin: 0; }
+.invite-dialog-block {
+  padding: 14px 0;
+  border-top: 1px solid var(--line);
+}
+.invite-dialog-block:first-of-type { border-top: 0; }
+.invite-dialog-block h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: var(--navy);
+}
+.invite-dialog .community-lead { margin-bottom: 12px; }
+.invite-dialog .confirm-dialog p,
+.invite-dialog p.community-lead { margin-bottom: 12px; }
+.trip-invite-friends {
+  max-height: 240px;
+  overflow: auto;
+  margin: 0;
+}
+.trip-invite-guest-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.trip-invite-guest-form label,
+.trip-invite-photo-label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--mist);
+}
+.trip-invite-guest-form .field-optional,
+.trip-invite-photo-label .field-optional {
+  font-style: normal;
+  font-weight: 600;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+.trip-invite-guest-form input[type="text"],
+.trip-invite-guest-form input[type="email"] {
+  font: inherit;
+  font-weight: 600;
+  font-size: 1rem;
+  min-height: 48px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line-strong);
+  background: var(--surface);
+  color: var(--navy);
+  width: 100%;
+  box-sizing: border-box;
+}
+.trip-invite-guest-form input:focus {
+  outline: none;
+  border-color: var(--aqua-deep);
+  box-shadow: 0 0 0 3px rgba(42, 155, 176, 0.15);
+}
+.trip-invite-photo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.trip-invite-photo-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.trip-invite-photo-row .feed-meta {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.trip-invite-guest-form > .btn-primary {
+  margin-top: 4px;
+  width: 100%;
+}
 
 /* ---------- Toggle de thème (Paramètres) ---------- */
 .theme-toggle {

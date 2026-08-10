@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { removeTripMember } from "@/lib/trip-seats";
 import { computeTripStats } from "@/lib/trips";
 
 async function assertMember(tripId: string, userId: string) {
@@ -52,6 +53,14 @@ export async function DELETE(
     return NextResponse.json({ ok: true, deleted: true });
   }
 
-  await prisma.tripMember.delete({ where: { id: member.id } });
+  // Départ volontaire : libère aussi place + objectifs
+  const left = await removeTripMember({
+    tripId: params.id,
+    actorId: session.user.id,
+    targetUserId: session.user.id,
+  });
+  if ("error" in left) {
+    return NextResponse.json({ error: left.error }, { status: left.status });
+  }
   return NextResponse.json({ ok: true, left: true });
 }

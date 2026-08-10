@@ -111,11 +111,11 @@ export default async function Home() {
             sans réseau.
           </p>
           <div className="landing-actions">
-            <Link href="/register" className="btn btn-primary">
-              S&apos;inscrire
-            </Link>
-            <Link href="/login" className="btn btn-ghost">
+            <Link href="/login" className="btn btn-primary">
               Se connecter
+            </Link>
+            <Link href="/register" className="btn btn-ghost">
+              J&apos;ai une invitation
             </Link>
           </div>
         </div>
@@ -129,7 +129,7 @@ export default async function Home() {
             {countLabel} figures actives, des bases IKO aux mobes et kiteloops —
             coche, gagne de l’XP, débloque la suite.
           </p>
-          <Link href="/register" className="landing-link">
+          <Link href="/login" className="landing-link">
             Voir les figures →
           </Link>
         </div>
@@ -140,9 +140,9 @@ export default async function Home() {
           <h2>Embarque le crew</h2>
           <p>
             Crée un séjour, invite tes potes, partage une liste de figures et
-            suivez le leaderboard sur le trip.
+            progressez ensemble — chacun à son rythme.
           </p>
-          <Link href="/register" className="landing-link">
+          <Link href="/login" className="landing-link">
             Inviter le crew →
           </Link>
         </div>
@@ -155,7 +155,7 @@ export default async function Home() {
             Installe KiteQuest (PWA), télécharge les vidéos d’une figure ou d’un
             séjour, et révise les étapes même sans 4G sur le spot.
           </p>
-          <Link href="/register" className="landing-link">
+          <Link href="/login" className="landing-link">
             Préparer le hors-ligne →
           </Link>
         </div>
@@ -164,9 +164,9 @@ export default async function Home() {
       <section className="landing-cta">
         <div className="landing-inner">
           <h2>Prêt à enchaîner ?</h2>
-          <p>Crée ton compte en 30 secondes et lance ta première quête.</p>
-          <Link href="/register" className="btn btn-primary">
-            S&apos;inscrire
+          <p>Sur invitation uniquement — connecte-toi ou utilise ton lien.</p>
+          <Link href="/login" className="btn btn-primary">
+            Se connecter
           </Link>
         </div>
       </section>

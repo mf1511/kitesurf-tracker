@@ -4,16 +4,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-
-/** Initiales pour l’avatar (prénom/nom ou email) */
-function initials(name?: string | null, email?: string | null): string {
-  const n = name?.trim();
-  if (n) {
-    const parts = n.split(/\s+/);
-    return ((parts[0]?.[0] ?? "") + (parts[1]?.[0] ?? "")).toUpperCase() || "?";
-  }
-  return (email?.[0] ?? "?").toUpperCase();
-}
+import UserAvatar from "@/components/user-avatar";
 
 function isActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
@@ -32,7 +23,6 @@ export default function NavProfileMenu(_props: Props) {
 
   const user = session?.user;
   const label = user?.name?.trim() || user?.email || "Profil";
-  const avatar = initials(user?.name, user?.email);
   const isAdmin = user?.role === "admin";
 
   // Ferme le dropdown au clic extérieur / Escape ; flèches = navigation clavier
@@ -89,9 +79,12 @@ export default function NavProfileMenu(_props: Props) {
         aria-label="Menu profil"
         onClick={() => setOpen((v) => !v)}
       >
-        <span className="nav-avatar" aria-hidden>
-          {avatar}
-        </span>
+        <UserAvatar
+          name={user?.name}
+          email={user?.email}
+          image={user?.image}
+          className="nav-avatar"
+        />
         <span className="nav-profile-trigger-label">Profil</span>
         <span className="nav-caret" aria-hidden />
       </button>
@@ -99,9 +92,12 @@ export default function NavProfileMenu(_props: Props) {
       {open && (
         <div className="nav-profile-dropdown" role="menu">
           <div className="nav-profile-card">
-            <span className="nav-avatar" aria-hidden>
-              {avatar}
-            </span>
+            <UserAvatar
+              name={user?.name}
+              email={user?.email}
+              image={user?.image}
+              className="nav-avatar"
+            />
             <div className="nav-profile-meta">
               <strong>{label}</strong>
               {user?.email ? <span>{user.email}</span> : null}

@@ -3,9 +3,9 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import OfflinePackButton from "@/components/offline-pack-button";
-import { FiguresCatalog, type CatalogFigure } from "@/components/figures-catalog";
-import { isCompleted, isUnlocked, xpForCategory } from "@/lib/gamification";
+import { FiguresCatalog } from "@/components/figures-catalog";
+import { resolveDebuterSection } from "@/lib/debuter";
+import { isCompleted, isUnlocked, sortCategories, xpForCategory } from "@/lib/gamification";
 
 export default async function FiguresPage({
   searchParams,
@@ -16,8 +16,8 @@ export default async function FiguresPage({
   if (!session?.user?.id) redirect("/login");
   const userId = session.user.id;
 
+  // Inclus les inactives : visibles mais non cliquables côté user
   const figures = await prisma.figure.findMany({
-    where: { active: true },
     include: {
       prerequisites: { select: { id: true } },
       progress: { where: { userId } },
@@ -26,17 +26,23 @@ export default async function FiguresPage({
   });
 
   const doneIds = new Set(figures.filter((f) => isCompleted(f)).map((f) => f.id));
-  const categories = Array.from(new Set(figures.map((f) => f.category)));
+  const categories = sortCategories(Array.from(new Set(figures.map((f) => f.category))));
   const doneCount = doneIds.size;
 
   // Sérialisation pour le catalogue client (recherche/tri instantanés)
-  const catalogFigures: CatalogFigure[] = figures.map((f) => ({
+  const catalogFigures = figures.map((f) => ({
     id: f.id,
     slug: f.slug,
     name: f.name,
     category: f.category,
+    section:
+      f.category === "Débuter"
+        ? resolveDebuterSection(f.description, f.order)
+        : null,
+    order: f.order,
     completed: doneIds.has(f.id),
     locked: !isUnlocked(f, doneIds),
+    active: f.active,
     xp: xpForCategory(f.category),
   }));
 
@@ -50,10 +56,6 @@ export default async function FiguresPage({
       <div className="offline-pack-bar">
         <Link href="/figures/arbre" className="btn btn-ghost">
           🌳 Arbre de progression
-        </Link>
-        <OfflinePackButton label="Télécharger le catalogue (hors-ligne)" />
-        <Link href="/offline" className="btn btn-ghost">
-          Gérer hors-ligne
         </Link>
       </div>
 

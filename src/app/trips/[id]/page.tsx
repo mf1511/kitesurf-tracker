@@ -4,9 +4,14 @@ import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { computeTripStats } from "@/lib/trips";
-import TripInviteCopy from "@/components/trip-invite-copy";
+import TripInviteDialog from "@/components/trip-invite-dialog";
+import TripOfflineDialog from "@/components/trip-offline-dialog";
 import TripFiguresPanel from "@/components/trip-figures-panel";
-import OfflinePackButton from "@/components/offline-pack-button";
+import TripSeatsPanel from "@/components/trip-seats-panel";
+import { createOwnerSeat } from "@/lib/trip-seats";
+import { getFriendIds, riderLabel } from "@/lib/community";
+import { figureHref } from "@/lib/nav-return";
+import UserAvatar from "@/components/user-avatar";
 
 export default async function TripDetailPage({
   params,
@@ -14,10 +19,11 @@ export default async function TripDetailPage({
   params: { id: string };
 }) {
   const session = await getServerSession(authOptions);
-  if (!session?.user?.id) redirect("/login");
+  const userId = session?.user?.id;
+  if (!userId) redirect("/login");
 
   const member = await prisma.tripMember.findUnique({
-    where: { tripId_userId: { tripId: params.id, userId: session.user.id } },
+    where: { tripId_userId: { tripId: params.id, userId } },
   });
   if (!member) {
     return (
@@ -29,13 +35,12 @@ export default async function TripDetailPage({
     );
   }
 
-  const stats = await computeTripStats(params.id, session.user.id);
+  const stats = await computeTripStats(params.id, userId);
   if (!stats) notFound();
 
   const {
     trip,
     status,
-    leaderboard,
     feed,
     tripFigures,
     myObjectives,
@@ -49,48 +54,158 @@ export default async function TripDetailPage({
     orderBy: [{ category: "asc" }, { order: "asc" }],
   });
 
+  // Places invitation — assure la place créateur si trip antérieur au SQL 012
+  const seatInclude = {
+    claimedBy: {
+      select: { id: true, name: true, email: true, image: true },
+    },
+  } as const;
+  let seats = await prisma.tripSeat.findMany({
+    where: { tripId: trip.id },
+    include: seatInclude,
+    orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+  });
+  if (
+    member.role === "owner" &&
+    !seats.some((s) => s.claimedById === userId)
+  ) {
+    await createOwnerSeat(trip.id, userId);
+    seats = await prisma.tripSeat.findMany({
+      where: { tripId: trip.id },
+      include: seatInclude,
+      orderBy: [{ order: "asc" }, { createdAt: "asc" }],
+    });
+  }
+
+  // Avatars crew en tête : place (photo) ou profil si claimée
+  const seatedUserIds = new Set(
+    seats.map((s) => s.claimedById).filter(Boolean) as string[]
+  );
+  const crewAvatars = [
+    ...seats.map((s) => ({
+      key: s.id,
+      label: s.displayName,
+      image: s.image || s.claimedBy?.image || null,
+      claimed: !!s.claimedById,
+      isMe: s.claimedById === userId,
+    })),
+    // Membres sans place (trips antérieurs)
+    ...trip.members
+      .filter((m) => !seatedUserIds.has(m.userId))
+      .map((m) => ({
+        key: m.userId,
+        label: riderLabel(m.user),
+        image: m.user.image,
+        claimed: true,
+        isMe: m.userId === userId,
+      })),
+  ];
+
   const statusLabel = { live: "En cours", upcoming: "À venir", past: "Terminé" };
+
+  // Tous les amis (flag déjà membre) — pour « Inviter le crew »
+  const friendIds = await getFriendIds(userId);
+  const memberRows = await prisma.tripMember.findMany({
+    where: { tripId: trip.id },
+    select: { userId: true },
+  });
+  const memberSet = new Set(memberRows.map((m) => m.userId));
+  const inviteFriends =
+    friendIds.length === 0
+      ? []
+      : (
+          await prisma.user.findMany({
+            where: { id: { in: friendIds } },
+            select: { id: true, name: true, email: true, image: true },
+            orderBy: { name: "asc" },
+          })
+        ).map((u) => ({
+          id: u.id,
+          name: u.name,
+          email: u.email,
+          image: u.image,
+          label: riderLabel(u),
+          onTrip: memberSet.has(u.id),
+        }));
 
   return (
     <div className="trip-detail">
       <Link href="/trips" className="back-link">← Séjours</Link>
 
       <header className="trip-detail-header">
-        <span className={`trip-status-pill ${status}`}>{statusLabel[status]}</span>
-        <h1>{trip.name}</h1>
+        <div className="trip-detail-title-row">
+          <div>
+            <span className={`trip-status-pill ${status}`}>{statusLabel[status]}</span>
+            <h1>{trip.name}</h1>
+          </div>
+          <div className="trip-detail-actions">
+            <TripOfflineDialog tripId={trip.id} />
+            <TripInviteDialog
+              tripId={trip.id}
+              code={trip.inviteCode}
+              friends={inviteFriends}
+            />
+          </div>
+        </div>
         <p className="subtitle">
           {trip.location || "Spot libre"} ·{" "}
           {trip.startDate.toLocaleDateString("fr-FR")} →{" "}
           {trip.endDate.toLocaleDateString("fr-FR")}
         </p>
+        {crewAvatars.length > 0 && (
+          <ul className="trip-crew-avatars" aria-label="Crew du séjour">
+            {crewAvatars.map((c) => (
+              <li
+                key={c.key}
+                className={c.claimed ? (c.isMe ? "me" : undefined) : "pending"}
+                title={c.claimed ? c.label : `${c.label} (en attente)`}
+              >
+                <UserAvatar
+                  name={c.label}
+                  image={c.image}
+                  className="trip-crew-avatar"
+                />
+                <span className="trip-crew-name">
+                  {c.label.split(/\s+/)[0] || c.label}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
         {trip.description && <p className="figure-description">{trip.description}</p>}
       </header>
 
       <div className="trip-stat-strip">
-        <div><strong>{totals.totalXp}</strong><span>XP crew</span></div>
-        <div><strong>{totals.totalTricks}</strong><span>tricks</span></div>
-        <div><strong>{totals.figures}</strong><span>figures liste</span></div>
+        <div><strong>{totals.totalTricks}</strong><span>figures validées</span></div>
+        <div><strong>{totals.figures}</strong><span>sur la liste</span></div>
         <div><strong>{totals.members}</strong><span>riders</span></div>
       </div>
 
-      <section className="community-card">
-        <h2>Inviter le crew</h2>
-        <p className="community-lead">
-          Partage ce lien WhatsApp — ils rejoignent le séjour automatiquement.
-        </p>
-        <TripInviteCopy code={trip.inviteCode} />
-      </section>
-
-      <section className="community-card">
-        <h2>Hors-ligne</h2>
-        <p className="community-lead">
-          Télécharge les tutos des figures de ce séjour pour le spot sans 4G.
-        </p>
-        <OfflinePackButton
+      {member.role === "owner" && (
+        <TripSeatsPanel
           tripId={trip.id}
-          label="Télécharger les vidéos du séjour"
+          meId={userId}
+          initialSeats={seats.map((s) => ({
+            id: s.id,
+            displayName: s.displayName,
+            image: s.image,
+            claimedById: s.claimedById,
+            order: s.order,
+          }))}
+          orphanMembers={trip.members
+            .filter(
+              (m) =>
+                m.userId !== userId &&
+                m.role !== "owner" &&
+                !seatedUserIds.has(m.userId)
+            )
+            .map((m) => ({
+              userId: m.userId,
+              label: riderLabel(m.user),
+              image: m.user.image,
+            }))}
         />
-      </section>
+      )}
 
       <TripFiguresPanel
         tripId={trip.id}
@@ -98,71 +213,40 @@ export default async function TripDetailPage({
         tripFigures={tripFigures}
         myObjectives={myObjectives}
         crewKnownBy={crewKnownBy}
-        meId={session.user.id}
+        meId={userId}
         isOwner={member.role === "owner"}
       />
 
-      <div className="community-grid">
-        <section className="community-card">
-          <h2>Leaderboard séjour</h2>
-          <p className="community-lead">
-            XP des figures validées pendant les dates du séjour.
-          </p>
-          {leaderboard.every((r) => r.total === 0) ? (
-            <p className="quest-empty">
-              Personne n&apos;a encore validé de figure pendant ce séjour — cochez sur
-              l&apos;eau (ou après la session) !
-            </p>
-          ) : (
-            <ol className="leaderboard">
-              {leaderboard.map((row, i) => (
-                <li key={row.userId} className={row.isMe ? "me" : ""}>
-                  <span className="rank">#{i + 1}</span>
-                  <div className="lb-info">
-                    <strong>
-                      {row.label}
-                      {row.isMe ? " (toi)" : ""}
-                    </strong>
-                    <span>
-                      {row.total} XP · {row.tricks} tricks
-                      {row.objectivesTotal > 0
-                        ? ` · objectifs ${row.objectivesDone}/${row.objectivesTotal}`
-                        : ""}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          )}
-        </section>
-
-        <section className="community-card">
-          <h2>Activité du trip</h2>
-          {feed.length === 0 ? (
-            <p className="quest-empty">Le feed se remplit dès qu&apos;une figure est cochée.</p>
-          ) : (
-            <ul className="activity-feed">
-              {feed.map((item) => (
-                <li key={item.id}>
-                  <div>
-                    <strong>{item.label}</strong> a validé{" "}
-                    <Link href={`/figures/${item.figureSlug}`}>{item.figureName}</Link>
-                    <span className="feed-meta">
-                      +{item.xp} XP ·{" "}
-                      {item.at.toLocaleString("fr-FR", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </div>
+      <section className="community-card">
+        <h2>Activité du trip</h2>
+        <p className="community-lead">
+          Les figures validées pendant le séjour.
+        </p>
+        {feed.length === 0 ? (
+          <p className="quest-empty">Le fil se remplit dès qu&apos;une figure est cochée.</p>
+        ) : (
+          <ul className="activity-feed">
+            {feed.map((item) => (
+              <li key={item.id}>
+                <div>
+                  <strong>{item.label}</strong> a validé{" "}
+                  <Link href={figureHref(item.figureSlug, `/trips/${trip.id}`)}>
+                    {item.figureName}
+                  </Link>
+                  <span className="feed-meta">
+                    {item.at.toLocaleString("fr-FR", {
+                      day: "numeric",
+                      month: "short",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
     </div>
   );
 }

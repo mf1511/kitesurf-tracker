@@ -7,20 +7,31 @@ import Link from "next/link";
 
 function RegisterForm() {
   const searchParams = useSearchParams();
-  const inviteCode = searchParams.get("invite") || "";
+  const inviteFromUrl = searchParams.get("invite") || "";
   const tripCode = searchParams.get("trip") || "";
+  const seatId = searchParams.get("seat") || "";
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [inviteCode, setInviteCode] = useState(inviteFromUrl);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  const viaTrip = !!tripCode;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
     setLoading(true);
+
+    const code = viaTrip ? tripCode.trim() : inviteCode.trim();
+    if (!code) {
+      setError("Une invitation est obligatoire pour créer un compte");
+      setLoading(false);
+      return;
+    }
 
     const res = await fetch("/api/auth/register", {
       method: "POST",
@@ -29,7 +40,8 @@ function RegisterForm() {
         name,
         email,
         password,
-        inviteCode: inviteCode || undefined,
+        inviteCode: viaTrip ? undefined : code,
+        tripCode: viaTrip ? code : undefined,
       }),
     });
 
@@ -40,7 +52,11 @@ function RegisterForm() {
       return;
     }
 
-    const signInRes = await signIn("credentials", { email, password, redirect: false });
+    const signInRes = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
     setLoading(false);
     if (signInRes?.error) {
       router.push("/login");
@@ -48,19 +64,20 @@ function RegisterForm() {
     }
 
     if (tripCode) {
-      router.push(`/trips/join/${tripCode}`);
-    } else if (inviteCode) {
+      const qs = seatId ? `?seat=${encodeURIComponent(seatId)}` : "";
+      router.push(`/trips/join/${tripCode}${qs}`);
+    } else if (code) {
       router.push("/community");
     } else {
-      // Nouveau rider → onboarding pour pré-cocher son niveau
       router.push("/onboarding");
     }
     router.refresh();
   }
 
   const loginQs = [
-    inviteCode ? `invite=${inviteCode}` : "",
-    tripCode ? `trip=${tripCode}` : "",
+    inviteCode ? `invite=${encodeURIComponent(inviteCode.trim())}` : "",
+    tripCode ? `trip=${encodeURIComponent(tripCode)}` : "",
+    seatId ? `seat=${encodeURIComponent(seatId)}` : "",
   ]
     .filter(Boolean)
     .join("&");
@@ -68,15 +85,29 @@ function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="auth-form">
       <h1>Créer un compte</h1>
-      {inviteCode && (
+      {viaTrip ? (
         <p className="invite-banner">
-          Tu rejoins via une invitation — vous serez amis dès l&apos;inscription.
+          Tu rejoins un séjour — après inscription tu pourras confirmer qui tu
+          es.
+        </p>
+      ) : (
+        <p className="invite-banner">
+          KiteQuest est sur invitation uniquement — utilise le lien reçu ou
+          colle ton code ci-dessous.
         </p>
       )}
-      {tripCode && (
-        <p className="invite-banner">
-          Tu vas rejoindre un séjour kite après inscription.
-        </p>
+      {!viaTrip && (
+        <label>
+          Code d&apos;invitation
+          <input
+            type="text"
+            value={inviteCode}
+            onChange={(e) => setInviteCode(e.target.value)}
+            required
+            autoComplete="off"
+            placeholder="ex: a1b2c3d4"
+          />
+        </label>
       )}
       <label>
         Prénom
@@ -84,7 +115,12 @@ function RegisterForm() {
       </label>
       <label>
         Email
-        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+        <input
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
       </label>
       <label>
         Mot de passe

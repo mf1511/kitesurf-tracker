@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useToast } from "@/components/ui/toast";
+import { sortCategories } from "@/lib/gamification";
 
 type OnboardingFigure = {
   id: string;
@@ -29,7 +30,7 @@ export function OnboardingForm({
   const [busy, setBusy] = useState(false);
 
   const categories = useMemo(
-    () => Array.from(new Set(figures.map((f) => f.category))),
+    () => sortCategories(Array.from(new Set(figures.map((f) => f.category)))),
     [figures]
   );
   const xpPreview = useMemo(

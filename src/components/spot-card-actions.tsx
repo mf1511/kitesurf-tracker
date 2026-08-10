@@ -71,7 +71,7 @@ export function SpotCardActions({
           aria-label={`Définir ${spotName} comme spot favori`}
           title="Définir comme favori"
         >
-          ☆
+          ★
         </button>
       )}
       <button
@@ -82,7 +82,7 @@ export function SpotCardActions({
         aria-label={`Supprimer le spot ${spotName}`}
         title="Supprimer"
       >
-        ✕
+        ×
       </button>
     </span>
   );

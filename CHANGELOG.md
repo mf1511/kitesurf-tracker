@@ -2,9 +2,34 @@
 
 ## 2026-08-10
 
+### 🔧 Changed
+- Figures inactives (admin) : visibles catalogue / arbre / séjour, non cliquables, libellé « Bientôt disponible » — fiche détail réservée admin
+- Figures : on peut marquer acquise même sans avoir validé les prérequis
+- Séjour : rangée d’avatars du crew en haut de la fiche (places + profils)
+- Séjour « Inviter le crew » : message correct si amis déjà membres + ajout place (prénom / email / photo) dans le dialog — SQL `014-trip-seat-email.sql`
+- Navigation mobile : retour depuis une fiche figure vers la page d’origine (arbre, séjour, dashboard, amis…) + restauration du pan de l’arbre
+- Amis : liste des potes en premier (cartes cliquables), fil d’activité en dessous — profil ami `/community/[id]` (progression, objectifs, figures, sessions)
+- Séjour : « Objectif de … » affiche les photos de profil (ou initiales) à la place des prénoms
+- Spots : plus de saisie lat/lng — coords optionnelles en base (SQL `013-spot-coords-optional.sql`)
+- Séjour : liste de figures groupée par monde (ordre arbre), réussies perso masquées par défaut + bouton pour les réafficher
+- Séjour : hors-ligne via icône télécharger (dialog : tout le séjour ou mes objectifs, avec nb de vidéos + taille Mo/Go)
+- Séjour : « Inviter le crew » en dialog via bouton en haut à droite (plus de carte pleine page)
+- Arbre de progression : vrai skill-tree gauche→droite (nœuds + arêtes SVG, pan/scroll) — Débuter en chaînes linéaires par module
+- Page Communauté renommée **Amis** (nav + bottom bar) : invite lien + ajout par email regroupés dans un dialog « Inviter un ami »
+- Social sans compétition : retrait du classement potes, des défis, des leaderboards séjour / « séjours skillants » et de la comparaison amis sur les figures — fil d’activité et invites conservés (célébration, pas classement)
+
 ### ✨ Added
+- Figures **Surface Backroll Transition**, **Surface Backroll 360**, **Backroll to Toeside**, **Blind to Toeside Transition** — SQL `015`–`018`
+- Séjour : le créateur peut retirer un rider (Participants invités → Retirer) — libère place + objectifs
+- Vidéos figures : bouton de vitesse de lecture (0.5× → 2×)
+- Spots : top 3 populaires (les + mis en favori), ajout en favori en un clic, suggestions de noms similaires à la création
+- Séjour : dans « Inviter le crew », ajouter directement des amis déjà sur KiteQuest (membre + place claimée)
+- Invitation séjour façon Tricount : places (prénom + photo), lien « Qui es-tu ? », claim après login/register — SQL `prisma/sql/012-trip-seats.sql`
+- Inscription fermée : code d’invitation obligatoire — pré-invites admin (email, nom, photo) via `/admin/invites` — SQL `prisma/sql/011-pre-invites.sql`
+- Photo de profil : upload JPEG/PNG/WebP (max 2 Mo) dans Paramètres, affichage dans la nav — SQL `prisma/sql/010-user-avatar.sql` + bucket Storage `avatars`
+- Formation Débuter : sous-sections des dossiers (bases, matériel, plage, eau, sécurité…) dans le catalogue et l’arbre — badge module sur chaque leçon
 - Catalogue figures : recherche instantanée (insensible aux accents) + tri (ordre conseillé, nom, XP croissant/décroissant) côté client
-- Arbre de progression (`/figures/arbre`) : vue arborescente des prérequis par catégorie avec états validée / débloquée / verrouillée — les « Mondes » du dashboard pointent dessus
+- Arbre de progression (`/figures/arbre`) : skill-tree LTR des prérequis par catégorie (états validée / débloquée / verrouillée) — les « Mondes » du dashboard pointent dessus
 - Carnet perso par figure : note libre privée sur chaque fiche (`FigureNote`, `PUT /api/figures/[id]/note`)
 - Fiche figure : section « Tes amis sur cette figure » (qui l'a validée et quand)
 - Page Stats (`/stats`) : courbe d'XP cumulé 12 mois (SVG maison), répartition par catégorie, records (meilleur mois, première figure, rythme, temps sur l'eau, session la plus ventée)

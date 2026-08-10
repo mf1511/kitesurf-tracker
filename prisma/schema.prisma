@@ -13,6 +13,10 @@ model User {
   email     String         @unique
   password  String
   name      String?
+  /// URL publique photo de profil (Supabase Storage)
+  image     String?
+  /// Chemin Storage pour remplacer / supprimer
+  imagePath String?
   role      String         @default("user") // "user" | "admin"
   /// Poids rider (kg) — utilisé par l'assistant taille d'aile
   weightKg  Float?
@@ -22,6 +26,8 @@ model User {
 
   // Communauté
   invitesCreated      Invite[]
+  preInvitesCreated   PreInvite[] @relation("PreInviteCreator")
+  preInviteClaimed    PreInvite?  @relation("PreInviteClaimed")
   friendshipsSent     Friendship[] @relation("FriendshipRequester")
   friendshipsReceived Friendship[] @relation("FriendshipAddressee")
 
@@ -30,6 +36,7 @@ model User {
   tripMemberships       TripMember[]
   tripFiguresAdded      TripFigure[]          @relation("TripFigureAdder")
   tripMemberObjectives  TripMemberObjective[]
+  tripSeatsClaimed      TripSeat[]            @relation("TripSeatClaimed")
 
   // Matériel kite perso
   gear                  Gear[]
@@ -164,6 +171,26 @@ model Invite {
   @@index([creatorId])
 }
 
+/// Pré-invitation admin : email (+ nom / photo) — inscription uniquement sur code
+model PreInvite {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String?
+  image     String?
+  imagePath String?
+  code      String    @unique
+  creatorId String
+  createdAt DateTime  @default(now())
+  usedAt    DateTime?
+  usedById  String?   @unique
+
+  creator User  @relation("PreInviteCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  usedBy  User? @relation("PreInviteClaimed", fields: [usedById], references: [id], onDelete: SetNull)
+
+  @@index([creatorId])
+  @@index([usedAt])
+}
+
 /// Séjour kite (ex: Dakhla 12 jours) — XP via completedAt dans la fenêtre de dates
 model Trip {
   id          String   @id @default(cuid())
@@ -180,9 +207,29 @@ model Trip {
   members    TripMember[]
   figures    TripFigure[]
   objectives TripMemberObjective[]
+  seats      TripSeat[]
 
   @@index([startDate, endDate])
   @@index([creatorId])
+}
+
+/// Place « qui es-tu ? » sur le lien d’invitation (prénom + photo + email opt.)
+model TripSeat {
+  id          String   @id @default(cuid())
+  tripId      String
+  displayName String
+  email       String?
+  image       String?
+  imagePath   String?
+  order       Int      @default(0)
+  claimedById String?
+  createdAt   DateTime @default(now())
+
+  trip      Trip  @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  claimedBy User? @relation("TripSeatClaimed", fields: [claimedById], references: [id], onDelete: SetNull)
+
+  @@unique([tripId, claimedById])
+  @@index([tripId])
 }
 
 model TripMember {
@@ -268,8 +315,9 @@ model Spot {
   id        String   @id @default(cuid())
   userId    String
   name      String
-  latitude  Float
-  longitude Float
+  /// Optionnel — plus saisi dans l’UI ; utile si déjà renseigné pour la météo
+  latitude  Float?
+  longitude Float?
   /// Orientations de vent qui marchent (texte libre : "NO–NE", "thermique O…")
   windOrientation String?
   /// flat | chop | vagues | mixte

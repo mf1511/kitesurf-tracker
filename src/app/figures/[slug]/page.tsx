@@ -7,13 +7,17 @@ import FigureCheckbox from "@/components/FigureCheckbox";
 import AddFigureToTrip from "@/components/add-figure-to-trip";
 import FigureVideosPanel from "@/components/figure-videos-panel";
 import { FigureNotePanel } from "@/components/figure-note-panel";
+import BackLink from "@/components/back-link";
+import { resolveDebuterSection } from "@/lib/debuter";
 import { xpForCategory } from "@/lib/gamification";
-import { getFriendIds, riderAvatarHue, riderInitials, riderLabel } from "@/lib/community";
+import { figureHref } from "@/lib/nav-return";
 
 export default async function FigureDetailPage({
   params,
+  searchParams,
 }: {
   params: { slug: string };
+  searchParams: { from?: string };
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
@@ -35,39 +39,35 @@ export default async function FigureDetailPage({
   });
 
   if (!figure) notFound();
-  // Inactive = masquée pour les users (admin peut toujours ouvrir)
+  // Inactive : visible en catalogue/arbre, fiche réservée admin
   if (!figure.active && session.user.role !== "admin") notFound();
 
-  // Séjours où l’user est membre (+ si la figure y est déjà)
-  const [myTrips, myNote, friendIds] = await Promise.all([
-    prisma.trip.findMany({
-      where: { members: { some: { userId } } },
-      select: {
-        id: true,
-        name: true,
-        figures: {
-          where: { figureId: figure.id },
-          select: { id: true },
+  // Leçons Débuter : layout vidéo-first, sans étapes / séjour
+  const isLesson = figure.category === "Débuter";
+  const lessonSection = isLesson
+    ? resolveDebuterSection(figure.description, figure.order)
+    : null;
+
+  const myNote = await prisma.figureNote.findUnique({
+    where: { userId_figureId: { userId, figureId: figure.id } },
+  });
+
+  const myTrips = isLesson
+    ? []
+    : await prisma.trip.findMany({
+        where: { members: { some: { userId } } },
+        select: {
+          id: true,
+          name: true,
+          figures: {
+            where: { figureId: figure.id },
+            select: { id: true },
+          },
         },
-      },
-      orderBy: { startDate: "desc" },
-    }),
-    prisma.figureNote.findUnique({
-      where: { userId_figureId: { userId, figureId: figure.id } },
-    }),
-    getFriendIds(userId),
-  ]);
+        orderBy: { startDate: "desc" },
+      });
 
-  // Amis qui ont validé cette figure (comparaison sociale)
-  const friendsDone = friendIds.length
-    ? await prisma.userProgress.findMany({
-        where: { figureId: figure.id, userId: { in: friendIds }, completed: true },
-        include: { user: { select: { id: true, name: true, email: true } } },
-        orderBy: { completedAt: "asc" },
-      })
-    : [];
-
-  const steps: string[] = JSON.parse(figure.steps);
+  const steps: string[] = isLesson ? [] : JSON.parse(figure.steps);
   const completed = !!figure.progress?.[0]?.completed;
   const locked = figure.prerequisites.some(
     (p) => !p.progress?.some((prog) => prog.completed)
@@ -75,19 +75,58 @@ export default async function FigureDetailPage({
   const xp = xpForCategory(figure.category);
   const questStatus = completed ? "done" : locked ? "locked" : "open";
   const questLabel = completed
-    ? "Quête acquise"
+    ? isLesson
+      ? "Leçon vue"
+      : "Quête acquise"
     : locked
     ? "Quête verrouillée"
+    : isLesson
+    ? "À regarder"
     : "Quête débloquée";
 
+  const videoProps = {
+    figureName: figure.name,
+    videos: figure.videos.map((v) => ({
+      id: v.id,
+      url: v.url,
+      storagePath: v.storagePath,
+      title: v.title,
+      mimeType: v.mimeType,
+      sizeBytes: v.sizeBytes,
+      figureId: figure.id,
+      figureSlug: figure.slug,
+      figureName: figure.name,
+    })),
+  };
+
+  const noteBlock = (
+    <section className="figure-block">
+      <h2>Mon carnet</h2>
+      <FigureNotePanel
+        figureId={figure.id}
+        initialContent={myNote?.content ?? ""}
+        initialUpdatedAt={myNote?.updatedAt.toISOString() ?? null}
+      />
+    </section>
+  );
+
+  const from = searchParams.from;
+
   return (
-    <div className="figure-detail">
-      <Link href="/figures" className="back-link">← Toutes les figures</Link>
+    <div className={`figure-detail${isLesson ? " figure-detail-lesson" : ""}`}>
+      <BackLink
+        from={from}
+        fallbackHref="/figures"
+        fallbackLabel="← Toutes les figures"
+      />
 
       <div className="figure-detail-header">
-        <span className="badge">{figure.category}</span>
+        <div className="figure-badges">
+          <span className="badge">{figure.category}</span>
+          {lessonSection && <span className="badge badge-soft">{lessonSection}</span>}
+        </div>
         <h1>{figure.name}</h1>
-        <p className="figure-description">{figure.description}</p>
+        {!isLesson && <p className="figure-description">{figure.description}</p>}
 
         <div className="status-row">
           <span className={`quest-status ${questStatus}`}>{questLabel}</span>
@@ -98,42 +137,77 @@ export default async function FigureDetailPage({
           <FigureCheckbox
             figureId={figure.id}
             initialCompleted={completed}
-            locked={locked && !completed}
             xpReward={xp}
           />
           <span>
-            {locked && !completed
-              ? "Prérequis non validés"
-              : completed
-              ? "Figure acquise — bien joué !"
+            {completed
+              ? isLesson
+                ? "Leçon terminée — bien joué !"
+                : "Figure acquise — bien joué !"
+              : isLesson
+              ? "Marquer comme vue"
               : "Marquer comme acquise"}
           </span>
         </div>
-        <div className="status-row add-to-trip-row">
-          <AddFigureToTrip
-            figureId={figure.id}
-            trips={myTrips.map((t) => ({
-              id: t.id,
-              name: t.name,
-              already: t.figures.length > 0,
-            }))}
-          />
-        </div>
+        {locked && !completed && (
+          <p className="feed-meta">
+            Prérequis non validés — tu peux quand même cocher si tu la maîtrises
+            déjà.
+          </p>
+        )}
+
+        {!isLesson && (
+          <div className="status-row add-to-trip-row">
+            <AddFigureToTrip
+              figureId={figure.id}
+              trips={myTrips.map((t) => ({
+                id: t.id,
+                name: t.name,
+                already: t.figures.length > 0,
+              }))}
+            />
+          </div>
+        )}
       </div>
 
-      {figure.prerequisites.length > 0 && (
+      {/* Débuter : vidéo d’abord, notes juste en dessous */}
+      {isLesson && (
+        <>
+          <section className="figure-block">
+            <FigureVideosPanel {...videoProps} />
+          </section>
+          {noteBlock}
+        </>
+      )}
+
+      {!isLesson && figure.prerequisites.length > 0 && (
         <section className="figure-block">
           <h2>À maîtriser avant</h2>
           <div className="prereq-list">
             {figure.prerequisites.map((p) => {
               const pDone = !!p.progress?.[0]?.completed;
+              const className = `prereq-chip ${pDone ? "done" : ""}${
+                !p.active ? " inactive" : ""
+              }`;
+              const label = (
+                <>
+                  {pDone ? "✓" : "○"} {p.name}
+                </>
+              );
+              if (!p.active) {
+                return (
+                  <span key={p.id} className={className}>
+                    {label} · Bientôt disponible
+                  </span>
+                );
+              }
               return (
                 <Link
                   key={p.id}
-                  href={`/figures/${p.slug}`}
-                  className={`prereq-chip ${pDone ? "done" : ""}`}
+                  href={figureHref(p.slug, from)}
+                  className={className}
                 >
-                  {pDone ? "✓" : "○"} {p.name}
+                  {label}
                 </Link>
               );
             })}
@@ -141,85 +215,48 @@ export default async function FigureDetailPage({
         </section>
       )}
 
-      <section className="figure-block">
-        <h2>Étapes</h2>
-        <ol className="steps-list">
-          {steps.map((step, i) => (
-            <li key={i}>{step}</li>
-          ))}
-        </ol>
-      </section>
+      {!isLesson && (
+        <section className="figure-block">
+          <h2>Étapes</h2>
+          <ol className="steps-list">
+            {steps.map((step, i) => (
+              <li key={i}>{step}</li>
+            ))}
+          </ol>
+        </section>
+      )}
 
-      {figure.unlocks.length > 0 && (
+      {!isLesson && figure.unlocks.length > 0 && (
         <section className="figure-block">
           <h2>Cette figure débloque ensuite</h2>
           <div className="prereq-list">
-            {figure.unlocks.map((u) => (
-              <Link key={u.id} href={`/figures/${u.slug}`} className="prereq-chip">
-                {u.name}
-              </Link>
-            ))}
+            {figure.unlocks.map((u) =>
+              u.active ? (
+                <Link
+                  key={u.id}
+                  href={figureHref(u.slug, from)}
+                  className="prereq-chip"
+                >
+                  {u.name}
+                </Link>
+              ) : (
+                <span key={u.id} className="prereq-chip inactive">
+                  {u.name} · Bientôt disponible
+                </span>
+              )
+            )}
           </div>
         </section>
       )}
 
-      {friendIds.length > 0 && (
-        <section className="figure-block">
-          <h2>Tes amis sur cette figure</h2>
-          {friendsDone.length === 0 ? (
-            <p className="figure-friends-empty">
-              Aucun de tes amis ne l’a validée — sois le premier ! 🏆
-            </p>
-          ) : (
-            <ul className="figure-friends-list">
-              {friendsDone.map((p) => (
-                <li key={p.id}>
-                  <span
-                    className="crew-avatar"
-                    style={{ background: `hsl(${riderAvatarHue(p.user.id)} 42% 42%)` }}
-                    aria-hidden
-                  >
-                    {riderInitials(p.user)}
-                  </span>
-                  <strong>{riderLabel(p.user)}</strong>
-                  {p.completedAt && (
-                    <span className="figure-friend-date">
-                      le {p.completedAt.toLocaleDateString("fr-FR")}
-                    </span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+      {!isLesson && (
+        <>
+          {noteBlock}
+          <section className="figure-block">
+            <FigureVideosPanel {...videoProps} />
+          </section>
+        </>
       )}
-
-      <section className="figure-block">
-        <h2>Mon carnet</h2>
-        <FigureNotePanel
-          figureId={figure.id}
-          initialContent={myNote?.content ?? ""}
-          initialUpdatedAt={myNote?.updatedAt.toISOString() ?? null}
-        />
-      </section>
-
-      <section className="figure-block">
-        <h2>Vidéos</h2>
-        <FigureVideosPanel
-          figureName={figure.name}
-          videos={figure.videos.map((v) => ({
-            id: v.id,
-            url: v.url,
-            storagePath: v.storagePath,
-            title: v.title,
-            mimeType: v.mimeType,
-            sizeBytes: v.sizeBytes,
-            figureId: figure.id,
-            figureSlug: figure.slug,
-            figureName: figure.name,
-          }))}
-        />
-      </section>
     </div>
   );
 }

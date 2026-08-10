@@ -71,8 +71,8 @@ export default async function InvitePage({
         Rejoins <span>KiteQuest</span>
       </h1>
       <p>
-        {host} t&apos;invite sur KiteQuest. Crée ton compte pour comparer vos
-        progressions, le classement XP et célébrer les figures validées ensemble.
+        {host} t&apos;invite sur KiteQuest. Crée ton compte pour progresser à
+        ton rythme et célébrer les figures validées ensemble.
       </p>
       <div className="hero-actions">
         <Link href={`/register?invite=${invite.code}`} className="btn btn-primary">

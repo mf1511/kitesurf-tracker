@@ -3,6 +3,8 @@ node_modules
 dev.db
 .env
 *.tsbuildinfo
+.tmp
+.DS_Store
 
 # Service worker généré par @ducanh2912/next-pwa (build prod)
 public/sw.js

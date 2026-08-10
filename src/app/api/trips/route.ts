@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateTripCode } from "@/lib/trips";
+import { createOwnerSeat } from "@/lib/trip-seats";
 
 /** Liste des séjours de l'utilisateur */
 export async function GET() {
@@ -70,6 +71,9 @@ export async function POST(req: Request) {
   if (!trip) {
     return NextResponse.json({ error: "Impossible de créer le séjour" }, { status: 500 });
   }
+
+  // Place créateur (déjà claimée) pour l’invite façon Tricount
+  await createOwnerSeat(trip.id, session.user.id);
 
   return NextResponse.json({ trip });
 }

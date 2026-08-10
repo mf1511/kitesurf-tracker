@@ -10,6 +10,7 @@ import {
   type OfflineVideoMeta,
 } from "@/lib/offline-videos";
 import { formatBytes } from "@/lib/videos";
+import { figureHref } from "@/lib/nav-return";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 
 export default function OfflineManager() {
@@ -86,7 +87,10 @@ export default function OfflineManager() {
               </div>
               <div className="offline-actions">
                 {v.figureSlug && (
-                  <Link href={`/figures/${v.figureSlug}`} className="btn btn-ghost">
+                  <Link
+                    href={figureHref(v.figureSlug, "/offline")}
+                    className="btn btn-ghost"
+                  >
                     Voir
                   </Link>
                 )}

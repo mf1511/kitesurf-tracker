@@ -28,6 +28,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name ?? undefined,
+          image: user.image ?? undefined,
           role: user.role,
         };
       },
@@ -38,10 +39,17 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = (user as { id: string }).id;
         token.role = (user as { role?: string }).role ?? "user";
+        token.picture = (user as { image?: string | null }).image ?? null;
       }
-      // Sync nom après PATCH /api/account + useSession().update()
-      if (trigger === "update" && session && typeof session.name === "string") {
-        token.name = session.name || null;
+      // Sync après PATCH profil / avatar via useSession().update()
+      if (trigger === "update" && session) {
+        if (typeof session.name === "string") {
+          token.name = session.name || null;
+        }
+        if (session.image !== undefined) {
+          token.picture =
+            typeof session.image === "string" ? session.image : null;
+        }
       }
       return token;
     },
@@ -52,6 +60,8 @@ export const authOptions: NextAuthOptions = {
         if (typeof token.name === "string" || token.name === null) {
           session.user.name = token.name as string | null;
         }
+        session.user.image =
+          typeof token.picture === "string" ? token.picture : null;
       }
       return session;
     },

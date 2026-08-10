@@ -16,6 +16,7 @@ export type FigureLike = {
 
 /** Points XP selon la catégorie (plus technique = plus de points) */
 const CATEGORY_XP: Record<string, number> = {
+  Débuter: 5,
   "Bases et transitions": 10,
   "Surface tricks & drags": 15,
   "Sauts & Big Air": 20,
@@ -87,6 +88,15 @@ export type GameStats = {
 
 export function xpForCategory(category: string): number {
   return CATEGORY_XP[category] ?? DEFAULT_XP;
+}
+
+/** Ordre d’affichage des mondes : Débuter en premier, puis alpha FR */
+export function sortCategories(categories: string[]): string[] {
+  return [...categories].sort((a, b) => {
+    if (a === "Débuter") return -1;
+    if (b === "Débuter") return 1;
+    return a.localeCompare(b, "fr");
+  });
 }
 
 export function isCompleted(figure: FigureLike): boolean {

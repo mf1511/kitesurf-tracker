@@ -51,14 +51,23 @@ export type TripFeedItem = {
   xp: number;
 };
 
-export type CrewRider = { userId: string; label: string; isMe: boolean };
+export type CrewRider = {
+  userId: string;
+  label: string;
+  isMe: boolean;
+  /** Photo profil (objectifs : affichée à la place du prénom) */
+  image: string | null;
+  initials: string;
+  hue: number;
+};
 
-/** Avatar initiales + prénom (acquis perso) */
+/** Avatar + prénom (acquis perso) */
 export type CrewRiderChip = {
   userId: string;
   firstName: string;
   initials: string;
   hue: number;
+  image: string | null;
   isMe: boolean;
 };
 
@@ -68,6 +77,10 @@ export type TripFigureRow = {
   name: string;
   slug: string;
   category: string;
+  /** false = pas encore publiée (visible, non cliquable) */
+  active: boolean;
+  /** Ordre pédagogique (arbre de progression) */
+  order: number;
   addedById: string;
   addedByLabel: string;
   /** Riders qui l’ont en objectif perso */
@@ -77,7 +90,10 @@ export type TripFigureRow = {
   /** Riders du trip qui l’ont déjà en acquis (espace perso) */
   knownBy: CrewRiderChip[];
   isMyObjective: boolean;
+  /** Validée pendant les dates du séjour (moi) */
   iCompleted: boolean;
+  /** Déjà en acquis perso (toutes dates) */
+  alreadyDone: boolean;
 };
 
 export type MyObjectiveRow = {
@@ -85,6 +101,7 @@ export type MyObjectiveRow = {
   name: string;
   slug: string;
   category: string;
+  active: boolean;
   done: boolean;
 };
 
@@ -93,19 +110,39 @@ export async function computeTripStats(tripId: string, meId?: string) {
     where: { id: tripId },
     include: {
       members: {
-        include: { user: { select: { id: true, name: true, email: true } } },
+        include: {
+          user: { select: { id: true, name: true, email: true, image: true } },
+        },
       },
       figures: {
         include: {
-          figure: { select: { id: true, name: true, slug: true, category: true } },
+          figure: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              category: true,
+              order: true,
+              active: true,
+            },
+          },
           addedBy: { select: { id: true, name: true, email: true } },
         },
         orderBy: { createdAt: "asc" },
       },
       objectives: {
         include: {
-          figure: { select: { id: true, name: true, slug: true, category: true } },
-          user: { select: { id: true, name: true, email: true } },
+          figure: {
+            select: {
+              id: true,
+              name: true,
+              slug: true,
+              category: true,
+              order: true,
+              active: true,
+            },
+          },
+          user: { select: { id: true, name: true, email: true, image: true } },
         },
       },
     },
@@ -124,7 +161,7 @@ export async function computeTripStats(tripId: string, meId?: string) {
       },
       include: {
         figure: { select: { id: true, name: true, slug: true, category: true } },
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, email: true, image: true } },
       },
       orderBy: { completedAt: "desc" },
     }),
@@ -137,7 +174,7 @@ export async function computeTripStats(tripId: string, meId?: string) {
       select: {
         userId: true,
         figureId: true,
-        user: { select: { id: true, name: true, email: true } },
+        user: { select: { id: true, name: true, email: true, image: true } },
       },
     }),
   ]);
@@ -150,6 +187,7 @@ export async function computeTripStats(tripId: string, meId?: string) {
       firstName: riderFirstName(p.user),
       initials: riderInitials(p.user),
       hue: riderAvatarHue(p.userId),
+      image: p.user.image,
       isMe: p.userId === meId,
     };
     const list = knownByFigure.get(p.figureId) ?? [];
@@ -227,26 +265,41 @@ export async function computeTripStats(tripId: string, meId?: string) {
         userId: o.userId,
         label: riderLabel(o.user),
         isMe: o.userId === meId,
+        image: o.user.image,
+        initials: riderInitials(o.user),
+        hue: riderAvatarHue(o.userId),
       }));
     const completers: TripFigureRow["completers"] = [];
     for (const [userId, row] of byUser) {
       if (row.figureIds.has(tf.figureId)) {
-        completers.push({ userId, label: row.label, isMe: userId === meId });
+        const member = trip.members.find((m) => m.userId === userId)?.user;
+        completers.push({
+          userId,
+          label: row.label,
+          isMe: userId === meId,
+          image: member?.image ?? null,
+          initials: member ? riderInitials(member) : "?",
+          hue: riderAvatarHue(userId),
+        });
       }
     }
+    const known = knownByFigure.get(tf.figureId) ?? [];
     return {
       id: tf.id,
       figureId: tf.figureId,
       name: tf.figure.name,
       slug: tf.figure.slug,
       category: tf.figure.category,
+      active: tf.figure.active,
+      order: tf.figure.order,
       addedById: tf.addedById,
       addedByLabel: riderLabel(tf.addedBy),
       objectiveHolders: holders,
       completers,
-      knownBy: knownByFigure.get(tf.figureId) ?? [],
+      knownBy: known,
       isMyObjective: Boolean(meId && holders.some((h) => h.userId === meId)),
       iCompleted: Boolean(meId && byUser.get(meId)?.figureIds.has(tf.figureId)),
+      alreadyDone: Boolean(meId && known.some((c) => c.isMe)),
     };
   });
 
@@ -258,6 +311,7 @@ export async function computeTripStats(tripId: string, meId?: string) {
           name: o.figure.name,
           slug: o.figure.slug,
           category: o.figure.category,
+          active: o.figure.active,
           done: Boolean(byUser.get(meId)?.figureIds.has(o.figureId)),
         }))
     : [];

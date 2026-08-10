@@ -24,9 +24,13 @@ export function publicVideoUrl(storagePath: string): string {
   return `${base}/storage/v1/object/public/${FIGURE_VIDEOS_BUCKET}/${storagePath}`;
 }
 
+/** Affiche o / Ko / Mo / Go */
 export function formatBytes(bytes: number | null | undefined): string {
   if (bytes == null || bytes <= 0) return "—";
   if (bytes < 1024) return `${bytes} o`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} Ko`;
-  return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+  if (bytes < 1024 * 1024 * 1024) {
+    return `${(bytes / (1024 * 1024)).toFixed(1)} Mo`;
+  }
+  return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} Go`;
 }

@@ -12,7 +12,8 @@
     "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "db:keepalive": "tsx scripts/keepalive.ts",
-    "make-admin": "tsx scripts/make-admin.ts"
+    "make-admin": "tsx scripts/make-admin.ts",
+    "import:debuter": "tsx scripts/import-debuter-videos.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

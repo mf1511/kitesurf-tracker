@@ -14,7 +14,7 @@ const PRIMARY_LINKS = [
   { href: "/spots", label: "Spots", auth: true },
   { href: "/sessions", label: "Sessions", auth: true },
   { href: "/trips", label: "Séjours", auth: true },
-  { href: "/community", label: "Communauté", auth: true },
+  { href: "/community", label: "Amis", auth: true },
 ] as const;
 
 function linkActive(pathname: string, href: string) {

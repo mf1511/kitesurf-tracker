@@ -1,64 +1,42 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/components/ui/toast";
 import { useConfirm } from "@/components/ui/confirm-dialog";
+import UserAvatar from "@/components/user-avatar";
 
-type Rider = {
+export type FriendCard = {
   friendshipId: string;
   id: string;
   name: string | null;
   email: string;
+  image: string | null;
   label: string;
+  xp: number;
+  done: number;
 };
 
-/** Demandes d'amis + ajout par email + liste */
+/** Demandes + grille d’amis cliquables */
 export default function CommunityFriendsPanel({
   friends,
   incoming,
   outgoing,
 }: {
-  friends: Rider[];
-  incoming: Rider[];
-  outgoing: Rider[];
+  friends: FriendCard[];
+  incoming: FriendCard[];
+  outgoing: FriendCard[];
 }) {
   const router = useRouter();
   const toast = useToast();
   const confirm = useConfirm();
-  const [email, setEmail] = useState("");
-  const [error, setError] = useState("");
-  const [ok, setOk] = useState("");
-  const [busy, setBusy] = useState(false);
-  /** friendshipId en cours d'action (disabled ciblé) */
   const [actingId, setActingId] = useState<string | null>(null);
 
-  async function refresh() {
-    router.refresh();
-  }
-
-  async function sendRequest(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setOk("");
-    setBusy(true);
-    const res = await fetch("/api/friends", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json().catch(() => ({}));
-    setBusy(false);
-    if (!res.ok) {
-      setError(data.error || "Erreur");
-      return;
-    }
-    setOk(data.autoAccepted ? "Vous êtes maintenant amis !" : "Demande envoyée");
-    setEmail("");
-    refresh();
-  }
-
-  async function act(friendshipId: string, action: "accept" | "decline" | "remove") {
+  async function act(
+    friendshipId: string,
+    action: "accept" | "decline" | "remove"
+  ) {
     setActingId(friendshipId);
     try {
       const res = await fetch("/api/friends", {
@@ -71,7 +49,7 @@ export default function CommunityFriendsPanel({
         throw new Error(data.error);
       }
       if (action === "accept") toast("Ami ajouté !", "success");
-      refresh();
+      router.refresh();
     } catch (err) {
       toast(
         err instanceof Error && err.message
@@ -86,43 +64,30 @@ export default function CommunityFriendsPanel({
 
   return (
     <div className="community-stack">
-      <div className="community-card">
-        <h2>Ajouter par email</h2>
-        <p className="community-lead">
-          S&apos;il a déjà un compte, envoie une demande. Sinon, utilise ton lien d&apos;invitation.
-        </p>
-        <form onSubmit={sendRequest} className="friend-email-form">
-          <input
-            type="email"
-            placeholder="ami@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <button type="submit" className="btn btn-primary" disabled={busy}>
-            {busy ? "…" : "Inviter"}
-          </button>
-        </form>
-        {error && <p className="form-error">{error}</p>}
-        {ok && <p className="form-ok">{ok}</p>}
-      </div>
-
       {incoming.length > 0 && (
-        <div className="community-card">
+        <section className="community-card">
           <h2>Demandes reçues</h2>
           <ul className="friend-list">
             {incoming.map((r) => (
               <li key={r.friendshipId}>
-                <div>
-                  <strong>{r.label}</strong>
-                  <span>{r.email}</span>
+                <div className="friend-list-main">
+                  <UserAvatar
+                    name={r.name}
+                    email={r.email}
+                    image={r.image}
+                    className="friend-list-avatar"
+                  />
+                  <div>
+                    <strong>{r.label}</strong>
+                    <span>{r.email}</span>
+                  </div>
                 </div>
                 <div className="friend-actions">
                   <button
                     type="button"
                     className="btn btn-primary"
                     disabled={actingId === r.friendshipId}
-                    onClick={() => act(r.friendshipId, "accept")}
+                    onClick={() => void act(r.friendshipId, "accept")}
                   >
                     Accepter
                   </button>
@@ -130,7 +95,7 @@ export default function CommunityFriendsPanel({
                     type="button"
                     className="btn btn-secondary"
                     disabled={actingId === r.friendshipId}
-                    onClick={() => act(r.friendshipId, "decline")}
+                    onClick={() => void act(r.friendshipId, "decline")}
                   >
                     Refuser
                   </button>
@@ -138,48 +103,66 @@ export default function CommunityFriendsPanel({
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
 
       {outgoing.length > 0 && (
-        <div className="community-card">
+        <section className="community-card">
           <h2>En attente</h2>
           <ul className="friend-list">
             {outgoing.map((r) => (
               <li key={r.friendshipId}>
-                <div>
-                  <strong>{r.label}</strong>
-                  <span>Demande envoyée</span>
+                <div className="friend-list-main">
+                  <UserAvatar
+                    name={r.name}
+                    email={r.email}
+                    image={r.image}
+                    className="friend-list-avatar"
+                  />
+                  <div>
+                    <strong>{r.label}</strong>
+                    <span>Demande envoyée</span>
+                  </div>
                 </div>
                 <button
                   type="button"
                   className="btn btn-secondary"
                   disabled={actingId === r.friendshipId}
-                  onClick={() => act(r.friendshipId, "remove")}
+                  onClick={() => void act(r.friendshipId, "remove")}
                 >
                   Annuler
                 </button>
               </li>
             ))}
           </ul>
-        </div>
+        </section>
       )}
 
-      <div className="community-card">
+      <section className="community-card">
         <h2>Mes amis ({friends.length})</h2>
         {friends.length === 0 ? (
-          <p className="quest-empty">Pas encore d&apos;amis — partage ton lien !</p>
+          <p className="quest-empty">
+            Pas encore d&apos;amis — invite quelqu&apos;un !
+          </p>
         ) : (
-          <ul className="friend-list">
+          <ul className="friend-grid">
             {friends.map((r) => (
               <li key={r.friendshipId}>
-                <div>
+                <Link href={`/community/${r.id}`} className="friend-card">
+                  <UserAvatar
+                    name={r.name}
+                    email={r.email}
+                    image={r.image}
+                    className="friend-card-avatar"
+                  />
                   <strong>{r.label}</strong>
-                  <span>{r.email}</span>
-                </div>
+                  <span>
+                    {r.done} figures · {r.xp} XP
+                  </span>
+                </Link>
                 <button
                   type="button"
-                  className="btn btn-secondary"
+                  className="btn btn-ghost friend-card-remove"
                   disabled={actingId === r.friendshipId}
                   onClick={async () => {
                     const ok = await confirm({
@@ -188,7 +171,7 @@ export default function CommunityFriendsPanel({
                       confirmLabel: "Retirer",
                       danger: true,
                     });
-                    if (ok) act(r.friendshipId, "remove");
+                    if (ok) void act(r.friendshipId, "remove");
                   }}
                 >
                   Retirer
@@ -197,7 +180,7 @@ export default function CommunityFriendsPanel({
             ))}
           </ul>
         )}
-      </div>
+      </section>
     </div>
   );
 }

@@ -3,14 +3,21 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import FigureCheckbox from "@/components/FigureCheckbox";
+import { sortDebuterSections } from "@/lib/debuter";
+import { figureHref } from "@/lib/nav-return";
 
 export type CatalogFigure = {
   id: string;
   slug: string;
   name: string;
   category: string;
+  /** Sous-module Débuter (ex. « Sur la plage »), null sinon */
+  section: string | null;
+  order: number;
   completed: boolean;
   locked: boolean;
+  /** false = visible mais pas encore publiée (admin) */
+  active: boolean;
   xp: number;
 };
 
@@ -48,43 +55,96 @@ export function FiguresCatalog({
     let list = figures;
     if (category) list = list.filter((f) => f.category === category);
     if (hideDone) list = list.filter((f) => !f.completed);
-    if (q) list = list.filter((f) => normalize(f.name).includes(q));
+    if (q) {
+      list = list.filter(
+        (f) =>
+          normalize(f.name).includes(q) ||
+          (f.section != null && normalize(f.section).includes(q))
+      );
+    }
 
     if (sort === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name, "fr"));
     if (sort === "xp-asc") list = [...list].sort((a, b) => a.xp - b.xp);
     if (sort === "xp-desc") list = [...list].sort((a, b) => b.xp - a.xp);
+    if (sort === "default") {
+      list = [...list].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "fr"));
+    }
     return list;
   }, [figures, query, category, hideDone, sort]);
 
-  // Regroupement par catégorie seulement en ordre conseillé (sinon liste plate triée)
+  // Regroupement par catégorie (+ sous-sections Débuter) en ordre conseillé
   const grouped = sort === "default";
   const visibleCategories = grouped
     ? categories.filter((c) => visible.some((f) => f.category === c))
     : [];
 
   const renderCard = (f: CatalogFigure) => {
-    const state = f.completed ? "done" : f.locked ? "locked" : "open";
+    const state = !f.active
+      ? "inactive"
+      : f.completed
+      ? "done"
+      : f.locked
+      ? "locked"
+      : "open";
     return (
       <div key={f.id} className={`figure-card ${state}`}>
         <span className={`status-dot ${state}`} aria-hidden />
-        <FigureCheckbox
-          figureId={f.id}
-          initialCompleted={f.completed}
-          locked={f.locked && !f.completed}
-          size="sm"
-          xpReward={f.xp}
-        />
-        <Link href={`/figures/${f.slug}`} className="figure-card-name">
-          {f.name}
-        </Link>
-        <span className="xp-pill">+{f.xp} XP</span>
+        {f.active ? (
+          <FigureCheckbox
+            figureId={f.id}
+            initialCompleted={f.completed}
+            size="sm"
+            xpReward={f.xp}
+          />
+        ) : (
+          <span className="checkbox sm locked" aria-hidden title="Bientôt" />
+        )}
+        {f.active ? (
+          <Link
+            href={figureHref(f.slug, "/figures")}
+            className="figure-card-name"
+          >
+            {f.name}
+          </Link>
+        ) : (
+          <span className="figure-card-name is-inactive">{f.name}</span>
+        )}
+        <span className={`xp-pill${f.active ? "" : " soon"}`}>
+          {f.active ? `+${f.xp} XP` : "Bientôt disponible"}
+        </span>
       </div>
     );
   };
 
+  /** Sous-sections Débuter dans l’ordre des dossiers */
+  function renderDebuterBlocks(list: CatalogFigure[]) {
+    const sections = sortDebuterSections(
+      Array.from(new Set(list.map((f) => f.section).filter(Boolean) as string[]))
+    );
+    const orphan = list.filter((f) => !f.section);
+
+    return (
+      <>
+        {sections.map((sec) => (
+          <div key={sec} className="figure-subsection">
+            <h3>{sec}</h3>
+            <div className="figure-grid">
+              {list.filter((f) => f.section === sec).map(renderCard)}
+            </div>
+          </div>
+        ))}
+        {orphan.length > 0 && (
+          <div className="figure-subsection">
+            {sections.length > 0 && <h3>Autres</h3>}
+            <div className="figure-grid">{orphan.map(renderCard)}</div>
+          </div>
+        )}
+      </>
+    );
+  }
+
   return (
     <>
-      {/* Barre recherche + tri */}
       <div className="figures-toolbar">
         <input
           type="search"
@@ -154,14 +214,20 @@ export function FiguresCatalog({
             : "Aucune figure dans cette catégorie."}
         </p>
       ) : grouped ? (
-        visibleCategories.map((cat) => (
-          <section key={cat} className="figure-section">
-            <h2>{cat}</h2>
-            <div className="figure-grid">
-              {visible.filter((f) => f.category === cat).map(renderCard)}
-            </div>
-          </section>
-        ))
+        visibleCategories.map((cat) => {
+          const list = visible.filter((f) => f.category === cat);
+          const isDebuter = cat === "Débuter";
+          return (
+            <section key={cat} className="figure-section">
+              <h2>{cat}</h2>
+              {isDebuter ? (
+                renderDebuterBlocks(list)
+              ) : (
+                <div className="figure-grid">{list.map(renderCard)}</div>
+              )}
+            </section>
+          );
+        })
       ) : (
         <section className="figure-section">
           <div className="figure-grid">{visible.map(renderCard)}</div>

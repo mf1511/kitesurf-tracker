@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import {
   computeGameStats,
   medalForPct,
+  sortCategories,
   xpForCategory,
 } from "@/lib/gamification";
 import { tripStatus } from "@/lib/trips";
@@ -13,6 +14,7 @@ import { getFavoriteSpot } from "@/lib/spots";
 import { getUserSessions, formatDuration } from "@/lib/sessions";
 import { degToCompass, fetchSpotForecast, rateWind, type SpotForecast } from "@/lib/weather";
 import BadgeSlider from "@/components/badge-slider";
+import { figureHref } from "@/lib/nav-return";
 
 const STATUS_LABEL = {
   live: "En cours",
@@ -61,18 +63,26 @@ export default async function DashboardPage() {
     getUserSessions(userId, 3),
   ]);
 
-  // Météo du spot favori — best effort, jamais bloquant pour le dashboard
+  // Météo du spot favori — best effort (coords optionnelles)
   let forecast: SpotForecast | null = null;
-  if (favoriteSpot) {
+  if (
+    favoriteSpot?.latitude != null &&
+    favoriteSpot?.longitude != null
+  ) {
     try {
-      forecast = await fetchSpotForecast(favoriteSpot.latitude, favoriteSpot.longitude);
+      forecast = await fetchSpotForecast(
+        favoriteSpot.latitude,
+        favoriteSpot.longitude
+      );
     } catch (err) {
       console.error("Météo dashboard indisponible :", err);
     }
   }
 
   const stats = computeGameStats(figures);
-  const categories = Array.from(new Set(figures.map((f) => f.category)));
+  const categories = sortCategories(
+    Array.from(new Set(figures.map((f) => f.category)))
+  );
   const doneIds = new Set(
     figures.filter((f) => f.progress.length > 0).map((f) => f.id)
   );
@@ -119,6 +129,9 @@ export default async function DashboardPage() {
       };
     })
     .sort((a, b) => {
+      // Monde Débuter toujours en tête
+      if (a.cat === "Débuter") return -1;
+      if (b.cat === "Débuter") return 1;
       if (a.pct === 100 && b.pct !== 100) return 1;
       if (b.pct === 100 && a.pct !== 100) return -1;
       if (a.pct === 0 && b.pct > 0) return 1;
@@ -180,7 +193,7 @@ export default async function DashboardPage() {
             Stats
           </Link>
           <Link href="/community" className="dash-quick-link">
-            Communauté
+            Amis
           </Link>
         </nav>
       </header>
@@ -203,7 +216,10 @@ export default async function DashboardPage() {
           <ol className="dash-quest-list">
             {stats.quests.map((q) => (
               <li key={q.id}>
-                <Link href={`/figures/${q.slug}`} className="dash-quest-row">
+                <Link
+                  href={figureHref(q.slug, "/dashboard")}
+                  className="dash-quest-row"
+                >
                   <span className="dash-quest-main">
                     <strong>{q.name}</strong>
                     <span>{q.category}</span>
@@ -371,7 +387,7 @@ export default async function DashboardPage() {
             <ul className="dash-objective-list">
               {openObjectives.map((o) => (
                 <li key={o.id}>
-                  <Link href={`/figures/${o.figure.slug}`}>
+                  <Link href={figureHref(o.figure.slug, "/dashboard")}>
                     <strong>{o.figure.name}</strong>
                     <span>
                       {o.trip.name} · {o.figure.category}

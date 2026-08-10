@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { parseSpotFields } from "@/lib/spots";
+import { parseSpotFields, setFavoriteSpot } from "@/lib/spots";
 
 type Ctx = { params: { id: string } };
 
@@ -12,8 +12,7 @@ async function ownedSpot(userId: string, id: string) {
 
 /**
  * Mise à jour d'un spot (JSON).
- * JSON spécial : { action: "favorite" } → devient LE spot favori (exclusif).
- * Sinon : mêmes champs que la création.
+ * { action: "favorite" } → devient LE spot favori (exclusif).
  */
 export async function PATCH(req: Request, { params }: Ctx) {
   const session = await getServerSession(authOptions);
@@ -33,15 +32,8 @@ export async function PATCH(req: Request, { params }: Ctx) {
     return NextResponse.json({ error: "JSON invalide" }, { status: 400 });
   }
 
-  // Bascule de favori : un seul spot favori à la fois
   if (raw.action === "favorite") {
-    const [, spot] = await prisma.$transaction([
-      prisma.spot.updateMany({
-        where: { userId: session.user.id, favorite: true },
-        data: { favorite: false },
-      }),
-      prisma.spot.update({ where: { id: existing.id }, data: { favorite: true } }),
-    ]);
+    const spot = await setFavoriteSpot(session.user.id, existing.id);
     return NextResponse.json({ spot });
   }
 
@@ -58,7 +50,7 @@ export async function PATCH(req: Request, { params }: Ctx) {
   return NextResponse.json({ spot });
 }
 
-/** Supprimer un spot (les sessions gardent leur historique, spotId → null) */
+/** Supprimer un spot (sessions conservées, spotId → null) */
 export async function DELETE(_req: Request, { params }: Ctx) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) {

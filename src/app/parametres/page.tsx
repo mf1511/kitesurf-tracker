@@ -14,7 +14,7 @@ export default async function ParametresPage() {
 
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { email: true, name: true, weightKg: true },
+    select: { email: true, name: true, weightKg: true, image: true },
   });
   if (!user) redirect("/login");
 
@@ -23,7 +23,7 @@ export default async function ParametresPage() {
       <header className="community-header">
         <div>
           <h1>Profil</h1>
-          <p className="subtitle">Compte, thème et raccourcis.</p>
+          <p className="subtitle">Compte, photo, thème et raccourcis.</p>
         </div>
       </header>
 
@@ -32,6 +32,7 @@ export default async function ParametresPage() {
         <ProfileSettingsForm
           initialName={user.name ?? ""}
           initialWeightKg={user.weightKg}
+          initialImage={user.image}
           email={user.email}
         />
       </section>
@@ -68,13 +69,13 @@ export default async function ParametresPage() {
             <span>Téléchargements & PWA</span>
           </li>
           <li>
-            <Link href="/community">Communauté</Link>
+            <Link href="/community">Amis</Link>
             <span>Amis et invitations</span>
           </li>
           {isAdmin && (
             <li>
               <Link href="/admin">Admin</Link>
-              <span>Gestion des figures et vidéos</span>
+              <span>Figures, vidéos, pré-invitations</span>
             </li>
           )}
         </ul>

@@ -1,28 +1,44 @@
+import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 /**
- * Catalogue public des vidéos Storage (figures actives) — pour pack offline.
- * Query: ?tripId=xxx pour limiter aux figures d’un séjour (membre requis non ici :
- * on filtre juste les figures du trip si le trip existe).
+ * Catalogue des vidéos Storage — pack offline.
+ * Query:
+ *  - ?figureId=
+ *  - ?tripId= (& scope=trip|objectives — objectives = mes objectifs perso)
  */
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const tripId = searchParams.get("tripId");
   const figureId = searchParams.get("figureId");
+  const scope = searchParams.get("scope") ?? "trip";
 
   let figureIds: string[] | undefined;
 
   if (figureId) {
     figureIds = [figureId];
   } else if (tripId) {
-    const tripFigures = await prisma.tripFigure.findMany({
-      where: { tripId },
-      select: { figureId: true },
-    });
-    figureIds = tripFigures.map((t) => t.figureId);
+    if (scope === "objectives") {
+      const session = await getServerSession(authOptions);
+      if (!session?.user?.id) {
+        return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+      }
+      const objs = await prisma.tripMemberObjective.findMany({
+        where: { tripId, userId: session.user.id },
+        select: { figureId: true },
+      });
+      figureIds = objs.map((o) => o.figureId);
+    } else {
+      const tripFigures = await prisma.tripFigure.findMany({
+        where: { tripId },
+        select: { figureId: true },
+      });
+      figureIds = tripFigures.map((t) => t.figureId);
+    }
     if (figureIds.length === 0) {
-      return NextResponse.json({ videos: [], totalBytes: 0 });
+      return NextResponse.json({ videos: [], totalBytes: 0, count: 0 });
     }
   }
 
@@ -68,5 +84,6 @@ export async function GET(req: Request) {
       order: v.order,
     })),
     totalBytes,
+    count: videos.length,
   });
 }

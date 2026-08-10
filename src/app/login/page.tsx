@@ -9,6 +9,7 @@ function LoginForm() {
   const searchParams = useSearchParams();
   const inviteCode = searchParams.get("invite") || "";
   const tripCode = searchParams.get("trip") || "";
+  const seatId = searchParams.get("seat") || "";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -31,7 +32,8 @@ function LoginForm() {
       return;
     }
     if (tripCode) {
-      router.push(`/trips/join/${tripCode}`);
+      const qs = seatId ? `?seat=${encodeURIComponent(seatId)}` : "";
+      router.push(`/trips/join/${tripCode}${qs}`);
     } else if (inviteCode) {
       router.push(`/invite/${inviteCode}`);
     } else {
@@ -41,8 +43,9 @@ function LoginForm() {
   }
 
   const registerQs = [
-    inviteCode ? `invite=${inviteCode}` : "",
-    tripCode ? `trip=${tripCode}` : "",
+    inviteCode ? `invite=${encodeURIComponent(inviteCode)}` : "",
+    tripCode ? `trip=${encodeURIComponent(tripCode)}` : "",
+    seatId ? `seat=${encodeURIComponent(seatId)}` : "",
   ]
     .filter(Boolean)
     .join("&");
@@ -56,7 +59,11 @@ function LoginForm() {
         </p>
       )}
       {tripCode && (
-        <p className="invite-banner">Après connexion, tu rejoindras le séjour.</p>
+        <p className="invite-banner">
+          {seatId
+            ? "Après connexion, ta place sur le séjour sera confirmée."
+            : "Après connexion, choisis qui tu es sur le séjour."}
+        </p>
       )}
       <label>
         Email

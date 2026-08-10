@@ -7,6 +7,7 @@ export type PublicRider = {
   name: string | null;
   email: string;
   label: string;
+  image?: string | null;
 };
 
 export function riderLabel(user: { name?: string | null; email: string }): string {
@@ -167,7 +168,7 @@ export async function buildFriendsFeed(
       completedAt: { not: null },
     },
     include: {
-      user: { select: { id: true, name: true, email: true } },
+      user: { select: { id: true, name: true, email: true, image: true } },
       figure: { select: { name: true, slug: true, category: true } },
     },
     orderBy: { completedAt: "desc" },
@@ -181,6 +182,7 @@ export async function buildFriendsFeed(
       id: r.user.id,
       name: r.user.name,
       email: r.user.email,
+      image: r.user.image,
       label: riderLabel(r.user),
     },
     figureName: r.figure.name,

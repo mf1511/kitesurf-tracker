@@ -36,8 +36,8 @@ export default function TripCreateForm() {
     <form onSubmit={submit} className="auth-form trip-form">
       <h1>Nouveau séjour</h1>
       <p className="community-lead">
-        Ex. 12 jours à Dakhla. L’XP des figures validées entre ces dates compte
-        automatiquement pour le leaderboard du trip.
+        Ex. 12 jours à Dakhla. Les figures validées pendant ces dates alimentent
+        l’activité du séjour.
       </p>
       <label>
         Nom du séjour

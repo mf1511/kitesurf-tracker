@@ -3,7 +3,12 @@ import { getServerSession } from "next-auth";
 import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { computeGameStats, xpForCategory, medalForPct } from "@/lib/gamification";
+import {
+  computeGameStats,
+  xpForCategory,
+  medalForPct,
+  sortCategories,
+} from "@/lib/gamification";
 import { formatDuration } from "@/lib/sessions";
 import { XpChart, type XpPoint } from "@/components/xp-chart";
 import { ShareRecapButton } from "@/components/share-recap-button";
@@ -80,15 +85,29 @@ export default async function StatsPage() {
   }));
 
   // --- Répartition par catégorie ---
-  const categories = Array.from(new Set(figures.map((f) => f.category))).sort();
-  const byCategory = categories
-    .map((cat) => {
-      const list = figures.filter((f) => f.category === cat);
-      const done = list.filter((f) => f.progress?.some((p) => p.completed)).length;
-      const pct = list.length ? Math.round((done / list.length) * 100) : 0;
-      return { cat, done, total: list.length, pct, medal: medalForPct(pct) };
-    })
-    .sort((a, b) => b.pct - a.pct || b.done - a.done);
+  const categories = sortCategories(
+    Array.from(new Set(figures.map((f) => f.category)))
+  );
+  // Débuter en premier, puis les autres par % décroissant
+  const byCategory = [
+    ...categories
+      .filter((c) => c === "Débuter")
+      .map((cat) => {
+        const list = figures.filter((f) => f.category === cat);
+        const done = list.filter((f) => f.progress?.some((p) => p.completed)).length;
+        const pct = list.length ? Math.round((done / list.length) * 100) : 0;
+        return { cat, done, total: list.length, pct, medal: medalForPct(pct) };
+      }),
+    ...categories
+      .filter((c) => c !== "Débuter")
+      .map((cat) => {
+        const list = figures.filter((f) => f.category === cat);
+        const done = list.filter((f) => f.progress?.some((p) => p.completed)).length;
+        const pct = list.length ? Math.round((done / list.length) * 100) : 0;
+        return { cat, done, total: list.length, pct, medal: medalForPct(pct) };
+      })
+      .sort((a, b) => b.pct - a.pct || b.done - a.done),
+  ];
 
   // --- Récap semaine (depuis lundi) ---
   const monday = mondayOfWeek(now);

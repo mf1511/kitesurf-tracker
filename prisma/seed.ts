@@ -159,6 +159,24 @@ const figures: FigureSeed[] = [
     ["Hand drag avec vitesse", "Pop léger en sortie", "Backroll et réception propre"],
     ["hand-drag-basique", "backroll-simple"]
   ),
+  f("surface-backroll-transition", "Surface Backroll Transition", CAT.SURFACE,
+    "Backroll bas / plat utilisé comme transition de bord, proche de l'eau (sans gros boost).",
+    [
+      "Vitesse et carre pour un pop bas",
+      "Initier un backroll plat sans chercher la hauteur",
+      "Réceptionner dans le nouveau sens et accélérer",
+    ],
+    ["backroll-simple", "transition-simple"]
+  ),
+  f("surface-backroll-360", "Surface Backroll 360", CAT.SURFACE,
+    "Backroll 360° plat / bas, proche de l'eau — rotation complète sans gros airtime.",
+    [
+      "Pop bas avec vitesse",
+      "Engager un backroll plat et compléter les 360°",
+      "Repérer l'eau tôt et réceptionner proprement",
+    ],
+    ["backroll-simple", "surface-backroll-transition"]
+  ),
   f("foot-drag", "Foot drag", CAT.SURFACE,
     "Retirer un pied du strap et le traîner dans l'eau.",
     ["Stabiliser le riding", "Sortir le pied arrière du strap", "Traîner puis remettre le pied"],
@@ -193,6 +211,15 @@ const figures: FigureSeed[] = [
     "Naviguer dos au kite / regard opposé — base des réceptions blind.",
     ["Pop 180 backside contrôlé", "Stabiliser la glisse en blind", "Repivoter pour revenir heel-side"],
     ["toe-side-riding", "transition-180"]
+  ),
+  f("blind-to-toeside-transition", "Blind to Toeside Transition", CAT.SURFACE,
+    "Depuis le riding blind, pivoter pour repartir en toeside (transition de bord).",
+    [
+      "Stabiliser la glisse en blind",
+      "Pivoter hanches et regard vers le toeside",
+      "Repartir toeside dans le nouveau sens",
+    ],
+    ["riding-blind", "toe-side-riding"]
   ),
   f("darkslide", "Darkslide", CAT.SURFACE,
     "Glisser sur le dessus (dark side) de la board, tip dans l'eau, sortie souvent en kiteloop.",
@@ -250,6 +277,15 @@ const figures: FigureSeed[] = [
     "Backroll utilisé comme transition de bord.",
     ["Backroll en approche de transition", "Orienter la réception dans le nouveau sens", "Repiloter le kite"],
     ["backroll-simple", "jump-transition"]
+  ),
+  f("backroll-to-toeside", "Backroll to Toeside", CAT.BIGAIR,
+    "Backroll heel-side réceptionné en toeside.",
+    [
+      "Initier un backroll heel-side classique",
+      "Orienter hanches et regard pour atterrir toeside",
+      "Stabiliser la glisse toeside à la réception",
+    ],
+    ["backroll-simple", "toe-side-riding"]
   ),
   f("frontroll-transition", "Frontroll transition", CAT.BIGAIR,
     "Frontroll utilisé comme transition de bord.",

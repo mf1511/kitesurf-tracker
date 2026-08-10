@@ -10,6 +10,7 @@ import {
   type OfflineVideoMeta,
 } from "@/lib/offline-videos";
 import { formatBytes } from "@/lib/videos";
+import VideoPlayer from "@/components/video-player";
 
 type FigureVideo = {
   id: string;
@@ -27,6 +28,21 @@ type Props = {
   figureName: string;
   videos: FigureVideo[];
 };
+
+/** Icône téléchargement (lucide-style) */
+function DownloadIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden>
+      <path
+        d="M12 3v12m0 0l4-4m-4 4l-4-4M4 17v2a2 2 0 002 2h12a2 2 0 002-2v-2"
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export default function FigureVideosPanel({ figureName, videos }: Props) {
   const [cached, setCached] = useState<Record<string, boolean>>({});
@@ -137,21 +153,28 @@ export default function FigureVideosPanel({ figureName, videos }: Props) {
   }
 
   const totalBytes = videos.reduce((s, v) => s + (v.sizeBytes ?? 0), 0);
+  const allCached = videos.every((v) => cached[v.id]);
 
   return (
-    <div className="figure-videos-panel">
-      <div className="offline-pack-bar">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          disabled={busy}
-          onClick={() => void downloadAll()}
-        >
-          Télécharger la figure ({formatBytes(totalBytes)})
-        </button>
-        <a href="/offline" className="btn btn-ghost">
-          Gérer hors-ligne
-        </a>
+    <div
+      className={`figure-videos-panel${videos.length === 1 ? " is-single" : ""}`}
+    >
+      <div className="figure-videos-toolbar">
+        <h2 className="figure-videos-heading">
+          {videos.length > 1 ? "Vidéos" : "Vidéo"}
+        </h2>
+        {!allCached && (
+          <button
+            type="button"
+            className="btn-icon"
+            disabled={busy}
+            onClick={() => void downloadAll()}
+            aria-label={`Télécharger hors-ligne (${formatBytes(totalBytes)})`}
+            title={`Télécharger hors-ligne (${formatBytes(totalBytes)})`}
+          >
+            <DownloadIcon />
+          </button>
+        )}
       </div>
       {message && <p className="offline-msg">{message}</p>}
 
@@ -161,44 +184,43 @@ export default function FigureVideosPanel({ figureName, videos }: Props) {
           const pct = progress[v.id];
           return (
             <div key={v.id} className="video-item">
-              <div className="video-embed video-player-wrap">
-                <video
-                  key={src}
-                  src={src}
-                  controls
-                  playsInline
-                  preload="metadata"
-                  title={v.title || figureName}
-                />
+              <div className="video-embed">
+                <VideoPlayer src={src} title={v.title || figureName} />
               </div>
-              {v.title && <p className="video-title">{v.title}</p>}
-              <p className="video-meta">
-                {formatBytes(v.sizeBytes)}
-                {cached[v.id] ? " · hors-ligne" : ""}
-                {pct != null && pct < 1
-                  ? ` · ${Math.round(pct * 100)}%`
-                  : ""}
-              </p>
-              <div className="offline-actions">
-                {cached[v.id] ? (
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    disabled={busy}
-                    onClick={() => void removeOne(v.id)}
-                  >
-                    Retirer hors-ligne
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    className="btn btn-ghost"
-                    disabled={busy}
-                    onClick={() => void downloadOne(v)}
-                  >
-                    Télécharger
-                  </button>
-                )}
+              <div className="video-item-foot">
+                <div className="video-item-text">
+                  {v.title && <p className="video-title">{v.title}</p>}
+                  <p className="video-meta">
+                    {formatBytes(v.sizeBytes)}
+                    {cached[v.id] ? " · hors-ligne" : ""}
+                    {pct != null && pct < 1
+                      ? ` · ${Math.round(pct * 100)}%`
+                      : ""}
+                  </p>
+                </div>
+                <div className="offline-actions">
+                  {cached[v.id] ? (
+                    <button
+                      type="button"
+                      className="btn btn-ghost"
+                      disabled={busy}
+                      onClick={() => void removeOne(v.id)}
+                    >
+                      Retirer
+                    </button>
+                  ) : videos.length > 1 ? (
+                    <button
+                      type="button"
+                      className="btn-icon btn-icon-sm"
+                      disabled={busy}
+                      onClick={() => void downloadOne(v)}
+                      aria-label={`Télécharger ${v.title || "la vidéo"}`}
+                      title="Télécharger hors-ligne"
+                    >
+                      <DownloadIcon />
+                    </button>
+                  ) : null}
+                </div>
               </div>
             </div>
           );
