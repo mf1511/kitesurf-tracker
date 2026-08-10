@@ -12,6 +12,8 @@ import {
 } from "@/lib/community";
 import CommunityInviteCard from "@/components/community-invite-card";
 import CommunityFriendsPanel from "@/components/community-friends-panel";
+import { ChallengesPanel } from "@/components/challenges-panel";
+import { getChallengesForUser } from "@/lib/challenges";
 
 export default async function CommunityPage() {
   const session = await getServerSession(authOptions);
@@ -21,7 +23,7 @@ export default async function CommunityPage() {
   const invite = await ensureInviteForUser(me);
   const friendIds = await getFriendIds(me);
 
-  const [accepted, incoming, outgoing, leaderboard, feed] = await Promise.all([
+  const [accepted, incoming, outgoing, leaderboard, feed, challenges, figureOptions] = await Promise.all([
     prisma.friendship.findMany({
       where: {
         status: "accepted",
@@ -43,6 +45,12 @@ export default async function CommunityPage() {
     }),
     buildFriendsLeaderboard(me, friendIds),
     buildFriendsFeed(me, friendIds, 25),
+    getChallengesForUser(me),
+    prisma.figure.findMany({
+      where: { active: true },
+      select: { id: true, name: true },
+      orderBy: { name: "asc" },
+    }),
   ]);
 
   const friends = accepted.map((f) => {
@@ -121,6 +129,13 @@ export default async function CommunityPage() {
           )}
         </section>
       </div>
+
+      <ChallengesPanel
+        meId={me}
+        challenges={challenges}
+        friends={friends.map((f) => ({ id: f.id, label: f.label }))}
+        figures={figureOptions}
+      />
 
       <CommunityFriendsPanel
         friends={friends}

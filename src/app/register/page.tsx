@@ -52,7 +52,8 @@ function RegisterForm() {
     } else if (inviteCode) {
       router.push("/community");
     } else {
-      router.push("/dashboard");
+      // Nouveau rider → onboarding pour pré-cocher son niveau
+      router.push("/onboarding");
     }
     router.refresh();
   }
@@ -110,7 +111,16 @@ function RegisterForm() {
 export default function RegisterPage() {
   return (
     <div className="auth-page">
-      <Suspense fallback={<div className="auth-form"><h1>Créer un compte</h1></div>}>
+      <Suspense
+        fallback={
+          <div className="auth-form" aria-hidden>
+            <h1>Créer un compte</h1>
+            <span className="skeleton skeleton-line w-90" />
+            <span className="skeleton skeleton-line w-90" />
+            <span className="skeleton skeleton-line w-60" />
+          </div>
+        }
+      >
         <RegisterForm />
       </Suspense>
     </div>

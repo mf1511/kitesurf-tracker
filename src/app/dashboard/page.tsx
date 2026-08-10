@@ -9,6 +9,9 @@ import {
   xpForCategory,
 } from "@/lib/gamification";
 import { tripStatus } from "@/lib/trips";
+import { getFavoriteSpot } from "@/lib/spots";
+import { getUserSessions, formatDuration } from "@/lib/sessions";
+import { degToCompass, fetchSpotForecast, rateWind, type SpotForecast } from "@/lib/weather";
 import BadgeSlider from "@/components/badge-slider";
 
 const STATUS_LABEL = {
@@ -24,7 +27,7 @@ export default async function DashboardPage() {
   const userId = session.user.id;
   const now = new Date();
 
-  const [figures, myTrips, myObjectives] = await Promise.all([
+  const [figures, myTrips, myObjectives, favoriteSpot, lastSessions] = await Promise.all([
     prisma.figure.findMany({
       where: { active: true },
       include: {
@@ -54,7 +57,19 @@ export default async function DashboardPage() {
       },
       orderBy: { createdAt: "asc" },
     }),
+    getFavoriteSpot(userId),
+    getUserSessions(userId, 3),
   ]);
+
+  // Météo du spot favori — best effort, jamais bloquant pour le dashboard
+  let forecast: SpotForecast | null = null;
+  if (favoriteSpot) {
+    try {
+      forecast = await fetchSpotForecast(favoriteSpot.latitude, favoriteSpot.longitude);
+    } catch (err) {
+      console.error("Météo dashboard indisponible :", err);
+    }
+  }
 
   const stats = computeGameStats(figures);
   const categories = Array.from(new Set(figures.map((f) => f.category)));
@@ -152,8 +167,17 @@ export default async function DashboardPage() {
           <Link href="/figures" className="dash-quick-link">
             Figures
           </Link>
+          <Link href="/spots" className="dash-quick-link">
+            Spots
+          </Link>
+          <Link href="/sessions" className="dash-quick-link">
+            Sessions
+          </Link>
           <Link href="/trips" className="dash-quick-link">
             Séjours
+          </Link>
+          <Link href="/stats" className="dash-quick-link">
+            Stats
           </Link>
           <Link href="/community" className="dash-quick-link">
             Communauté
@@ -190,6 +214,102 @@ export default async function DashboardPage() {
             ))}
           </ol>
         )}
+      </section>
+
+      {/* Météo spot favori + dernières sessions */}
+      <section className="dash-hub">
+        <article className="dash-panel">
+          <div className="dash-panel-head">
+            <h2>Météo spot</h2>
+            <Link href="/spots" className="dash-panel-link">
+              Spots
+            </Link>
+          </div>
+          {!favoriteSpot ? (
+            <div className="dash-empty">
+              <p>Ajoute ton spot favori pour voir le vent ici.</p>
+              <Link href="/spots" className="btn btn-primary">
+                Créer un spot
+              </Link>
+            </div>
+          ) : !forecast ? (
+            <p className="dash-empty-line">
+              Météo indisponible pour {favoriteSpot.name} — réessaie plus tard.
+            </p>
+          ) : (
+            <Link href="/spots" className="dash-weather">
+              <span className="dash-weather-emoji" aria-hidden>
+                {rateWind(forecast.now.windKnots).emoji}
+              </span>
+              <span className="dash-weather-main">
+                <strong>
+                  {favoriteSpot.name} · {forecast.now.windKnots} nds
+                </strong>
+                <span>
+                  {rateWind(forecast.now.windKnots).label} ·{" "}
+                  {degToCompass(forecast.now.directionDeg)} · {forecast.now.temp}
+                  °C
+                </span>
+              </span>
+              <span className="dash-weather-days">
+                {forecast.days.slice(1, 4).map((d) => (
+                  <span key={d.date} className="dash-weather-day">
+                    <span>
+                      {new Date(`${d.date}T12:00:00`).toLocaleDateString("fr-FR", {
+                        weekday: "short",
+                      })}
+                    </span>
+                    <strong>{d.windKnots}</strong>
+                  </span>
+                ))}
+              </span>
+            </Link>
+          )}
+        </article>
+
+        <article className="dash-panel">
+          <div className="dash-panel-head">
+            <h2>Dernières sessions</h2>
+            <Link href="/sessions" className="dash-panel-link">
+              Journal
+            </Link>
+          </div>
+          {lastSessions.length === 0 ? (
+            <div className="dash-empty">
+              <p>Logge ta première session de kite.</p>
+              <Link href="/sessions" className="btn btn-ghost">
+                Sessions
+              </Link>
+            </div>
+          ) : (
+            <ul className="dash-session-list">
+              {lastSessions.map((s) => (
+                <li key={s.id}>
+                  <Link href="/sessions">
+                    <strong>
+                      {s.date.toLocaleDateString("fr-FR", {
+                        day: "numeric",
+                        month: "short",
+                      })}
+                      {s.spot ? ` · ${s.spot.name}` : ""}
+                    </strong>
+                    <span>
+                      {[
+                        s.windKnots != null ? `${s.windKnots} nds` : null,
+                        formatDuration(s.durationMin),
+                        s.gearUsed.length
+                          ? `${s.gearUsed.length} matos`
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ") || "—"}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
+        </article>
       </section>
 
       {/* Séjour + objectifs */}
@@ -287,7 +407,7 @@ export default async function DashboardPage() {
           {worlds.map((w) => (
             <li key={w.cat}>
               <Link
-                href={`/figures?category=${encodeURIComponent(w.cat)}`}
+                href={`/figures/arbre?category=${encodeURIComponent(w.cat)}`}
                 className="dash-world-row"
               >
                 <span className="dash-world-label">

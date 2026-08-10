@@ -12,7 +12,9 @@ pars de zéro : dans ce cas utilise uniquement `supabase-full.sql`.
 | 005 | `005-figure-videos-storage.sql` | Colonnes Video Storage |
 | 006 | `006-figure-videos-storage-policies.sql` | Policies bucket `figure-videos` |
 | 007 | `007-gear.sql` | Matériel (`Gear`) |
+| 008 | `008-sessions-spots.sql` | Journal de sessions (`KiteSession`, `SessionGear`), spots météo (`Spot`), `User.weightKg` |
+| 009 | `009-notes-challenges.sql` | Carnet de progression (`FigureNote`) + défis entre amis (`Challenge`) |
 
 Avant **006** : crée le bucket Storage public `figure-videos` dans le dashboard.
 
-Prochaine migration : `008-….sql`.
+Prochaine migration : `010-….sql`.

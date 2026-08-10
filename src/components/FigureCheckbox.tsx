@@ -3,6 +3,7 @@
 import { useState, useTransition, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Celebration from "./Celebration";
+import { useToast } from "@/components/ui/toast";
 
 export default function FigureCheckbox({
   figureId,
@@ -20,23 +21,36 @@ export default function FigureCheckbox({
 }) {
   const [completed, setCompleted] = useState(initialCompleted);
   const [celebrate, setCelebrate] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const toast = useToast();
 
   const clearCelebration = useCallback(() => setCelebrate(false), []);
 
   async function toggle() {
-    if (locked) return;
+    if (locked || saving) return;
     const next = !completed;
+    // Optimiste, mais avec rollback si l'API échoue
     setCompleted(next);
-    if (next) setCelebrate(true);
+    setSaving(true);
 
-    await fetch("/api/progress", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ figureId, completed: next }),
-    });
-    startTransition(() => router.refresh());
+    try {
+      const res = await fetch("/api/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ figureId, completed: next }),
+      });
+      if (!res.ok) throw new Error();
+      // Célébration seulement une fois l'acquisition confirmée
+      if (next) setCelebrate(true);
+      startTransition(() => router.refresh());
+    } catch {
+      setCompleted(!next);
+      toast("Impossible d'enregistrer, vérifie ta connexion.", "error");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -44,7 +58,7 @@ export default function FigureCheckbox({
       <button
         className={`checkbox ${size} ${completed ? "checked" : ""} ${locked ? "locked" : ""}`}
         onClick={toggle}
-        disabled={locked || isPending}
+        disabled={locked || saving || isPending}
         title={
           locked
             ? "Prérequis non validés"
@@ -53,6 +67,13 @@ export default function FigureCheckbox({
             : `Marquer comme acquis (+${xpReward} XP)`
         }
         aria-pressed={completed}
+        aria-label={
+          locked
+            ? "Figure verrouillée, prérequis non validés"
+            : completed
+            ? "Marquer comme non acquis"
+            : `Marquer comme acquis (+${xpReward} XP)`
+        }
       >
         {completed && (
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">

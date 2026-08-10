@@ -6,6 +6,7 @@ import {
   type OfflineVideoMeta,
 } from "@/lib/offline-videos";
 import { formatBytes } from "@/lib/videos";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type Props = {
   /** Query catalog API: tripId | (aucun = catalogue actif) */
@@ -24,6 +25,7 @@ export default function OfflinePackButton({
   label,
   className = "btn btn-secondary",
 }: Props) {
+  const confirmDialog = useConfirm();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
 
@@ -41,9 +43,11 @@ export default function OfflinePackButton({
       }
 
       const sizeLabel = formatBytes(data.totalBytes);
-      const okConfirm = confirm(
-        `${label}\n${data.videos.length} vidéo(s) · ~${sizeLabel}\n\nContinuer ?`
-      );
+      const okConfirm = await confirmDialog({
+        title: label,
+        message: `${data.videos.length} vidéo(s) · ~${sizeLabel}\nTélécharger pour un usage hors-ligne ?`,
+        confirmLabel: "Télécharger",
+      });
       if (!okConfirm) return;
 
       const { ok, failed } = await downloadManyOffline(data.videos);

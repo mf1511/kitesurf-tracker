@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import CrewRiderChips from "@/components/crew-rider-chips";
 import type { CrewRiderChip, MyObjectiveRow, TripFigureRow } from "@/lib/trips";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type Fig = { id: string; name: string; category: string };
 
@@ -28,6 +29,7 @@ export default function TripFiguresPanel({
   isOwner: boolean;
 }) {
   const router = useRouter();
+  const confirmDialog = useConfirm();
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [memberFigureId, setMemberFigureId] = useState("");
@@ -112,7 +114,13 @@ export default function TripFiguresPanel({
   }
 
   async function removeFigure(fid: string) {
-    if (!confirm("Retirer cette figure de la liste du séjour ?")) return;
+    const ok = await confirmDialog({
+      title: "Retirer la figure",
+      message: "Retirer cette figure de la liste du séjour ?",
+      confirmLabel: "Retirer",
+      danger: true,
+    });
+    if (!ok) return;
     setBusy(`rm-${fid}`);
     const res = await fetch(`/api/trips/${tripId}/figures`, {
       method: "DELETE",

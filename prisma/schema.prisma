@@ -14,6 +14,8 @@ model User {
   password  String
   name      String?
   role      String         @default("user") // "user" | "admin"
+  /// Poids rider (kg) — utilisé par l'assistant taille d'aile
+  weightKg  Float?
   createdAt DateTime       @default(now())
   progress  UserProgress[]
   videos    Video[]
@@ -31,6 +33,15 @@ model User {
 
   // Matériel kite perso
   gear                  Gear[]
+
+  // Journal de sessions & spots
+  spots        Spot[]
+  kiteSessions KiteSession[]
+
+  // Carnet de progression & défis
+  figureNotes        FigureNote[]
+  challengesSent     Challenge[] @relation("ChallengeCreator")
+  challengesReceived Challenge[] @relation("ChallengeOpponent")
 }
 
 model Figure {
@@ -51,6 +62,41 @@ model Figure {
   videos            Video[]
   tripFigures       TripFigure[]
   memberObjectives  TripMemberObjective[]
+  notes             FigureNote[]
+  challenges        Challenge[]
+}
+
+/// Note perso du rider sur une figure (carnet de progression)
+model FigureNote {
+  id        String   @id @default(cuid())
+  userId    String
+  figureId  String
+  content   String
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  figure Figure @relation(fields: [figureId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, figureId])
+}
+
+/// Défi entre amis : premier à valider la figure avant la deadline
+model Challenge {
+  id         String   @id @default(cuid())
+  creatorId  String
+  opponentId String
+  figureId   String
+  deadline   DateTime
+  /// pending | accepted | declined — le gagnant est dérivé de UserProgress
+  status     String   @default("pending")
+  createdAt  DateTime @default(now())
+
+  creator  User   @relation("ChallengeCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  opponent User   @relation("ChallengeOpponent", fields: [opponentId], references: [id], onDelete: Cascade)
+  figure   Figure @relation(fields: [figureId], references: [id], onDelete: Cascade)
+
+  @@index([creatorId])
+  @@index([opponentId])
 }
 
 model UserProgress {
@@ -210,8 +256,62 @@ model Gear {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionLinks SessionGear[]
 
   @@index([userId, category])
   @@index([userId])
+}
+
+/// Spot de kite perso — coordonnées utilisées pour la météo Open-Meteo
+model Spot {
+  id        String   @id @default(cuid())
+  userId    String
+  name      String
+  latitude  Float
+  longitude Float
+  /// Orientations de vent qui marchent (texte libre : "NO–NE", "thermique O…")
+  windOrientation String?
+  /// flat | chop | vagues | mixte
+  waterType String?
+  /// Spot favori : affiché en widget météo sur le dashboard
+  favorite  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessions KiteSession[]
+
+  @@index([userId, favorite])
+}
+
+/// Session kite loggée (journal) — alimente les compteurs matériel
+model KiteSession {
+  id          String   @id @default(cuid())
+  userId      String
+  spotId      String?
+  date        DateTime
+  durationMin Int?
+  windKnots   Float?
+  /// Ressenti / notes de session
+  notes       String?
+  createdAt   DateTime @default(now())
+
+  user     User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  spot     Spot?         @relation(fields: [spotId], references: [id], onDelete: SetNull)
+  gearUsed SessionGear[]
+
+  @@index([userId, date])
+}
+
+/// Matériel utilisé pendant une session (compteur de sorties automatique)
+model SessionGear {
+  id        String @id @default(cuid())
+  sessionId String
+  gearId    String
+
+  session KiteSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  gear    Gear        @relation(fields: [gearId], references: [id], onDelete: Cascade)
+
+  @@unique([sessionId, gearId])
+  @@index([gearId])
 }

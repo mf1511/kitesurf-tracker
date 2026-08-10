@@ -6,7 +6,9 @@ import { prisma } from "@/lib/prisma";
 import FigureCheckbox from "@/components/FigureCheckbox";
 import AddFigureToTrip from "@/components/add-figure-to-trip";
 import FigureVideosPanel from "@/components/figure-videos-panel";
+import { FigureNotePanel } from "@/components/figure-note-panel";
 import { xpForCategory } from "@/lib/gamification";
+import { getFriendIds, riderAvatarHue, riderInitials, riderLabel } from "@/lib/community";
 
 export default async function FigureDetailPage({
   params,
@@ -37,18 +39,33 @@ export default async function FigureDetailPage({
   if (!figure.active && session.user.role !== "admin") notFound();
 
   // Séjours où l’user est membre (+ si la figure y est déjà)
-  const myTrips = await prisma.trip.findMany({
-    where: { members: { some: { userId } } },
-    select: {
-      id: true,
-      name: true,
-      figures: {
-        where: { figureId: figure.id },
-        select: { id: true },
+  const [myTrips, myNote, friendIds] = await Promise.all([
+    prisma.trip.findMany({
+      where: { members: { some: { userId } } },
+      select: {
+        id: true,
+        name: true,
+        figures: {
+          where: { figureId: figure.id },
+          select: { id: true },
+        },
       },
-    },
-    orderBy: { startDate: "desc" },
-  });
+      orderBy: { startDate: "desc" },
+    }),
+    prisma.figureNote.findUnique({
+      where: { userId_figureId: { userId, figureId: figure.id } },
+    }),
+    getFriendIds(userId),
+  ]);
+
+  // Amis qui ont validé cette figure (comparaison sociale)
+  const friendsDone = friendIds.length
+    ? await prisma.userProgress.findMany({
+        where: { figureId: figure.id, userId: { in: friendIds }, completed: true },
+        include: { user: { select: { id: true, name: true, email: true } } },
+        orderBy: { completedAt: "asc" },
+      })
+    : [];
 
   const steps: string[] = JSON.parse(figure.steps);
   const completed = !!figure.progress?.[0]?.completed;
@@ -145,6 +162,46 @@ export default async function FigureDetailPage({
           </div>
         </section>
       )}
+
+      {friendIds.length > 0 && (
+        <section className="figure-block">
+          <h2>Tes amis sur cette figure</h2>
+          {friendsDone.length === 0 ? (
+            <p className="figure-friends-empty">
+              Aucun de tes amis ne l’a validée — sois le premier ! 🏆
+            </p>
+          ) : (
+            <ul className="figure-friends-list">
+              {friendsDone.map((p) => (
+                <li key={p.id}>
+                  <span
+                    className="crew-avatar"
+                    style={{ background: `hsl(${riderAvatarHue(p.user.id)} 42% 42%)` }}
+                    aria-hidden
+                  >
+                    {riderInitials(p.user)}
+                  </span>
+                  <strong>{riderLabel(p.user)}</strong>
+                  {p.completedAt && (
+                    <span className="figure-friend-date">
+                      le {p.completedAt.toLocaleDateString("fr-FR")}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+      )}
+
+      <section className="figure-block">
+        <h2>Mon carnet</h2>
+        <FigureNotePanel
+          figureId={figure.id}
+          initialContent={myNote?.content ?? ""}
+          initialUpdatedAt={myNote?.updatedAt.toISOString() ?? null}
+        />
+      </section>
 
       <section className="figure-block">
         <h2>Vidéos</h2>

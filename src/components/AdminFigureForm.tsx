@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type FigureOption = { id: string; slug: string; name: string; category: string };
 
@@ -25,6 +26,7 @@ export default function AdminFigureForm({
   };
 }) {
   const router = useRouter();
+  const confirmDialog = useConfirm();
   const [slug, setSlug] = useState(initial?.slug || "");
   const [name, setName] = useState(initial?.name || "");
   const [category, setCategory] = useState(initial?.category || categories[0] || "");
@@ -81,7 +83,13 @@ export default function AdminFigureForm({
 
   async function handleDelete() {
     if (!initial?.slug) return;
-    if (!confirm(`Supprimer définitivement "${initial.name}" ?`)) return;
+    const ok = await confirmDialog({
+      title: "Supprimer cette figure",
+      message: `"${initial.name}" et sa progression associée seront définitivement supprimées.`,
+      confirmLabel: "Supprimer",
+      danger: true,
+    });
+    if (!ok) return;
     const res = await fetch(`/api/admin/figures/${initial.slug}`, { method: "DELETE" });
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));

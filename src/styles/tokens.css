@@ -1,0 +1,63 @@
+/* ============ TOKENS — palette, thèmes light/dark ============ */
+:root {
+  /* Soft coastal palette */
+  --sky: #e8f4fc;
+  --sky-mid: #d4eef8;
+  --aqua: #7ec8d8;
+  --aqua-deep: #2a9bb0;
+  --foam: #f7fbfc;
+  --sand: #f2e6c9;
+  --sand-warm: #e8c97a;
+  --coral: #ff7a6e;
+  --coral-soft: #ffb4ad;
+  --navy: #1a3a52;
+  --navy-soft: #2d5470;
+  --mist: #5a7a90;
+  --line: rgba(26, 58, 82, 0.1);
+  --line-strong: rgba(26, 58, 82, 0.18);
+  --surface: #ffffff;
+  --card: rgba(255, 255, 255, 0.72);
+  --card-solid: #ffffff;
+  --shadow: 0 8px 28px rgba(42, 155, 176, 0.12);
+  --danger: #e05555;
+  --gold: #e8b84b;
+  --silver: #a8b8c4;
+  --bronze: #c4895a;
+  --success: #3cb88a;
+  --badge-earned-bg: linear-gradient(160deg, #fffef8, #fff5d6);
+  --bg-layers:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(126, 200, 216, 0.45), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(255, 180, 173, 0.28), transparent 50%),
+    radial-gradient(ellipse 70% 45% at 50% 100%, rgba(232, 201, 122, 0.22), transparent 55%),
+    linear-gradient(180deg, var(--sky) 0%, var(--sky-mid) 45%, #eef6f0 100%);
+  /* --font-display / --font-body : injectées par next/font (layout.tsx) */
+}
+
+/* Thème sombre "nuit sur le spot" — activé par le toggle ou prefers-color-scheme */
+[data-theme="dark"] {
+  --sky: #0d2233;
+  --sky-mid: #10293d;
+  --aqua: #5cb9cc;
+  --aqua-deep: #3fb5ca;
+  --foam: #122c40;
+  --coral: #ff8a7f;
+  --coral-soft: #d98680;
+  --navy: #e8f2f9;
+  --navy-soft: #c7dbe8;
+  --mist: #93aebf;
+  --line: rgba(232, 244, 252, 0.12);
+  --line-strong: rgba(232, 244, 252, 0.22);
+  --surface: #16324a;
+  --card: rgba(22, 50, 74, 0.72);
+  --card-solid: #16324a;
+  --shadow: 0 8px 28px rgba(0, 0, 0, 0.35);
+  --danger: #f07575;
+  --success: #4ecf9d;
+  --badge-earned-bg: linear-gradient(160deg, #2f2c1c, #3a3421);
+  --bg-layers:
+    radial-gradient(ellipse 80% 50% at 10% -10%, rgba(63, 181, 202, 0.16), transparent 55%),
+    radial-gradient(ellipse 60% 40% at 90% 10%, rgba(255, 122, 110, 0.08), transparent 50%),
+    radial-gradient(ellipse 70% 45% at 50% 100%, rgba(232, 201, 122, 0.06), transparent 55%),
+    linear-gradient(180deg, var(--sky) 0%, var(--sky-mid) 45%, #0b1e2d 100%);
+}
+[data-theme="dark"] body::before { opacity: 0.12; }

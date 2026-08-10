@@ -5,13 +5,18 @@ import { useState } from "react";
 
 export default function ProfileSettingsForm({
   initialName,
+  initialWeightKg,
   email,
 }: {
   initialName: string;
+  initialWeightKg?: number | null;
   email: string;
 }) {
   const { update } = useSession();
   const [name, setName] = useState(initialName);
+  const [weightKg, setWeightKg] = useState(
+    initialWeightKg != null ? String(initialWeightKg) : ""
+  );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
@@ -25,7 +30,7 @@ export default function ProfileSettingsForm({
     const res = await fetch("/api/account", {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ name }),
+      body: JSON.stringify({ name, weightKg: weightKg.trim() === "" ? null : weightKg }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -53,6 +58,19 @@ export default function ProfileSettingsForm({
           onChange={(e) => setName(e.target.value)}
           placeholder="Marin"
           maxLength={80}
+        />
+      </label>
+      <label>
+        Poids (kg) — pour la taille d’aile conseillée
+        <input
+          value={weightKg}
+          onChange={(e) => setWeightKg(e.target.value)}
+          placeholder="75"
+          inputMode="decimal"
+          type="number"
+          min={20}
+          max={200}
+          step="0.5"
         />
       </label>
       {error && <p className="form-error">{error}</p>}

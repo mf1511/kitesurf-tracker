@@ -4,6 +4,7 @@ import Link from "next/link";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { gearCategoryLabel, gearDisplayName } from "@/lib/gear";
+import { formatDuration } from "@/lib/sessions";
 import GearSessionControls from "@/components/gear-session-controls";
 import GearDeleteButton from "@/components/gear-delete-button";
 
@@ -34,6 +35,20 @@ export default async function MaterielDetailPage({ params }: Props) {
 
   if (!gear) notFound();
 
+  // Sessions loggées avec ce matériel : heures cumulées + historique récent
+  const gearSessions = await prisma.kiteSession.findMany({
+    where: { userId: session.user.id, gearUsed: { some: { gearId: gear.id } } },
+    select: {
+      id: true,
+      date: true,
+      durationMin: true,
+      windKnots: true,
+      spot: { select: { name: true } },
+    },
+    orderBy: { date: "desc" },
+  });
+  const totalMin = gearSessions.reduce((sum, s) => sum + (s.durationMin ?? 0), 0);
+
   return (
     <div className="trips-page materiel-detail">
       <Link href="/materiel" className="back-link">
@@ -58,7 +73,39 @@ export default async function MaterielDetailPage({ params }: Props) {
       <section className="community-card">
         <h2>Sorties</h2>
         <GearSessionControls gearId={gear.id} sessionCount={gear.sessionCount} />
+        {gearSessions.length > 0 && (
+          <p className="gear-hours-line">
+            {gearSessions.length} session{gearSessions.length === 1 ? "" : "s"} loggée
+            {gearSessions.length === 1 ? "" : "s"}
+            {totalMin > 0 ? ` · ${formatDuration(totalMin)} sur l’eau` : ""}
+          </p>
+        )}
       </section>
+
+      {gearSessions.length > 0 && (
+        <section className="community-card">
+          <h2>Historique de sessions</h2>
+          <ul className="gear-session-history">
+            {gearSessions.slice(0, 8).map((s) => (
+              <li key={s.id}>
+                <strong>{s.date.toLocaleDateString("fr-FR")}</strong>
+                <span>
+                  {[
+                    s.spot?.name,
+                    s.windKnots != null ? `${s.windKnots} nds` : null,
+                    formatDuration(s.durationMin),
+                  ]
+                    .filter(Boolean)
+                    .join(" · ") || "—"}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <Link href="/sessions" className="dash-panel-link">
+            Tout le journal →
+          </Link>
+        </section>
+      )}
 
       <section className="community-card">
         <h2>Achat</h2>

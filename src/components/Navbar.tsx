@@ -11,6 +11,8 @@ import NavProfileMenu from "@/components/nav-profile-menu";
 const PRIMARY_LINKS = [
   { href: "/dashboard", label: "Home", auth: true },
   { href: "/figures", label: "Figures", auth: true },
+  { href: "/spots", label: "Spots", auth: true },
+  { href: "/sessions", label: "Sessions", auth: true },
   { href: "/trips", label: "Séjours", auth: true },
   { href: "/community", label: "Communauté", auth: true },
 ] as const;
@@ -27,6 +29,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
   const authed = status === "authenticated";
+  const loadingSession = status === "loading";
 
   // Ferme le drawer au changement de page
   useEffect(() => {
@@ -53,17 +56,20 @@ export default function Navbar() {
           </span>
         </Link>
 
-        <button
-          type="button"
-          className="nav-burger"
-          aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
-          aria-expanded={open}
-          onClick={() => setOpen((v) => !v)}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
+        {/* Burger : visiteurs seulement — connecté, la bottom nav mobile prend le relais */}
+        {status === "unauthenticated" && (
+          <button
+            type="button"
+            className="nav-burger"
+            aria-label={open ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={open}
+            onClick={() => setOpen((v) => !v)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+        )}
 
         <div className="nav-links nav-links-desktop">
           {primary.map((l) => (
@@ -76,58 +82,47 @@ export default function Navbar() {
               {l.label}
             </Link>
           ))}
-          {authed ? (
+          {loadingSession ? (
+            // Placeholder pendant la résolution de session : évite le "trou" UI
+            <span className="nav-skeleton" aria-hidden>
+              <span className="skeleton wide" />
+              <span className="skeleton" />
+            </span>
+          ) : authed ? (
             <NavProfileMenu variant="desktop" />
-          ) : status === "unauthenticated" ? (
+          ) : (
             <>
               <Link href="/login">Connexion</Link>
               <Link href="/register" className="nav-cta">
                 Inscription
               </Link>
             </>
-          ) : null}
+          )}
         </div>
       </div>
 
-      <div className={`nav-drawer ${open ? "open" : ""}`} id="nav-drawer">
-        <div className="nav-links nav-links-mobile">
-          {primary.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={linkActive(pathname, l.href) ? "nav-link-active" : undefined}
-              aria-current={linkActive(pathname, l.href) ? "page" : undefined}
-              onClick={() => setOpen(false)}
-            >
-              {l.label}
-            </Link>
-          ))}
-          {authed ? (
-            <>
-              <div className="nav-mobile-sep" />
-              <NavProfileMenu variant="mobile" onNavigate={() => setOpen(false)} />
-            </>
-          ) : status === "unauthenticated" ? (
-            <>
-              <div className="nav-mobile-sep" />
+      {status === "unauthenticated" && (
+        <>
+          <div className={`nav-drawer ${open ? "open" : ""}`} id="nav-drawer">
+            <div className="nav-links nav-links-mobile">
               <Link href="/login" onClick={() => setOpen(false)}>
                 Connexion
               </Link>
               <Link href="/register" className="nav-cta" onClick={() => setOpen(false)}>
                 Inscription
               </Link>
-            </>
-          ) : null}
-        </div>
-      </div>
+            </div>
+          </div>
 
-      {open && (
-        <button
-          type="button"
-          className="nav-backdrop"
-          aria-label="Fermer le menu"
-          onClick={() => setOpen(false)}
-        />
+          {open && (
+            <button
+              type="button"
+              className="nav-backdrop"
+              aria-label="Fermer le menu"
+              onClick={() => setOpen(false)}
+            />
+          )}
+        </>
       )}
     </nav>
   );

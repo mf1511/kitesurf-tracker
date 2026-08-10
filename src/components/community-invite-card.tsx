@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useToast } from "@/components/ui/toast";
 
 /** Carte lien d'invitation + copie presse-papiers */
 export default function CommunityInviteCard({
@@ -19,26 +20,37 @@ export default function CommunityInviteCard({
   const [url, setUrl] = useState(initialPath);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
+  const toast = useToast();
 
   useEffect(() => {
     setUrl(`${window.location.origin}${path}`);
   }, [path]);
 
   async function copy() {
-    const link = `${window.location.origin}${path}`;
-    await navigator.clipboard.writeText(link);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 1800);
+    try {
+      const link = `${window.location.origin}${path}`;
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      toast("Copie impossible — sélectionne le lien manuellement.", "error");
+    }
   }
 
   async function regenerate() {
     setBusy(true);
-    const res = await fetch("/api/invites", { method: "POST" });
-    setBusy(false);
-    if (!res.ok) return;
-    const data = await res.json();
-    setCode(data.code);
-    setPath(data.path);
+    try {
+      const res = await fetch("/api/invites", { method: "POST" });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setCode(data.code);
+      setPath(data.path);
+      toast("Nouveau lien d'invitation généré.", "success");
+    } catch {
+      toast("Impossible de générer un nouveau lien.", "error");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -57,7 +69,7 @@ export default function CommunityInviteCard({
         <span>
           Code <strong>{code}</strong> · {usedCount}/{maxUses} utilisations
         </span>
-        <button type="button" className="nav-btn" onClick={regenerate} disabled={busy}>
+        <button type="button" className="btn btn-secondary" onClick={regenerate} disabled={busy}>
           Nouveau lien
         </button>
       </div>

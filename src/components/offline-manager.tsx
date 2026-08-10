@@ -10,8 +10,10 @@ import {
   type OfflineVideoMeta,
 } from "@/lib/offline-videos";
 import { formatBytes } from "@/lib/videos";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 export default function OfflineManager() {
+  const confirmDialog = useConfirm();
   const [items, setItems] = useState<OfflineVideoMeta[]>([]);
   const [storage, setStorage] = useState<{ usage: number; quota: number } | null>(
     null
@@ -34,9 +36,13 @@ export default function OfflineManager() {
   }
 
   async function clearAll() {
-    if (!confirm("Supprimer toutes les vidéos hors-ligne de cet appareil ?")) {
-      return;
-    }
+    const ok = await confirmDialog({
+      title: "Vider le cache vidéos",
+      message: "Toutes les vidéos hors-ligne de cet appareil seront supprimées.",
+      confirmLabel: "Tout supprimer",
+      danger: true,
+    });
+    if (!ok) return;
     await clearAllOfflineVideos();
     setMsg("Cache vidéos vidé.");
     reload();

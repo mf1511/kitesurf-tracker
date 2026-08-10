@@ -88,7 +88,16 @@ function LoginForm() {
 export default function LoginPage() {
   return (
     <div className="auth-page">
-      <Suspense fallback={<div className="auth-form"><h1>Connexion</h1></div>}>
+      <Suspense
+        fallback={
+          <div className="auth-form" aria-hidden>
+            <h1>Connexion</h1>
+            <span className="skeleton skeleton-line w-90" />
+            <span className="skeleton skeleton-line w-90" />
+            <span className="skeleton skeleton-line w-60" />
+          </div>
+        }
+      >
         <LoginForm />
       </Suspense>
     </div>

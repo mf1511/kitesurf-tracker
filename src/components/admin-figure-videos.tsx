@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { formatBytes, MAX_VIDEO_BYTES } from "@/lib/videos";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type AdminVideo = {
   id: string;
@@ -28,6 +29,7 @@ type UploadJob = {
 
 export default function AdminFigureVideos({ slug, initialVideos }: Props) {
   const router = useRouter();
+  const confirmDialog = useConfirm();
   const [videos, setVideos] = useState(initialVideos);
   const [jobs, setJobs] = useState<UploadJob[]>([]);
   const [error, setError] = useState("");
@@ -147,7 +149,13 @@ export default function AdminFigureVideos({ slug, initialVideos }: Props) {
   }
 
   async function remove(id: string) {
-    if (!confirm("Supprimer cette vidéo du Storage ?")) return;
+    const ok = await confirmDialog({
+      title: "Supprimer cette vidéo",
+      message: "Le fichier sera supprimé du Storage définitivement.",
+      confirmLabel: "Supprimer",
+      danger: true,
+    });
+    if (!ok) return;
     setBusyId(id);
     setError("");
     const res = await fetch(`/api/admin/figures/${slug}/videos/${id}`, {

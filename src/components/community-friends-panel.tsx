@@ -2,6 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useToast } from "@/components/ui/toast";
+import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type Rider = {
   friendshipId: string;
@@ -22,10 +24,14 @@ export default function CommunityFriendsPanel({
   outgoing: Rider[];
 }) {
   const router = useRouter();
+  const toast = useToast();
+  const confirm = useConfirm();
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [ok, setOk] = useState("");
   const [busy, setBusy] = useState(false);
+  /** friendshipId en cours d'action (disabled ciblé) */
+  const [actingId, setActingId] = useState<string | null>(null);
 
   async function refresh() {
     router.refresh();
@@ -53,12 +59,29 @@ export default function CommunityFriendsPanel({
   }
 
   async function act(friendshipId: string, action: "accept" | "decline" | "remove") {
-    await fetch("/api/friends", {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ friendshipId, action }),
-    });
-    refresh();
+    setActingId(friendshipId);
+    try {
+      const res = await fetch("/api/friends", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ friendshipId, action }),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error);
+      }
+      if (action === "accept") toast("Ami ajouté !", "success");
+      refresh();
+    } catch (err) {
+      toast(
+        err instanceof Error && err.message
+          ? err.message
+          : "Action impossible, réessaie.",
+        "error"
+      );
+    } finally {
+      setActingId(null);
+    }
   }
 
   return (
@@ -95,10 +118,20 @@ export default function CommunityFriendsPanel({
                   <span>{r.email}</span>
                 </div>
                 <div className="friend-actions">
-                  <button type="button" className="btn btn-primary" onClick={() => act(r.friendshipId, "accept")}>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    disabled={actingId === r.friendshipId}
+                    onClick={() => act(r.friendshipId, "accept")}
+                  >
                     Accepter
                   </button>
-                  <button type="button" className="nav-btn" onClick={() => act(r.friendshipId, "decline")}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    disabled={actingId === r.friendshipId}
+                    onClick={() => act(r.friendshipId, "decline")}
+                  >
                     Refuser
                   </button>
                 </div>
@@ -118,7 +151,12 @@ export default function CommunityFriendsPanel({
                   <strong>{r.label}</strong>
                   <span>Demande envoyée</span>
                 </div>
-                <button type="button" className="nav-btn" onClick={() => act(r.friendshipId, "remove")}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={actingId === r.friendshipId}
+                  onClick={() => act(r.friendshipId, "remove")}
+                >
                   Annuler
                 </button>
               </li>
@@ -139,7 +177,20 @@ export default function CommunityFriendsPanel({
                   <strong>{r.label}</strong>
                   <span>{r.email}</span>
                 </div>
-                <button type="button" className="nav-btn" onClick={() => act(r.friendshipId, "remove")}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  disabled={actingId === r.friendshipId}
+                  onClick={async () => {
+                    const ok = await confirm({
+                      title: "Retirer cet ami",
+                      message: `Retirer ${r.label} de tes amis ?`,
+                      confirmLabel: "Retirer",
+                      danger: true,
+                    });
+                    if (ok) act(r.friendshipId, "remove");
+                  }}
+                >
                   Retirer
                 </button>
               </li>

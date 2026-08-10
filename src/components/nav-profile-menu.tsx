@@ -20,12 +20,11 @@ function isActive(pathname: string, href: string) {
 }
 
 type Props = {
-  /** Desktop = dropdown ; mobile = liste dans le drawer */
-  variant: "desktop" | "mobile";
-  onNavigate?: () => void;
+  /** Dropdown desktop (le mobile passe par la bottom nav) */
+  variant: "desktop";
 };
 
-export default function NavProfileMenu({ variant, onNavigate }: Props) {
+export default function NavProfileMenu(_props: Props) {
   const { data: session } = useSession();
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -36,14 +35,28 @@ export default function NavProfileMenu({ variant, onNavigate }: Props) {
   const avatar = initials(user?.name, user?.email);
   const isAdmin = user?.role === "admin";
 
-  // Ferme le dropdown au clic extérieur / Escape
+  // Ferme le dropdown au clic extérieur / Escape ; flèches = navigation clavier
   useEffect(() => {
-    if (!open || variant !== "desktop") return;
+    if (!open) return;
     function onDoc(e: MouseEvent) {
       if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
     }
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        setOpen(false);
+        return;
+      }
+      if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(e.key)) return;
+      const items = rootRef.current?.querySelectorAll<HTMLElement>('[role="menuitem"]');
+      if (!items?.length) return;
+      e.preventDefault();
+      const list = Array.from(items);
+      const idx = list.indexOf(document.activeElement as HTMLElement);
+      let next = 0;
+      if (e.key === "ArrowDown") next = idx < list.length - 1 ? idx + 1 : 0;
+      else if (e.key === "ArrowUp") next = idx > 0 ? idx - 1 : list.length - 1;
+      else if (e.key === "End") next = list.length - 1;
+      list[next].focus();
     }
     document.addEventListener("mousedown", onDoc);
     document.addEventListener("keydown", onKey);
@@ -51,7 +64,7 @@ export default function NavProfileMenu({ variant, onNavigate }: Props) {
       document.removeEventListener("mousedown", onDoc);
       document.removeEventListener("keydown", onKey);
     };
-  }, [open, variant]);
+  }, [open]);
 
   useEffect(() => {
     setOpen(false);
@@ -66,44 +79,6 @@ export default function NavProfileMenu({ variant, onNavigate }: Props) {
     items.push({ href: "/admin", label: "Admin", className: "nav-admin" });
   }
 
-  function go() {
-    setOpen(false);
-    onNavigate?.();
-  }
-
-  if (variant === "mobile") {
-    return (
-      <div className="nav-profile-mobile">
-        <div className="nav-profile-card">
-          <span className="nav-avatar" aria-hidden>
-            {avatar}
-          </span>
-          <div className="nav-profile-meta">
-            <strong>{label}</strong>
-            {user?.name && user?.email ? <span>{user.email}</span> : null}
-          </div>
-        </div>
-        {items.map((item) => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`${item.className ?? ""}${isActive(pathname, item.href) ? " nav-link-active" : ""}`}
-            onClick={go}
-          >
-            {item.label}
-          </Link>
-        ))}
-        <button
-          type="button"
-          className="nav-btn nav-logout"
-          onClick={() => signOut({ callbackUrl: "/login" })}
-        >
-          Déconnexion
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className={`nav-profile ${open ? "open" : ""}`} ref={rootRef}>
       <button
@@ -111,6 +86,7 @@ export default function NavProfileMenu({ variant, onNavigate }: Props) {
         className="nav-profile-trigger"
         aria-haspopup="menu"
         aria-expanded={open}
+        aria-label="Menu profil"
         onClick={() => setOpen((v) => !v)}
       >
         <span className="nav-avatar" aria-hidden>
@@ -138,7 +114,7 @@ export default function NavProfileMenu({ variant, onNavigate }: Props) {
               href={item.href}
               role="menuitem"
               className={`${item.className ?? ""}${isActive(pathname, item.href) ? " nav-link-active" : ""}`}
-              onClick={go}
+              onClick={() => setOpen(false)}
             >
               {item.label}
             </Link>
