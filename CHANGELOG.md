@@ -8,6 +8,9 @@
 - Séjours : liste de figures partagée + objectifs perso (à la place des défis)
 - Admin : colonne « Actif » pour masquer / afficher une figure sur `/figures`
 
+### 🐛 Fixed
+- Vercel : `prisma generate` en `postinstall` + `build` (client Prisma obsolète en cache)
+
 ### 🔧 Changed
 - Suppression du système de défis / bonus XP séjour (`TripChallenge` → `TripFigure` + `TripMemberObjective`)
 - SQL migration : `prisma/sql/2026-08-10-trip-objectives.sql`
