@@ -49,6 +49,7 @@ model User {
 
   // Carnet de progression & défis
   figureNotes        FigureNote[]
+  figureFavorites    FigureFavorite[]
   challengesSent     Challenge[] @relation("ChallengeCreator")
   challengesReceived Challenge[] @relation("ChallengeOpponent")
 }
@@ -63,6 +64,8 @@ model Figure {
   order       Int      @default(0)
   /// Visible sur /figures (et dashboards users) si true
   active      Boolean  @default(true)
+  /// Curation admin terminée (suivi interne, pas exposé aux riders)
+  adminDone   Boolean  @default(false)
 
   prerequisites Figure[] @relation("Prerequisites")
   unlocks       Figure[] @relation("Prerequisites")
@@ -72,7 +75,22 @@ model Figure {
   tripFigures       TripFigure[]
   memberObjectives  TripMemberObjective[]
   notes             FigureNote[]
+  favorites         FigureFavorite[]
   challenges        Challenge[]
+}
+
+/// Favori perso du rider sur une figure
+model FigureFavorite {
+  id        String   @id @default(cuid())
+  userId    String
+  figureId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  figure Figure @relation(fields: [figureId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, figureId])
+  @@index([userId])
 }
 
 /// Note perso du rider sur une figure (carnet de progression)

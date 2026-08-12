@@ -27,7 +27,8 @@ CREATE TABLE IF NOT EXISTS "Figure" (
     "description" TEXT NOT NULL,
     "steps" TEXT NOT NULL,
     "order" INTEGER NOT NULL DEFAULT 0,
-    "active" BOOLEAN NOT NULL DEFAULT true
+    "active" BOOLEAN NOT NULL DEFAULT true,
+    "adminDone" BOOLEAN NOT NULL DEFAULT false
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "Figure_slug_key" ON "Figure"("slug");
 
@@ -234,6 +235,18 @@ CREATE TABLE IF NOT EXISTS "FigureNote" (
   CONSTRAINT "FigureNote_figureId_fkey" FOREIGN KEY ("figureId") REFERENCES "Figure"("id") ON DELETE CASCADE ON UPDATE CASCADE
 );
 CREATE UNIQUE INDEX IF NOT EXISTS "FigureNote_userId_figureId_key" ON "FigureNote"("userId", "figureId");
+
+-- FigureFavorite (favoris perso)
+CREATE TABLE IF NOT EXISTS "FigureFavorite" (
+  "id" TEXT NOT NULL PRIMARY KEY,
+  "userId" TEXT NOT NULL,
+  "figureId" TEXT NOT NULL,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "FigureFavorite_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT "FigureFavorite_figureId_fkey" FOREIGN KEY ("figureId") REFERENCES "Figure"("id") ON DELETE CASCADE ON UPDATE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS "FigureFavorite_userId_figureId_key" ON "FigureFavorite"("userId", "figureId");
+CREATE INDEX IF NOT EXISTS "FigureFavorite_userId_idx" ON "FigureFavorite"("userId");
 
 -- Challenge (défis entre amis, gagnant dérivé de UserProgress)
 CREATE TABLE IF NOT EXISTS "Challenge" (

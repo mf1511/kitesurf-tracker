@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession, slugify } from "@/lib/admin";
+import { invalidateFiguresCatalog } from "@/lib/figures-catalog-cache";
 
 // Création d'une nouvelle figure
 export async function POST(req: Request) {
@@ -42,5 +43,6 @@ export async function POST(req: Request) {
     },
   });
 
+  await invalidateFiguresCatalog();
   return NextResponse.json(figure, { status: 201 });
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession, slugify } from "@/lib/admin";
+import { invalidateFiguresCatalog } from "@/lib/figures-catalog-cache";
 
 /** Toggle rapide actif / inactif (colonne admin) */
 export async function PATCH(
@@ -18,15 +19,22 @@ export async function PATCH(
   }
 
   const body = await req.json();
-  if (typeof body.active !== "boolean") {
-    return NextResponse.json({ error: "active (boolean) requis" }, { status: 400 });
+  const data: { active?: boolean; adminDone?: boolean } = {};
+  if (typeof body.active === "boolean") data.active = body.active;
+  if (typeof body.adminDone === "boolean") data.adminDone = body.adminDone;
+  if (data.active === undefined && data.adminDone === undefined) {
+    return NextResponse.json(
+      { error: "active et/ou adminDone (boolean) requis" },
+      { status: 400 }
+    );
   }
 
   const updated = await prisma.figure.update({
     where: { slug: params.slug },
-    data: { active: body.active },
+    data,
   });
 
+  await invalidateFiguresCatalog();
   return NextResponse.json(updated);
 }
 
@@ -78,6 +86,7 @@ export async function PUT(
     },
   });
 
+  await invalidateFiguresCatalog();
   return NextResponse.json(updated);
 }
 
@@ -97,5 +106,6 @@ export async function DELETE(
   }
 
   await prisma.figure.delete({ where: { slug: params.slug } });
+  await invalidateFiguresCatalog();
   return NextResponse.json({ ok: true });
 }

@@ -179,7 +179,13 @@ export default function SkillTreeCanvas({
                 style={{ ...style, height: "auto", minHeight: n.h }}
               >
                 <span className="skill-tree-node-name">{n.name}</span>
-                <span className="skill-tree-node-soon">Bientôt disponible</span>
+                <span
+                  className={`skill-tree-node-soon${
+                    n.soonHighlight ? " avance-new" : ""
+                  }`}
+                >
+                  Bientôt disponible
+                </span>
               </div>
             );
           }

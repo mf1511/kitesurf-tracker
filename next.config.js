@@ -1,5 +1,13 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {};
+const nextConfig = {
+  // Garde les pages déjà visitées en cache client (évite skeleton à chaque retour)
+  experimental: {
+    staleTimes: {
+      dynamic: 60,
+      static: 300,
+    },
+  },
+};
 
 const withPWA = require("@ducanh2912/next-pwa").default({
   dest: "public",

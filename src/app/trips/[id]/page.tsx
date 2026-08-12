@@ -29,8 +29,12 @@ export default async function TripDetailPage({
     return (
       <div className="hero">
         <h1>Séjour privé</h1>
-        <p>Tu dois être invité pour voir ce trip. Demande le lien au créateur.</p>
-        <Link href="/trips" className="btn btn-primary">← Mes séjours</Link>
+        <p>
+          Tu dois être invité pour voir ce trip. Demande le lien au créateur.
+        </p>
+        <Link href="/trips" className="btn btn-primary">
+          ← Mes séjours
+        </Link>
       </div>
     );
   }
@@ -38,21 +42,26 @@ export default async function TripDetailPage({
   const stats = await computeTripStats(params.id, userId);
   if (!stats) notFound();
 
-  const {
-    trip,
-    status,
-    feed,
-    tripFigures,
-    myObjectives,
-    crewKnownBy,
-    totals,
-  } = stats;
+  const { trip, status, feed, tripFigures, myObjectives, crewKnownBy, totals } =
+    stats;
 
-  const figures = await prisma.figure.findMany({
+  const figuresRaw = await prisma.figure.findMany({
     where: { active: true },
-    select: { id: true, name: true, category: true },
+    select: {
+      id: true,
+      name: true,
+      category: true,
+      _count: { select: { videos: true } },
+    },
     orderBy: [{ category: "asc" }, { order: "asc" }],
   });
+  // videoCount : checklist créateur désactive les figures sans vidéo
+  const figures = figuresRaw.map((f) => ({
+    id: f.id,
+    name: f.name,
+    category: f.category,
+    videoCount: f._count.videos,
+  }));
 
   // Places invitation — assure la place créateur si trip antérieur au SQL 012
   const seatInclude = {
@@ -65,10 +74,7 @@ export default async function TripDetailPage({
     include: seatInclude,
     orderBy: [{ order: "asc" }, { createdAt: "asc" }],
   });
-  if (
-    member.role === "owner" &&
-    !seats.some((s) => s.claimedById === userId)
-  ) {
+  if (member.role === "owner" && !seats.some((s) => s.claimedById === userId)) {
     await createOwnerSeat(trip.id, userId);
     seats = await prisma.tripSeat.findMany({
       where: { tripId: trip.id },
@@ -79,7 +85,7 @@ export default async function TripDetailPage({
 
   // Avatars crew en tête : place (photo) ou profil si claimée
   const seatedUserIds = new Set(
-    seats.map((s) => s.claimedById).filter(Boolean) as string[]
+    seats.map((s) => s.claimedById).filter(Boolean) as string[],
   );
   const crewAvatars = [
     ...seats.map((s) => ({
@@ -101,7 +107,11 @@ export default async function TripDetailPage({
       })),
   ];
 
-  const statusLabel = { live: "En cours", upcoming: "À venir", past: "Terminé" };
+  const statusLabel = {
+    live: "En cours",
+    upcoming: "À venir",
+    past: "Terminé",
+  };
 
   // Tous les amis (flag déjà membre) — pour « Inviter le crew »
   const friendIds = await getFriendIds(userId);
@@ -130,12 +140,16 @@ export default async function TripDetailPage({
 
   return (
     <div className="trip-detail">
-      <Link href="/trips" className="back-link">← Séjours</Link>
+      <Link href="/trips" className="back-link">
+        ← Séjours
+      </Link>
 
       <header className="trip-detail-header">
         <div className="trip-detail-title-row">
           <div>
-            <span className={`trip-status-pill ${status}`}>{statusLabel[status]}</span>
+            <span className={`trip-status-pill ${status}`}>
+              {statusLabel[status]}
+            </span>
             <h1>{trip.name}</h1>
           </div>
           <div className="trip-detail-actions">
@@ -172,13 +186,24 @@ export default async function TripDetailPage({
             ))}
           </ul>
         )}
-        {trip.description && <p className="figure-description">{trip.description}</p>}
+        {trip.description && (
+          <p className="figure-description">{trip.description}</p>
+        )}
       </header>
 
       <div className="trip-stat-strip">
-        <div><strong>{totals.totalTricks}</strong><span>figures validées</span></div>
-        <div><strong>{totals.figures}</strong><span>sur la liste</span></div>
-        <div><strong>{totals.members}</strong><span>riders</span></div>
+        <div>
+          <strong>{totals.totalTricks}</strong>
+          <span>figures validées</span>
+        </div>
+        <div>
+          <strong>{totals.figures}</strong>
+          <span>sur la liste</span>
+        </div>
+        <div>
+          <strong>{totals.members}</strong>
+          <span>riders</span>
+        </div>
       </div>
 
       {member.role === "owner" && (
@@ -197,7 +222,7 @@ export default async function TripDetailPage({
               (m) =>
                 m.userId !== userId &&
                 m.role !== "owner" &&
-                !seatedUserIds.has(m.userId)
+                !seatedUserIds.has(m.userId),
             )
             .map((m) => ({
               userId: m.userId,
@@ -223,7 +248,9 @@ export default async function TripDetailPage({
           Les figures validées pendant le séjour.
         </p>
         {feed.length === 0 ? (
-          <p className="quest-empty">Le fil se remplit dès qu&apos;une figure est cochée.</p>
+          <p className="quest-empty">
+            Le fil se remplit dès qu&apos;une figure est cochée.
+          </p>
         ) : (
           <ul className="activity-feed">
             {feed.map((item) => (

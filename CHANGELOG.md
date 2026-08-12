@@ -1,5 +1,46 @@
 # Changelog
 
+## 2026-08-12
+
+### 🚀 Improved
+- Navigation plus fluide : plus de skeleton liste sur `/figures/*`, cache catalogue figures (~2 min), `staleTimes` router 60s, barre de chargement discrète
+- Séjour (créateur) : checklist figures — celles sans vidéo restent visibles mais désactivées
+- Imports YouTube : compression adaptée aux tutos longs (budget kbps selon durée) + skip members-only + `--only=id1,id2`
+- Import Kitesurf College : support `YTDLP_COOKIES` pour les vidéos members-only
+
+### 🔧 Changed
+- Figures : toutes les étapes (`steps`) vidées en base — à ressaisir à la main
+- Séjour : impossible d’ajouter une figure sans vidéo à la liste du trip
+- Figure **Moonslide** créée ; 2 vidéos Moon Slide migrées hors de `toeslide`
+
+### ✨ Added
+- Favoris figures : étoile sur fiche / catalogue + page **Mes favoris** (`/favoris`) — SQL `021-figure-favorites.sql`
+- Catalogue figures : nombre de vidéos affiché sur chaque ligne
+- Import Kitesurf College : `npm run import:kitesurfcollege` — Sécurité / Tutoriels / Kitefoil / Wingfoil / Strapless + merges (vidéos empilées)
+- Import Duotone Academy Strapless : `npm run import:duotone-strapless` — 35 tutos playlist (merge + créations Strapless)
+- Import Duotone Academy Hooked : `npm run import:duotone-hooked` — 83 tutos playlist (merge + créations)
+- Import Duotone Academy Foil : `npm run import:duotone-foil` — 19 tutos playlist (merge Kitefoil / Foil + créations)
+- Import Duotone Academy Unhooked : `npm run import:duotone-unhooked` — 41 tutos playlist (merge Unhooked / mobes / toeside + créations)
+- Import Duotone Academy Wave : `npm run import:duotone-wave` — 21 tutos playlist (merge Wave / Strapless + créations)
+- Import Duotone Academy Beginner : `npm run import:duotone-beginner` — 17 tutos playlist (merge Débuter / Bases / Sécurité + créations)
+- Catégories monde **Kitefoil**, **Wingfoil** et **Strapless** (ordre catalogue / XP) — mapping Kitesurf College
+- Retry Duotone : yt-dlp `player_client=android,ios,web` pour limiter les 403
+
+## 2026-08-11
+
+### ✨ Added
+- Import Les Coachings de Pierre : `npm run import:pierre` — figures **Sécurité** / **Tutoriels** (inactive) + merge sur figures existantes (vidéos empilées)
+- Catégorie monde **Tutoriels** (ordre catalogue / XP)
+- Catégorie monde **Sécurité** (ordre catalogue / XP)
+- Import Steven Akkersdijk : `npm run import:steven` (yt-dlp → compress → Storage) + catégorie **Bonus** (Easy Tricks)
+- Script `npm run fetch:youtube` — catalogue liens vidéos d’une chaîne YouTube (yt-dlp → JSON/CSV)
+- Admin figures : catégories repliables (clic titre + Tout ouvrir / Tout replier)
+- Admin figures : colonne **Done** (suivi curation interne) + filtre À faire / Done — SQL `020-figure-admin-done.sql`
+- Admin figures : barre de recherche (nom / slug / catégorie) + filtres actif / inactif et avec / sans vidéo, liste groupée par catégorie + case pour activer / désactiver toute une catégorie
+
+### 📚 Documentation
+- Charte graphique KiteQuest (`CHARTE-GRAPHIQUE.md`) — palette, typo, marque, thèmes clair/sombre
+
 ## 2026-08-10
 
 ### 🐛 Fixed
@@ -9,6 +50,7 @@
 - Séjour : cocher / décocher un objectif est instantané (maj locale, plus de refresh page entier)
 
 ### 🔧 Changed
+- « Bientôt disponible » en rouge pour les figures de l’import Twintip avancé (repère temporaire)
 - Figures inactives (admin) : visibles catalogue / arbre / séjour, non cliquables, libellé « Bientôt disponible » — fiche détail réservée admin
 - Figures : on peut marquer acquise même sans avoir validé les prérequis
 - Séjour : rangée d’avatars du crew en haut de la fiche (places + profils)
@@ -25,6 +67,7 @@
 - Social sans compétition : retrait du classement potes, des défis, des leaderboards séjour / « séjours skillants » et de la comparaison amis sur les figures — fil d’activité et invites conservés (célébration, pas classement)
 
 ### ✨ Added
+- Formation **Twintip avancé** : catégorie + import vidéos OLK (`npm run import:avance`) — merges tricks existants, nouvelles figures inactives (Flèche bis, Beachstart, Toeslide, olés…)
 - Pseudo `@username` unique : inscription + profil, recherche d’amis par pseudo (sinon invite email) — SQL `019-user-username.sql`
 - Figures **Surface Backroll Transition**, **Surface Backroll 360**, **Backroll to Toeside**, **Blind to Toeside Transition** — SQL `015`–`018`
 - Séjour : le créateur peut retirer un rider (Participants invités → Retirer) — libère place + objectifs

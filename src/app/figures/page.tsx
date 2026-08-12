@@ -5,7 +5,12 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { FiguresCatalog } from "@/components/figures-catalog";
 import { resolveDebuterSection } from "@/lib/debuter";
-import { isCompleted, isUnlocked, sortCategories, xpForCategory } from "@/lib/gamification";
+import {
+  resolveTwintipAvanceSection,
+  TWINTIP_AVANCE_CATEGORY,
+} from "@/lib/twintip-avance";
+import { getCachedFiguresCatalog } from "@/lib/figures-catalog-cache";
+import { isUnlocked, sortCategories, xpForCategory } from "@/lib/gamification";
 
 export default async function FiguresPage({
   searchParams,
@@ -16,34 +21,45 @@ export default async function FiguresPage({
   if (!session?.user?.id) redirect("/login");
   const userId = session.user.id;
 
-  // Inclus les inactives : visibles mais non cliquables côté user
-  const figures = await prisma.figure.findMany({
-    include: {
-      prerequisites: { select: { id: true } },
-      progress: { where: { userId } },
-    },
-    orderBy: [{ category: "asc" }, { order: "asc" }],
-  });
+  // Catalogue partagé en cache + état perso (progress / favoris) en parallèle
+  const [figures, progressRows, favoriteRows] = await Promise.all([
+    getCachedFiguresCatalog(),
+    prisma.userProgress.findMany({
+      where: { userId, completed: true },
+      select: { figureId: true },
+    }),
+    prisma.figureFavorite.findMany({
+      where: { userId },
+      select: { figureId: true },
+    }),
+  ]);
 
-  const doneIds = new Set(figures.filter((f) => isCompleted(f)).map((f) => f.id));
-  const categories = sortCategories(Array.from(new Set(figures.map((f) => f.category))));
-  const doneCount = doneIds.size;
+  const doneIds = new Set(progressRows.map((p) => p.figureId));
+  const favoriteIds = new Set(favoriteRows.map((r) => r.figureId));
+  const categories = sortCategories(
+    Array.from(new Set(figures.map((f) => f.category)))
+  );
+  const doneCount = figures.filter((f) => doneIds.has(f.id)).length;
 
-  // Sérialisation pour le catalogue client (recherche/tri instantanés)
   const catalogFigures = figures.map((f) => ({
     id: f.id,
     slug: f.slug,
     name: f.name,
     category: f.category,
+    description: f.description,
     section:
       f.category === "Débuter"
         ? resolveDebuterSection(f.description, f.order)
+        : f.category === TWINTIP_AVANCE_CATEGORY
+        ? resolveTwintipAvanceSection(f.description, f.order)
         : null,
     order: f.order,
     completed: doneIds.has(f.id),
     locked: !isUnlocked(f, doneIds),
     active: f.active,
     xp: xpForCategory(f.category),
+    videoCount: f._count.videos,
+    favorite: favoriteIds.has(f.id),
   }));
 
   return (
@@ -56,6 +72,9 @@ export default async function FiguresPage({
       <div className="offline-pack-bar">
         <Link href="/figures/arbre" className="btn btn-ghost">
           🌳 Arbre de progression
+        </Link>
+        <Link href="/favoris" className="btn btn-ghost">
+          Mes favoris
         </Link>
       </div>
 

@@ -813,6 +813,53 @@ a.figure-card-name:hover { color: var(--aqua-deep); }
   cursor: default;
   color: var(--mist);
 }
+.figure-detail-skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 8px;
+}
+
+/* Compteur vidéos sur la ligne figure (catalogue) */
+.figure-video-count {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--mist);
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+/* Bouton favori (étoile) */
+.figure-fav-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--mist);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  transition: color 0.15s ease, background 0.15s ease;
+}
+.figure-fav-btn:hover {
+  color: var(--aqua-deep);
+  background: rgba(126, 200, 216, 0.18);
+}
+.figure-fav-btn.is-on {
+  color: #e6a317;
+}
+.figure-fav-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.figure-fav-btn.sm {
+  padding: 2px;
+}
 .xp-pill {
   font-size: 0.7rem;
   font-weight: 800;
@@ -826,6 +873,12 @@ a.figure-card-name:hover { color: var(--aqua-deep); }
   color: var(--mist);
   background: color-mix(in srgb, var(--silver) 35%, transparent);
   font-weight: 700;
+}
+/* Import Twintip avancé : repère temporaire en rouge */
+.xp-pill.soon.avance-new,
+.soon-label.avance-new {
+  color: #c0392b;
+  background: rgba(192, 57, 43, 0.14);
 }
 .soon-label {
   display: inline-block;
@@ -979,6 +1032,11 @@ span.prereq-chip.inactive {
 span.prereq-chip.inactive:hover {
   border-color: inherit;
   color: inherit;
+}
+span.prereq-chip.inactive.avance-new {
+  opacity: 1;
+  color: #c0392b;
+  border-color: rgba(192, 57, 43, 0.45);
 }
 
 .empty-hint { color: var(--mist); font-size: 0.85rem; font-weight: 600; }
@@ -1215,6 +1273,95 @@ span.prereq-chip.inactive:hover {
 }
 .admin-page h1 { margin: 0; color: var(--navy); }
 .badge.sm { padding: 3px 9px; font-size: 0.7rem; }
+.admin-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 20px;
+  margin: 12px 0 20px;
+}
+.admin-filters label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--mist);
+}
+.admin-filters select,
+.admin-filters input[type="search"] {
+  min-width: 160px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--line-strong);
+  background: var(--card);
+  color: var(--navy);
+  font-weight: 700;
+}
+.admin-filters .admin-search { flex: 1 1 220px; }
+.admin-filters .admin-search input {
+  width: 100%;
+  min-width: 0;
+}
+.admin-cat-block { margin-bottom: 28px; }
+.admin-cat-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 10px;
+}
+.admin-cat-toggle {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 4px 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  min-width: 0;
+}
+.admin-cat-toggle:hover .admin-cat-title { color: var(--aqua-deep); }
+.admin-cat-chevron {
+  flex-shrink: 0;
+  width: 1.1em;
+  color: var(--mist);
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+.admin-cat-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--navy);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px 12px;
+}
+.admin-cat-meta {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--mist);
+}
+.admin-expand-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-end;
+  margin-left: auto;
+}
+.admin-expand-actions .btn {
+  padding: 8px 14px;
+  font-size: 0.8rem;
+}
+.admin-cat-block.is-collapsed .admin-cat-head { margin-bottom: 0; }
+.admin-no-video { color: var(--mist); font-weight: 600; }
+.admin-cat-block .admin-table-wrap { margin-top: 0; }
 
 .admin-table-wrap {
   width: 100%;
@@ -1257,6 +1404,9 @@ span.prereq-chip.inactive:hover {
   cursor: pointer;
 }
 .admin-row-inactive td { opacity: 0.55; }
+.admin-row-done td:nth-child(3) {
+  color: var(--success);
+}
 
 .admin-form {
   display: flex;
@@ -2263,6 +2413,22 @@ span.prereq-chip.inactive:hover {
   opacity: 0.75;
 }
 .figure-check-row.is-listed .figure-check:hover { background: transparent; }
+/* Figure active sans vidéo : visible mais non cochable */
+.figure-check-row.is-no-video .figure-check {
+  cursor: not-allowed;
+  opacity: 0.55;
+  color: var(--mist);
+}
+.figure-check-row.is-no-video .figure-check:hover { background: transparent; }
+.figure-no-video {
+  margin-left: auto;
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--mist);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  flex-shrink: 0;
+}
 .crew-known-row {
   display: flex;
   flex-wrap: wrap;
@@ -2638,7 +2804,7 @@ button.linkish {
     min-width: 0;
     word-break: break-word;
   }
-  .xp-pill { margin-left: auto; }
+  .figure-video-count { margin-left: auto; }
 
   .figure-detail-header h1 { font-size: 1.5rem; }
   .steps-list li { padding: 12px 12px 12px 46px; font-size: 0.92rem; }
@@ -3479,6 +3645,9 @@ button.linkish {
   font-weight: 700;
   color: var(--mist);
   line-height: 1.2;
+}
+.skill-tree-node-soon.avance-new {
+  color: #c0392b;
 }
 
 /* ============ PHASE 5 — défis entre amis ============ */

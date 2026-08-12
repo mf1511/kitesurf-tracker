@@ -35,15 +35,23 @@ export async function POST(
 
   const figures = await prisma.figure.findMany({
     where: { id: { in: ids }, active: true },
-    select: { id: true },
+    select: { id: true, _count: { select: { videos: true } } },
   });
   if (figures.length === 0) {
     return NextResponse.json({ error: "Figure introuvable ou inactive" }, { status: 404 });
   }
+  // Séjour : uniquement des figures avec au moins une vidéo
+  const withVideo = figures.filter((f) => f._count.videos > 0);
+  if (withVideo.length === 0) {
+    return NextResponse.json(
+      { error: "Figure sans vidéo — impossible de l’ajouter au séjour" },
+      { status: 400 }
+    );
+  }
 
   // Ignore celles déjà présentes (createMany skipDuplicates)
   const result = await prisma.tripFigure.createMany({
-    data: figures.map((f) => ({
+    data: withVideo.map((f) => ({
       tripId: params.id,
       figureId: f.id,
       addedById: userId,

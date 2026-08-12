@@ -4,11 +4,17 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import FigureCheckbox from "@/components/FigureCheckbox";
+import FigureFavoriteButton from "@/components/figure-favorite-button";
 import AddFigureToTrip from "@/components/add-figure-to-trip";
 import FigureVideosPanel from "@/components/figure-videos-panel";
 import { FigureNotePanel } from "@/components/figure-note-panel";
 import BackLink from "@/components/back-link";
 import { resolveDebuterSection } from "@/lib/debuter";
+import {
+  isTwintipAvanceImportFigure,
+  resolveTwintipAvanceSection,
+  TWINTIP_AVANCE_CATEGORY,
+} from "@/lib/twintip-avance";
 import { xpForCategory } from "@/lib/gamification";
 import { figureHref } from "@/lib/nav-return";
 
@@ -42,15 +48,25 @@ export default async function FigureDetailPage({
   // Inactive : visible en catalogue/arbre, fiche réservée admin
   if (!figure.active && session.user.role !== "admin") notFound();
 
-  // Leçons Débuter : layout vidéo-first, sans étapes / séjour
-  const isLesson = figure.category === "Débuter";
+  // Formations : layout vidéo-first, sans étapes / séjour
+  const isLesson =
+    figure.category === "Débuter" ||
+    figure.category === TWINTIP_AVANCE_CATEGORY;
   const lessonSection = isLesson
-    ? resolveDebuterSection(figure.description, figure.order)
+    ? figure.category === TWINTIP_AVANCE_CATEGORY
+      ? resolveTwintipAvanceSection(figure.description, figure.order)
+      : resolveDebuterSection(figure.description, figure.order)
     : null;
 
-  const myNote = await prisma.figureNote.findUnique({
-    where: { userId_figureId: { userId, figureId: figure.id } },
-  });
+  const [myNote, myFavorite] = await Promise.all([
+    prisma.figureNote.findUnique({
+      where: { userId_figureId: { userId, figureId: figure.id } },
+    }),
+    prisma.figureFavorite.findUnique({
+      where: { userId_figureId: { userId, figureId: figure.id } },
+      select: { id: true },
+    }),
+  ]);
 
   const myTrips = isLesson
     ? []
@@ -149,6 +165,14 @@ export default async function FigureDetailPage({
               : "Marquer comme acquise"}
           </span>
         </div>
+
+        <div className="status-row">
+          <FigureFavoriteButton
+            figureId={figure.id}
+            initialFavorite={!!myFavorite}
+            showLabel
+          />
+        </div>
         {locked && !completed && (
           <p className="feed-meta">
             Prérequis non validés — tu peux quand même cocher si tu la maîtrises
@@ -196,7 +220,12 @@ export default async function FigureDetailPage({
               );
               if (!p.active) {
                 return (
-                  <span key={p.id} className={className}>
+                  <span
+                    key={p.id}
+                    className={`${className}${
+                      isTwintipAvanceImportFigure(p) ? " avance-new" : ""
+                    }`}
+                  >
                     {label} · Bientôt disponible
                   </span>
                 );
@@ -240,7 +269,12 @@ export default async function FigureDetailPage({
                   {u.name}
                 </Link>
               ) : (
-                <span key={u.id} className="prereq-chip inactive">
+                <span
+                  key={u.id}
+                  className={`prereq-chip inactive${
+                    isTwintipAvanceImportFigure(u) ? " avance-new" : ""
+                  }`}
+                >
                   {u.name} · Bientôt disponible
                 </span>
               )

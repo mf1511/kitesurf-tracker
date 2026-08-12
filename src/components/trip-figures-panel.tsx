@@ -11,10 +11,11 @@ import type {
   TripFigureRow,
 } from "@/lib/trips";
 import { sortCategories } from "@/lib/gamification";
+import { isTwintipAvanceImportFigure } from "@/lib/twintip-avance";
 import { figureHref } from "@/lib/nav-return";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 
-type Fig = { id: string; name: string; category: string };
+type Fig = { id: string; name: string; category: string; videoCount: number };
 
 export default function TripFiguresPanel({
   tripId,
@@ -158,6 +159,8 @@ export default function TripFiguresPanel({
 
   function toggleSelect(id: string) {
     if (listedIds.has(id)) return; // déjà sur la liste
+    const fig = allFigures.find((f) => f.id === id);
+    if (!fig || fig.videoCount < 1) return; // sans vidéo = non sélectionnable
     setSelected((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -322,7 +325,13 @@ export default function TripFiguresPanel({
                       ) : (
                         <>
                           {o.name}{" "}
-                          <span className="soon-label">Bientôt disponible</span>
+                          <span
+                            className={`soon-label${
+                              isTwintipAvanceImportFigure(o) ? " avance-new" : ""
+                            }`}
+                          >
+                            Bientôt disponible
+                          </span>
                         </>
                       )}
                     </strong>
@@ -420,7 +429,13 @@ export default function TripFiguresPanel({
                               ) : (
                                 <>
                                   {f.name}{" "}
-                                  <span className="soon-label">
+                                  <span
+                                    className={`soon-label${
+                                      isTwintipAvanceImportFigure(f)
+                                        ? " avance-new"
+                                        : ""
+                                    }`}
+                                  >
                                     Bientôt disponible
                                   </span>
                                 </>
@@ -572,8 +587,13 @@ export default function TripFiguresPanel({
                   >
                     <option value="">— Choisir —</option>
                     {memberOptions.map((f) => (
-                      <option key={f.id} value={f.id}>
+                      <option
+                        key={f.id}
+                        value={f.id}
+                        disabled={f.videoCount < 1}
+                      >
                         {f.name} ({f.category})
+                        {f.videoCount < 1 ? " — sans vidéo" : ""}
                       </option>
                     ))}
                   </select>
@@ -634,22 +654,27 @@ export default function TripFiguresPanel({
                     <ul>
                       {figs.map((f) => {
                         const onList = listedIds.has(f.id);
+                        const noVideo = f.videoCount < 1;
                         return (
                           <li
                             key={f.id}
-                            className={`figure-check-row${onList ? " is-listed" : ""}`}
+                            className={`figure-check-row${onList ? " is-listed" : ""}${
+                              noVideo && !onList ? " is-no-video" : ""
+                            }`}
                           >
                             <label className="figure-check">
                               <input
                                 type="checkbox"
                                 checked={onList || selected.has(f.id)}
-                                disabled={onList}
+                                disabled={onList || noVideo}
                                 onChange={() => toggleSelect(f.id)}
                               />
                               <span>{f.name}</span>
-                              {onList && (
+                              {onList ? (
                                 <span className="figure-on-list">sur la liste</span>
-                              )}
+                              ) : noVideo ? (
+                                <span className="figure-no-video">sans vidéo</span>
+                              ) : null}
                             </label>
                             <CrewRiderChips riders={crewKnownBy[f.id] ?? []} />
                           </li>

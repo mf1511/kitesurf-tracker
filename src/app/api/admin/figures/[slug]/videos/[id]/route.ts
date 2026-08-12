@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { FIGURE_VIDEOS_BUCKET } from "@/lib/videos";
+import { invalidateFiguresCatalog } from "@/lib/figures-catalog-cache";
 
 async function loadOwnedVideo(slug: string, videoId: string) {
   const figure = await prisma.figure.findUnique({ where: { slug } });
@@ -86,5 +87,6 @@ export async function DELETE(
   }
 
   await prisma.video.delete({ where: { id: params.id } });
+  await invalidateFiguresCatalog();
   return NextResponse.json({ ok: true });
 }

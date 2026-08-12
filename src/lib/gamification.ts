@@ -17,6 +17,13 @@ export type FigureLike = {
 /** Points XP selon la catégorie (plus technique = plus de points) */
 const CATEGORY_XP: Record<string, number> = {
   Débuter: 5,
+  "Twintip avancé": 8,
+  Bonus: 8,
+  Sécurité: 8,
+  Tutoriels: 5,
+  Kitefoil: 25,
+  Wingfoil: 25,
+  Strapless: 25,
   "Bases et transitions": 10,
   "Surface tricks & drags": 15,
   "Sauts & Big Air": 20,
@@ -90,11 +97,27 @@ export function xpForCategory(category: string): number {
   return CATEGORY_XP[category] ?? DEFAULT_XP;
 }
 
-/** Ordre d’affichage des mondes : Débuter en premier, puis alpha FR */
+const CATEGORY_ORDER = [
+  "Débuter",
+  "Twintip avancé",
+  "Bonus",
+  "Sécurité",
+  "Tutoriels",
+  "Kitefoil",
+  "Wingfoil",
+  "Strapless",
+] as const;
+
+/** Ordre d’affichage des mondes : formations d’abord, puis alpha FR */
 export function sortCategories(categories: string[]): string[] {
   return [...categories].sort((a, b) => {
-    if (a === "Débuter") return -1;
-    if (b === "Débuter") return 1;
+    const ia = CATEGORY_ORDER.indexOf(a as (typeof CATEGORY_ORDER)[number]);
+    const ib = CATEGORY_ORDER.indexOf(b as (typeof CATEGORY_ORDER)[number]);
+    if (ia !== -1 || ib !== -1) {
+      if (ia === -1) return 1;
+      if (ib === -1) return -1;
+      return ia - ib;
+    }
     return a.localeCompare(b, "fr");
   });
 }

@@ -13,7 +13,18 @@
     "db:studio": "prisma studio",
     "db:keepalive": "tsx scripts/keepalive.ts",
     "make-admin": "tsx scripts/make-admin.ts",
-    "import:debuter": "tsx scripts/import-debuter-videos.ts"
+    "import:debuter": "tsx scripts/import-debuter-videos.ts",
+    "import:avance": "tsx scripts/import-avance-videos.ts",
+    "fetch:youtube": "tsx scripts/fetch-youtube-channel-videos.ts",
+    "import:steven": "tsx scripts/import-steven-videos.ts",
+    "import:pierre": "tsx scripts/import-pierre-videos.ts",
+    "import:kitesurfcollege": "tsx scripts/import-kitesurfcollege-videos.ts",
+    "import:duotone-strapless": "tsx scripts/import-duotone-strapless-videos.ts",
+    "import:duotone-hooked": "tsx scripts/import-duotone-hooked-videos.ts",
+    "import:duotone-foil": "tsx scripts/import-duotone-foil-videos.ts",
+    "import:duotone-unhooked": "tsx scripts/import-duotone-unhooked-videos.ts",
+    "import:duotone-wave": "tsx scripts/import-duotone-wave-videos.ts",
+    "import:duotone-beginner": "tsx scripts/import-duotone-beginner-videos.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

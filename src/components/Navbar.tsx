@@ -11,6 +11,7 @@ import NavProfileMenu from "@/components/nav-profile-menu";
 const PRIMARY_LINKS = [
   { href: "/dashboard", label: "Home", auth: true },
   { href: "/figures", label: "Figures", auth: true },
+  { href: "/favoris", label: "Favoris", auth: true },
   { href: "/spots", label: "Spots", auth: true },
   { href: "/sessions", label: "Sessions", auth: true },
   { href: "/trips", label: "Séjours", auth: true },

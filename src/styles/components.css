@@ -392,6 +392,31 @@ button.linkish:disabled {
 .btn:disabled:hover { transform: none; }
 
 /* ---------- Skeletons (loading.tsx) ---------- */
+/* Barre fine pendant navigation (à la place des gros skeletons) */
+.nav-loading-bar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  height: 3px;
+  margin: -0.25rem 0 1rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--aqua) 25%, transparent);
+}
+.nav-loading-bar::after {
+  content: "";
+  display: block;
+  height: 100%;
+  width: 40%;
+  border-radius: inherit;
+  background: var(--aqua-deep);
+  animation: nav-loading-slide 0.9s ease-in-out infinite;
+}
+@keyframes nav-loading-slide {
+  0% { transform: translateX(-120%); }
+  100% { transform: translateX(320%); }
+}
+
 .page-skeleton { display: flex; flex-direction: column; gap: 18px; }
 .skeleton {
   display: block;

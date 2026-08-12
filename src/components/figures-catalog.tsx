@@ -3,7 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import FigureCheckbox from "@/components/FigureCheckbox";
+import FigureFavoriteButton from "@/components/figure-favorite-button";
 import { sortDebuterSections } from "@/lib/debuter";
+import {
+  isTwintipAvanceImportFigure,
+  sortTwintipAvanceSections,
+  TWINTIP_AVANCE_CATEGORY,
+} from "@/lib/twintip-avance";
 import { figureHref } from "@/lib/nav-return";
 
 export type CatalogFigure = {
@@ -11,6 +17,7 @@ export type CatalogFigure = {
   slug: string;
   name: string;
   category: string;
+  description?: string | null;
   /** Sous-module Débuter (ex. « Sur la plage »), null sinon */
   section: string | null;
   order: number;
@@ -19,6 +26,9 @@ export type CatalogFigure = {
   /** false = visible mais pas encore publiée (admin) */
   active: boolean;
   xp: number;
+  /** Nombre de vidéos liées à la figure */
+  videoCount: number;
+  favorite: boolean;
 };
 
 type SortId = "default" | "name" | "xp-asc" | "xp-desc";
@@ -90,6 +100,13 @@ export function FiguresCatalog({
       <div key={f.id} className={`figure-card ${state}`}>
         <span className={`status-dot ${state}`} aria-hidden />
         {f.active ? (
+          <FigureFavoriteButton
+            figureId={f.id}
+            initialFavorite={f.favorite}
+            size="sm"
+          />
+        ) : null}
+        {f.active ? (
           <FigureCheckbox
             figureId={f.id}
             initialCompleted={f.completed}
@@ -109,16 +126,32 @@ export function FiguresCatalog({
         ) : (
           <span className="figure-card-name is-inactive">{f.name}</span>
         )}
-        <span className={`xp-pill${f.active ? "" : " soon"}`}>
+        {/* Compteur vidéos à côté de l’XP */}
+        <span className="figure-video-count" title={`${f.videoCount} vidéo${f.videoCount === 1 ? "" : "s"}`}>
+          {f.videoCount} vidéo{f.videoCount === 1 ? "" : "s"}
+        </span>
+        <span
+          className={`xp-pill${
+            f.active
+              ? ""
+              : isTwintipAvanceImportFigure(f)
+              ? " soon avance-new"
+              : " soon"
+          }`}
+        >
           {f.active ? `+${f.xp} XP` : "Bientôt disponible"}
         </span>
       </div>
     );
   };
 
-  /** Sous-sections Débuter dans l’ordre des dossiers */
-  function renderDebuterBlocks(list: CatalogFigure[]) {
-    const sections = sortDebuterSections(
+  /** Sous-sections formation (Débuter / Twintip avancé) */
+  function renderSectionBlocks(list: CatalogFigure[], cat: string) {
+    const sortFn =
+      cat === TWINTIP_AVANCE_CATEGORY
+        ? sortTwintipAvanceSections
+        : sortDebuterSections;
+    const sections = sortFn(
       Array.from(new Set(list.map((f) => f.section).filter(Boolean) as string[]))
     );
     const orphan = list.filter((f) => !f.section);
@@ -216,12 +249,13 @@ export function FiguresCatalog({
       ) : grouped ? (
         visibleCategories.map((cat) => {
           const list = visible.filter((f) => f.category === cat);
-          const isDebuter = cat === "Débuter";
+          const hasSections =
+            cat === "Débuter" || cat === TWINTIP_AVANCE_CATEGORY;
           return (
             <section key={cat} className="figure-section">
               <h2>{cat}</h2>
-              {isDebuter ? (
-                renderDebuterBlocks(list)
+              {hasSections ? (
+                renderSectionBlocks(list, cat)
               ) : (
                 <div className="figure-grid">{list.map(renderCard)}</div>
               )}

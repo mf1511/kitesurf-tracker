@@ -77,6 +77,10 @@ export default async function ParametresPage() {
             <span>Ton journal de nav</span>
           </li>
           <li>
+            <Link href="/favoris">Mes favoris</Link>
+            <span>Figures épinglées pour y revenir vite</span>
+          </li>
+          <li>
             <Link href="/stats">Stats</Link>
             <span>Courbe XP, records, récap semaine</span>
           </li>

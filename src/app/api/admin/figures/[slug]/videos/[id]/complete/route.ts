@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import { FIGURE_VIDEOS_BUCKET, publicVideoUrl } from "@/lib/videos";
+import { invalidateFiguresCatalog } from "@/lib/figures-catalog-cache";
 
 /**
  * Confirme que l’upload Storage a réussi — rafraîchit url / size si besoin.
@@ -83,5 +84,6 @@ export async function POST(
     },
   });
 
+  await invalidateFiguresCatalog();
   return NextResponse.json(updated);
 }

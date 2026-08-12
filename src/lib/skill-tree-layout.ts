@@ -10,6 +10,8 @@ export type SkillTreeInput = {
   xp: number;
   /** false = publiée côté admin désactivée — visible, pas de lien */
   active?: boolean;
+  /** Import Twintip avancé — libellé « Bientôt » en rouge */
+  soonHighlight?: boolean;
   /** Prérequis dans la même catégorie (ids) */
   prereqIds: string[];
   /** Ordre pédagogique (Débuter / tri) */
