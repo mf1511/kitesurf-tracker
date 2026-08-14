@@ -2409,6 +2409,17 @@ span.prereq-chip.inactive.avance-new {
   color: var(--aqua-deep);
 }
 .trip-figure-group .challenge-list { margin-bottom: 0; }
+/* Sous-modules dans la liste séjour (même hiérarchie que le catalogue) */
+.trip-figure-section {
+  padding-left: 16px;
+  margin-bottom: 10px;
+}
+.trip-figure-section h4 {
+  margin: 0 0 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--navy-soft);
+}
 .challenge-list li.trip-fig-done {
   opacity: 0.62;
   background: color-mix(in srgb, var(--success) 8%, var(--surface));
@@ -2453,6 +2464,13 @@ span.prereq-chip.inactive.avance-new {
   display: flex;
   flex-direction: column;
   gap: 2px;
+}
+.figure-checklist-section {
+  margin: 0;
+  padding: 6px 12px 2px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--navy-soft);
 }
 /* Override .challenge-form label { column } — checkbox à gauche du nom */
 .challenge-form .figure-check,

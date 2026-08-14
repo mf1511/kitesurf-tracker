@@ -10,6 +10,8 @@ import TripFiguresPanel from "@/components/trip-figures-panel";
 import TripSeatsPanel from "@/components/trip-seats-panel";
 import { createOwnerSeat } from "@/lib/trip-seats";
 import { getFriendIds, riderLabel } from "@/lib/community";
+import { getCategoryOrder } from "@/lib/category-order";
+import { resolveFigureSection } from "@/lib/figure-sections";
 import { figureHref } from "@/lib/nav-return";
 import UserAvatar from "@/components/user-avatar";
 
@@ -45,21 +47,36 @@ export default async function TripDetailPage({
   const { trip, status, feed, tripFigures, myObjectives, crewKnownBy, totals } =
     stats;
 
-  const figuresRaw = await prisma.figure.findMany({
-    where: { active: true },
-    select: {
-      id: true,
-      name: true,
-      category: true,
-      _count: { select: { videos: true } },
-    },
-    orderBy: [{ category: "asc" }, { order: "asc" }],
-  });
+  const [figuresRaw, categoryOrder] = await Promise.all([
+    prisma.figure.findMany({
+      where: { active: true },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        category: true,
+        description: true,
+        order: true,
+        _count: { select: { videos: true } },
+      },
+      orderBy: [{ order: "asc" }, { name: "asc" }],
+    }),
+    getCategoryOrder(),
+  ]);
   // videoCount : checklist créateur désactive les figures sans vidéo
   const figures = figuresRaw.map((f) => ({
     id: f.id,
+    slug: f.slug,
     name: f.name,
     category: f.category,
+    order: f.order,
+    section: resolveFigureSection(
+      f.category,
+      f.description,
+      f.order,
+      f.slug,
+      f.name
+    ),
     videoCount: f._count.videos,
   }));
 
@@ -235,6 +252,7 @@ export default async function TripDetailPage({
       <TripFiguresPanel
         tripId={trip.id}
         allFigures={figures}
+        categoryOrder={categoryOrder}
         tripFigures={tripFigures}
         myObjectives={myObjectives}
         crewKnownBy={crewKnownBy}

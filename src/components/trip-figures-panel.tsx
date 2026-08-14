@@ -10,16 +10,72 @@ import type {
   MyObjectiveRow,
   TripFigureRow,
 } from "@/lib/trips";
+import { sortFigureSections } from "@/lib/figure-sections";
 import { sortCategories } from "@/lib/gamification";
 import { isTwintipAvanceImportFigure } from "@/lib/twintip-avance";
 import { figureHref } from "@/lib/nav-return";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 
-type Fig = { id: string; name: string; category: string; videoCount: number };
+type Fig = {
+  id: string;
+  slug: string;
+  name: string;
+  category: string;
+  order: number;
+  section: string | null;
+  videoCount: number;
+};
+
+type Sectioned<T> = { section: string | null; figs: T[] };
+type Grouped<T> = { category: string; blocks: Sectioned<T>[] };
+
+/** Même découpage que le catalogue : catégorie → sous-module → ordre */
+function groupByCategorySection<
+  T extends { category: string; section: string | null; order: number; name: string },
+>(items: T[], categoryOrder: readonly string[]): Grouped<T>[] {
+  const byCat = new Map<string, T[]>();
+  for (const f of items) {
+    const list = byCat.get(f.category) ?? [];
+    list.push(f);
+    byCat.set(f.category, list);
+  }
+  return sortCategories([...byCat.keys()], categoryOrder).map((category) => {
+    const rows = (byCat.get(category) ?? []).sort(
+      (a, b) => a.order - b.order || a.name.localeCompare(b.name, "fr")
+    );
+    const names = sortFigureSections(
+      category,
+      [...new Set(rows.map((f) => f.section).filter(Boolean) as string[])]
+    );
+    const blocks: Sectioned<T>[] = names.map((section) => ({
+      section,
+      figs: rows.filter((f) => f.section === section),
+    }));
+    const orphan = rows.filter((f) => !f.section);
+    if (orphan.length > 0) {
+      blocks.push({ section: names.length > 0 ? "Autres" : null, figs: orphan });
+    }
+    return { category, blocks };
+  });
+}
+
+function figureMatchesQuery(
+  f: { name: string; category: string; section: string | null },
+  query: string
+) {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  return (
+    f.name.toLowerCase().includes(q) ||
+    f.category.toLowerCase().includes(q) ||
+    (f.section != null && f.section.toLowerCase().includes(q))
+  );
+}
 
 export default function TripFiguresPanel({
   tripId,
   allFigures,
+  categoryOrder,
   tripFigures,
   myObjectives,
   crewKnownBy,
@@ -28,6 +84,8 @@ export default function TripFiguresPanel({
 }: {
   tripId: string;
   allFigures: Fig[];
+  /** Ordre des mondes (AppSetting), comme le catalogue */
+  categoryOrder: readonly string[];
   tripFigures: TripFigureRow[];
   myObjectives: MyObjectiveRow[];
   /** Qui a déjà chaque figure en acquis perso */
@@ -62,60 +120,32 @@ export default function TripFiguresPanel({
 
   /** Figures encore ajoutables (pas déjà sur la liste) — select membre */
   const available = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return allFigures.filter((f) => {
-      if (listedIds.has(f.id)) return false;
-      if (!q) return true;
-      return (
-        f.name.toLowerCase().includes(q) ||
-        f.category.toLowerCase().includes(q)
+    return allFigures
+      .filter((f) => !listedIds.has(f.id) && figureMatchesQuery(f, query))
+      .sort(
+        (a, b) => a.order - b.order || a.name.localeCompare(b.name, "fr")
       );
-    });
   }, [allFigures, listedIds, query]);
 
-  // Checklist créateur : toutes les figures (déjà sur la liste = cochées / figées)
-  const checklistGrouped = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const filtered = allFigures.filter((f) => {
-      if (!q) return true;
-      return (
-        f.name.toLowerCase().includes(q) ||
-        f.category.toLowerCase().includes(q)
-      );
-    });
-    const map = new Map<string, Fig[]>();
-    for (const f of filtered) {
-      const list = map.get(f.category) ?? [];
-      list.push(f);
-      map.set(f.category, list);
-    }
-    return sortCategories([...map.keys()]).map(
-      (cat) => [cat, map.get(cat)!] as const
-    );
-  }, [allFigures, query]);
+  // Checklist créateur : catégories + sous-modules (déjà sur la liste = cochées)
+  const checklistGrouped = useMemo(
+    () =>
+      groupByCategorySection(
+        allFigures.filter((f) => figureMatchesQuery(f, query)),
+        categoryOrder
+      ),
+    [allFigures, query, categoryOrder]
+  );
 
   const doneHiddenCount = figures.filter((f) => f.alreadyDone).length;
 
-  // Liste séjour : catégories (ordre arbre) + order pédagogique, filtre réussies
-  const listedByCategory = useMemo(() => {
+  // Liste séjour : même découpage catalogue, réussies masquées par défaut
+  const listedGrouped = useMemo(() => {
     const filtered = showDone
       ? figures
       : figures.filter((f) => !f.alreadyDone);
-    const map = new Map<string, TripFigureRow[]>();
-    for (const f of filtered) {
-      const list = map.get(f.category) ?? [];
-      list.push(f);
-      map.set(f.category, list);
-    }
-    for (const list of map.values()) {
-      list.sort(
-        (a, b) => a.order - b.order || a.name.localeCompare(b.name, "fr")
-      );
-    }
-    return sortCategories([...map.keys()]).map(
-      (cat) => [cat, map.get(cat)!] as const
-    );
-  }, [figures, showDone]);
+    return groupByCategorySection(filtered, categoryOrder);
+  }, [figures, showDone, categoryOrder]);
 
   /** Avatar « moi » pour maj optimiste des holders */
   function meAsHolder(): CrewRider {
@@ -382,7 +412,7 @@ export default function TripFiguresPanel({
               ? "Liste vide — coche les figures dans la zone créateur."
               : "Liste vide — le créateur n’a pas encore choisi de figures."}
           </p>
-        ) : listedByCategory.length === 0 ? (
+        ) : listedGrouped.length === 0 ? (
           <p className="quest-empty">
             Toutes tes figures de la liste sont déjà réussies —{" "}
             <button
@@ -396,14 +426,22 @@ export default function TripFiguresPanel({
           </p>
         ) : (
           <div className="trip-figure-groups">
-            {listedByCategory.map(([category, figs]) => (
+            {listedGrouped.map(({ category, blocks }) => (
               <div key={category} className="trip-figure-group">
                 <h3>
                   <span>{category}</span>
-                  <span className="trip-figure-count">{figs.length}</span>
+                  <span className="trip-figure-count">
+                    {blocks.reduce((n, b) => n + b.figs.length, 0)}
+                  </span>
                 </h3>
-                <ul className="challenge-list">
-                  {figs.map((f) => {
+                {blocks.map((block) => (
+                  <div
+                    key={block.section ?? "all"}
+                    className={block.section ? "trip-figure-section" : undefined}
+                  >
+                    {block.section ? <h4>{block.section}</h4> : null}
+                    <ul className="challenge-list">
+                  {block.figs.map((f) => {
                     const canRemove = isOwner || f.addedById === meId;
                     return (
                       <li
@@ -549,7 +587,9 @@ export default function TripFiguresPanel({
                       </li>
                     );
                   })}
-                </ul>
+                    </ul>
+                  </div>
+                ))}
               </div>
             ))}
           </div>
@@ -592,7 +632,11 @@ export default function TripFiguresPanel({
                         value={f.id}
                         disabled={f.videoCount < 1}
                       >
-                        {f.name} ({f.category})
+                        {f.name} (
+                        {f.section
+                          ? `${f.category} · ${f.section}`
+                          : f.category}
+                        )
                         {f.videoCount < 1 ? " — sans vidéo" : ""}
                       </option>
                     ))}
@@ -648,11 +692,18 @@ export default function TripFiguresPanel({
               <p className="quest-empty">Aucune figure ne correspond au filtre.</p>
             ) : (
               <div className="figure-checklist">
-                {checklistGrouped.map(([category, figs]) => (
+                {checklistGrouped.map(({ category, blocks }) => (
                   <div key={category} className="figure-checklist-group">
                     <h4>{category}</h4>
+                    {blocks.map((block) => (
+                      <div key={block.section ?? "all"}>
+                        {block.section ? (
+                          <h5 className="figure-checklist-section">
+                            {block.section}
+                          </h5>
+                        ) : null}
                     <ul>
-                      {figs.map((f) => {
+                      {block.figs.map((f) => {
                         const onList = listedIds.has(f.id);
                         const noVideo = f.videoCount < 1;
                         return (
@@ -681,6 +732,8 @@ export default function TripFiguresPanel({
                         );
                       })}
                     </ul>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>

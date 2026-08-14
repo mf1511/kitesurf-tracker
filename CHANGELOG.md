@@ -14,6 +14,7 @@
 - Arbre de progression : mode **Mindmap** (`/figures/arbre?mode=mindmap`) — hub + catégories + figures
 
 ### 🚀 Improved
+- Séjours : checklist figures alignée sur le catalogue (sous-modules + ordre des mondes)
 - Catalogue figures : sous-modules indentés sous leur catégorie
 - Catalogue figures : fold/unfold des **sous-modules** (comme les catégories)
 - Catalogue figures : état fold/unfold des catégories conservé à la navigation (`sessionStorage`)

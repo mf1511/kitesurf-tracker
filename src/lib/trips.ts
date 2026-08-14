@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { resolveFigureSection } from "@/lib/figure-sections";
 import { xpForCategory } from "@/lib/gamification";
 import {
   riderAvatarHue,
@@ -77,6 +78,8 @@ export type TripFigureRow = {
   name: string;
   slug: string;
   category: string;
+  /** Sous-module catalogue (Backroll, Raleys…), null sinon */
+  section: string | null;
   /** false = pas encore publiée (visible, non cliquable) */
   active: boolean;
   /** Ordre pédagogique (arbre de progression) */
@@ -122,6 +125,7 @@ export async function computeTripStats(tripId: string, meId?: string) {
               name: true,
               slug: true,
               category: true,
+              description: true,
               order: true,
               active: true,
             },
@@ -290,6 +294,13 @@ export async function computeTripStats(tripId: string, meId?: string) {
       name: tf.figure.name,
       slug: tf.figure.slug,
       category: tf.figure.category,
+      section: resolveFigureSection(
+        tf.figure.category,
+        tf.figure.description,
+        tf.figure.order,
+        tf.figure.slug,
+        tf.figure.name
+      ),
       active: tf.figure.active,
       order: tf.figure.order,
       addedById: tf.addedById,
