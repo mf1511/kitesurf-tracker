@@ -17,7 +17,6 @@ export type FigureLike = {
 /** Points XP selon la catégorie (plus technique = plus de points) */
 const CATEGORY_XP: Record<string, number> = {
   Débuter: 5,
-  "Twintip avancé": 8,
   Bonus: 8,
   Sécurité: 8,
   Tutoriels: 5,
@@ -30,10 +29,8 @@ const CATEGORY_XP: Record<string, number> = {
   "Old school / grabs / board-offs": 20,
   "Kiteloops & loops": 30,
   "Unhooked freestyle": 35,
-  "Handle passes & mobes": 40,
-  "Toeside freestyle": 40,
+  "Figures avancées": 40,
   "Wave riding / strapless": 25,
-  "Extrême / compétition": 50,
 };
 
 const DEFAULT_XP = 20;
@@ -99,7 +96,6 @@ export function xpForCategory(category: string): number {
 /** Ordre par défaut des mondes (fallback si AppSetting absent) */
 export const DEFAULT_CATEGORY_ORDER = [
   "Débuter",
-  "Twintip avancé",
   "Bonus",
   "Sécurité",
   "Tutoriels",

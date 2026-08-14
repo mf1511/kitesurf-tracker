@@ -40,6 +40,7 @@ export function isTwintipAvanceImportFigure(f: {
   category: string;
   description?: string | null;
 }): boolean {
+  if (f.category === "Débuter") return false;
   if (f.category === TWINTIP_AVANCE_CATEGORY) return true;
   if (f.slug.startsWith("avance-")) return true;
   if (f.description?.includes("Twintip avancé")) return true;
@@ -61,7 +62,6 @@ export const TWINTIP_AVANCE_SECTIONS = [
   "Les slides",
   "Les positions de navigation",
   "Les olés",
-  "La pratique solo",
 ] as const;
 
 export type TwintipAvanceSection = (typeof TWINTIP_AVANCE_SECTIONS)[number];

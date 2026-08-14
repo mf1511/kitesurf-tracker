@@ -10,11 +10,7 @@ import FigureVideosPanel from "@/components/figure-videos-panel";
 import { FigureNotePanel } from "@/components/figure-note-panel";
 import BackLink from "@/components/back-link";
 import { resolveDebuterSection } from "@/lib/debuter";
-import {
-  isTwintipAvanceImportFigure,
-  resolveTwintipAvanceSection,
-  TWINTIP_AVANCE_CATEGORY,
-} from "@/lib/twintip-avance";
+import { isTwintipAvanceImportFigure } from "@/lib/twintip-avance";
 import { xpForCategory } from "@/lib/gamification";
 import { figureHref } from "@/lib/nav-return";
 
@@ -49,13 +45,9 @@ export default async function FigureDetailPage({
   if (!figure.active && session.user.role !== "admin") notFound();
 
   // Formations : layout vidéo-first, sans étapes / séjour
-  const isLesson =
-    figure.category === "Débuter" ||
-    figure.category === TWINTIP_AVANCE_CATEGORY;
+  const isLesson = figure.category === "Débuter";
   const lessonSection = isLesson
-    ? figure.category === TWINTIP_AVANCE_CATEGORY
-      ? resolveTwintipAvanceSection(figure.description, figure.order)
-      : resolveDebuterSection(figure.description, figure.order)
+    ? resolveDebuterSection(figure.description, figure.order)
     : null;
 
   const [myNote, myFavorite] = await Promise.all([

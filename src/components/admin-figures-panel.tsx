@@ -2,12 +2,11 @@
 
 import Link from "next/link";
 import { useMemo, useRef, useEffect, useState, type ReactNode } from "react";
-import { sortDebuterSections } from "@/lib/debuter";
-import { sortCategories } from "@/lib/gamification";
 import {
-  sortTwintipAvanceSections,
-  TWINTIP_AVANCE_CATEGORY,
-} from "@/lib/twintip-avance";
+  categoryHasSections,
+  sortFigureSections,
+} from "@/lib/figure-sections";
+import { sortCategories } from "@/lib/gamification";
 
 export type AdminFigureRow = {
   id: string;
@@ -38,13 +37,11 @@ function sectionCollapseKey(category: string, section: string) {
 }
 
 function hasSections(category: string) {
-  return category === "Débuter" || category === TWINTIP_AVANCE_CATEGORY;
+  return categoryHasSections(category);
 }
 
 function sortSectionsFor(category: string, sections: string[]) {
-  return category === TWINTIP_AVANCE_CATEGORY
-    ? sortTwintipAvanceSections(sections)
-    : sortDebuterSections(sections);
+  return sortFigureSections(category, sections);
 }
 
 /** Checkbox catégorie : tout / rien / partiel (indeterminate) */

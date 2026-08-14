@@ -276,7 +276,7 @@ export const DUOTONE_UNHOOKED_LESSONS: DuotoneUnhookedLesson[] = [
     "create": {
       "slug": "toeside-raley-to-wrapped",
       "name": "Toeside raley to wrapped",
-      "category": "Toeside freestyle",
+      "category": "Sauts & Big Air",
       "description": "Duotone Academy — Unhooked."
     }
   },
@@ -293,7 +293,7 @@ export const DUOTONE_UNHOOKED_LESSONS: DuotoneUnhookedLesson[] = [
     "create": {
       "slug": "toeside-raley",
       "name": "Toeside raley",
-      "category": "Toeside freestyle",
+      "category": "Sauts & Big Air",
       "description": "Duotone Academy — Unhooked."
     }
   },
@@ -310,7 +310,7 @@ export const DUOTONE_UNHOOKED_LESSONS: DuotoneUnhookedLesson[] = [
     "create": {
       "slug": "toeside-raley-to-toeside",
       "name": "Toeside raley to toeside",
-      "category": "Toeside freestyle",
+      "category": "Sauts & Big Air",
       "description": "Duotone Academy — Unhooked."
     }
   },

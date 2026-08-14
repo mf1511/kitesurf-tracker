@@ -5,12 +5,8 @@ import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import AdminFiguresPanel from "@/components/admin-figures-panel";
 import { getCategoryOrder } from "@/lib/category-order";
-import { resolveDebuterSection } from "@/lib/debuter";
+import { resolveFigureSection } from "@/lib/figure-sections";
 import { sortCategories } from "@/lib/gamification";
-import {
-  resolveTwintipAvanceSection,
-  TWINTIP_AVANCE_CATEGORY,
-} from "@/lib/twintip-avance";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
@@ -35,13 +31,13 @@ export default async function AdminPage() {
     adminDone: f.adminDone,
     prerequisites: f._count.prerequisites,
     videos: f._count.videos,
-    // Sous-module Débuter / Twintip (null sinon)
-    section:
-      f.category === "Débuter"
-        ? resolveDebuterSection(f.description, f.order)
-        : f.category === TWINTIP_AVANCE_CATEGORY
-        ? resolveTwintipAvanceSection(f.description, f.order)
-        : null,
+    section: resolveFigureSection(
+      f.category,
+      f.description,
+      f.order,
+      f.slug,
+      f.name
+    ),
   }));
 
   const present = Array.from(new Set(figures.map((f) => f.category)));

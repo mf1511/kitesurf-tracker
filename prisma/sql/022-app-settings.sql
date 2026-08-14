@@ -12,6 +12,6 @@ CREATE TABLE IF NOT EXISTS "AppSetting" (
 INSERT INTO "AppSetting" ("key", "value")
 VALUES (
   'category_order',
-  '["Débuter","Twintip avancé","Bonus","Sécurité","Tutoriels","Kitefoil","Wingfoil","Strapless"]'
+  '["Débuter","Bonus","Sécurité","Tutoriels","Kitefoil","Wingfoil","Strapless"]'
 )
 ON CONFLICT ("key") DO NOTHING;

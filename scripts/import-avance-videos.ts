@@ -1,7 +1,7 @@
 /**
  * Importe la formation « Twintip avancé » :
  * 1) Compresse chaque MP4 (≤ ~42 Mo, 720p H.264)
- * 2) Merge sur figures existantes OU crée des figures (active: false)
+ * 2) Merge sur figures existantes OU crée dans Bases et transitions (active: false)
  * 3) Upload Storage bucket figure-videos
  *
  * Usage :
@@ -29,7 +29,7 @@ import {
   TWINTIP_AVANCE_CATEGORY,
 } from "../src/lib/twintip-avance";
 
-const CATEGORY = TWINTIP_AVANCE_CATEGORY;
+const CATEGORY = "Bases et transitions";
 const BUCKET = "figure-videos";
 const MAX_OUT_BYTES = 42 * 1024 * 1024;
 const SOURCE_DIR =
@@ -76,6 +76,17 @@ const MERGE_BY_SLUG: Record<
   "analyse-technique-darkslide-010": { figureSlug: "darkslide" },
   "le-toeside": { figureSlug: "toe-side-riding" },
   "le-blind": { figureSlug: "riding-blind" },
+  "lacher-une-main": { figureSlug: "one-hand-jump" },
+  "la-pratique-solo-avant-propos": {
+    figureSlug: "avance-la-pratique-solo-avant-propos",
+  },
+  "comment-utiliser-un-point-fixe": {
+    figureSlug: "avance-comment-utiliser-un-point-fixe",
+  },
+  "atterrir-seul": { figureSlug: "avance-atterrir-seul" },
+  "decoller-seul": { figureSlug: "avance-decoller-seul" },
+  "la-fleche": { figureSlug: "debuter-la-fleche" },
+  "le-role-des-lignes": { figureSlug: "debuter-le-role-des-lignes" },
 };
 
 /**
@@ -86,14 +97,6 @@ const CREATE_OVERRIDE: Record<
   string,
   { slug: string; name: string; category?: string }
 > = {
-  "la-fleche": {
-    slug: "avance-la-fleche-bis",
-    name: "La flèche bis",
-  },
-  "le-role-des-lignes": {
-    slug: "avance-le-role-des-lignes-bis",
-    name: "Le rôle des lignes bis",
-  },
   "le-beachstart": {
     slug: "beach-start",
     name: "Beachstart",
@@ -102,7 +105,7 @@ const CREATE_OVERRIDE: Record<
   "lacher-une-main": {
     slug: "one-hand-jump",
     name: "Lâcher une main",
-    category: "Sauts & Big Air",
+    category: "Débuter",
   },
   "le-saut-aile-basse-basique": {
     slug: "low-kite-jump",
@@ -127,7 +130,7 @@ const CREATE_OVERRIDE: Record<
   "le-toeside-ole": {
     slug: "toeside-ole",
     name: "Toeside ole",
-    category: "Toeside freestyle",
+    category: "Sauts & Big Air",
   },
   "le-blind-ole": {
     slug: "blind-ole",

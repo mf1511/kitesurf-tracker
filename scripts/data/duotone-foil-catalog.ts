@@ -19,7 +19,7 @@ export const DUOTONE_FOIL_LESSONS: DuotoneFoilLesson[] = [
       "slug": "kitefoil-backroll-tack",
       "name": "Kitefoil : backroll tack",
       "category": "Kitefoil",
-      "description": "Duotone Academy — Foil."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -42,7 +42,7 @@ export const DUOTONE_FOIL_LESSONS: DuotoneFoilLesson[] = [
       "slug": "kitefoil-strapless-tack",
       "name": "Kitefoil : strapless tack",
       "category": "Kitefoil",
-      "description": "Duotone Academy — Foil."
+      "description": "Module « Transitions » — Duotone Academy."
     }
   },
   {
@@ -107,7 +107,7 @@ export const DUOTONE_FOIL_LESSONS: DuotoneFoilLesson[] = [
       "slug": "kitefoil-waterstart-strapless",
       "name": "Kitefoil : waterstart strapless",
       "category": "Kitefoil",
-      "description": "Duotone Academy — Foil."
+      "description": "Module « Premiers vols » — Duotone Academy."
     }
   },
   {
@@ -124,7 +124,7 @@ export const DUOTONE_FOIL_LESSONS: DuotoneFoilLesson[] = [
       "slug": "kitefoil-strapless-jibe",
       "name": "Kitefoil : strapless jibe",
       "category": "Kitefoil",
-      "description": "Duotone Academy — Foil."
+      "description": "Module « Transitions » — Duotone Academy."
     }
   },
   {
@@ -141,7 +141,7 @@ export const DUOTONE_FOIL_LESSONS: DuotoneFoilLesson[] = [
       "slug": "kitefoil-front-foot-wash",
       "name": "Kitefoil : front foot wash",
       "category": "Kitefoil",
-      "description": "Duotone Academy — Foil."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {

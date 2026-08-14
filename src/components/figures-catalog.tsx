@@ -4,12 +4,11 @@ import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import FigureCheckbox from "@/components/FigureCheckbox";
 import FigureFavoriteButton from "@/components/figure-favorite-button";
-import { sortDebuterSections } from "@/lib/debuter";
 import {
-  isTwintipAvanceImportFigure,
-  sortTwintipAvanceSections,
-  TWINTIP_AVANCE_CATEGORY,
-} from "@/lib/twintip-avance";
+  categoryHasSections,
+  sortFigureSections,
+} from "@/lib/figure-sections";
+import { isTwintipAvanceImportFigure } from "@/lib/twintip-avance";
 import { figureHref } from "@/lib/nav-return";
 
 export type CatalogFigure = {
@@ -18,7 +17,7 @@ export type CatalogFigure = {
   name: string;
   category: string;
   description?: string | null;
-  /** Sous-module Débuter (ex. « Sur la plage »), null sinon */
+  /** Sous-module (Débuter / Bases / Sauts…), null sinon */
   section: string | null;
   order: number;
   completed: boolean;
@@ -169,11 +168,31 @@ export function FiguresCatalog({
   // Pendant une recherche, tout reste ouvert pour voir les matches
   const searching = normalize(query.trim()).length > 0;
 
-  function toggleCategory(cat: string) {
+  function sectionKey(cat: string, sec: string) {
+    return `${cat}::${sec}`;
+  }
+
+  function toggleFold(key: string) {
     const next = new Set(collapsed);
-    if (next.has(cat)) next.delete(cat);
-    else next.add(cat);
+    if (next.has(key)) next.delete(key);
+    else next.add(key);
     setCollapsedPersist(next);
+  }
+
+  function allSectionKeys() {
+    const keys: string[] = [];
+    for (const cat of visibleCategories) {
+      if (!categoryHasSections(cat)) continue;
+      const list = visible.filter((f) => f.category === cat);
+      const secs = new Set(
+        list.map((f) => f.section).filter(Boolean) as string[]
+      );
+      for (const s of secs) keys.push(sectionKey(cat, s));
+      if (secs.size > 0 && list.some((f) => !f.section)) {
+        keys.push(sectionKey(cat, "Autres"));
+      }
+    }
+    return keys;
   }
 
   function expandAll() {
@@ -181,7 +200,7 @@ export function FiguresCatalog({
   }
 
   function collapseAll() {
-    setCollapsedPersist(new Set(visibleCategories));
+    setCollapsedPersist(new Set([...visibleCategories, ...allSectionKeys()]));
   }
 
   const renderCard = (f: CatalogFigure) => {
@@ -242,31 +261,80 @@ export function FiguresCatalog({
     );
   };
 
-  /** Sous-sections formation (Débuter / Twintip avancé) */
+  /** Sous-sections (Débuter / Twintip / Sauts) */
   function renderSectionBlocks(list: CatalogFigure[], cat: string) {
-    const sortFn =
-      cat === TWINTIP_AVANCE_CATEGORY
-        ? sortTwintipAvanceSections
-        : sortDebuterSections;
-    const sections = sortFn(
+    const sections = sortFigureSections(
+      cat,
       Array.from(new Set(list.map((f) => f.section).filter(Boolean) as string[]))
     );
     const orphan = list.filter((f) => !f.section);
 
     return (
       <>
-        {sections.map((sec) => (
-          <div key={sec} className="figure-subsection">
-            <h3>{sec}</h3>
-            <div className="figure-grid">
-              {list.filter((f) => f.section === sec).map(renderCard)}
+        {sections.map((sec) => {
+          const key = sectionKey(cat, sec);
+          const open = searching || !collapsed.has(key);
+          const rows = list.filter((f) => f.section === sec);
+          return (
+            <div
+              key={sec}
+              className={`figure-subsection${open ? "" : " is-collapsed"}`}
+            >
+              <h3>
+                <button
+                  type="button"
+                  className="figure-section-toggle"
+                  aria-expanded={open}
+                  onClick={() => toggleFold(key)}
+                >
+                  <span className="figure-section-chevron" aria-hidden>
+                    {open ? "▾" : "▸"}
+                  </span>
+                  <span>{sec}</span>
+                  <span className="figure-section-count">{rows.length}</span>
+                </button>
+              </h3>
+              {open ? (
+                <div className="figure-grid">{rows.map(renderCard)}</div>
+              ) : null}
             </div>
-          </div>
-        ))}
+          );
+        })}
         {orphan.length > 0 && (
-          <div className="figure-subsection">
-            {sections.length > 0 && <h3>Autres</h3>}
-            <div className="figure-grid">{orphan.map(renderCard)}</div>
+          <div
+            className={`figure-subsection${
+              sections.length > 0 &&
+              !searching &&
+              collapsed.has(sectionKey(cat, "Autres"))
+                ? " is-collapsed"
+                : ""
+            }`}
+          >
+            {sections.length > 0 && (
+              <h3>
+                <button
+                  type="button"
+                  className="figure-section-toggle"
+                  aria-expanded={
+                    searching || !collapsed.has(sectionKey(cat, "Autres"))
+                  }
+                  onClick={() => toggleFold(sectionKey(cat, "Autres"))}
+                >
+                  <span className="figure-section-chevron" aria-hidden>
+                    {searching || !collapsed.has(sectionKey(cat, "Autres"))
+                      ? "▾"
+                      : "▸"}
+                  </span>
+                  <span>Autres</span>
+                  <span className="figure-section-count">{orphan.length}</span>
+                </button>
+              </h3>
+            )}
+            {sections.length === 0 ||
+            searching ||
+            !collapsed.has(sectionKey(cat, "Autres")) ? (
+              <div className="figure-grid">{orphan.map(renderCard)}</div>
+            ) : null}
           </div>
         )}
       </>
@@ -355,7 +423,9 @@ export function FiguresCatalog({
         >
           Favoris
         </button>
-        {visibleCategories.length > 1 && !searching ? (
+        {!searching &&
+        (visibleCategories.length > 1 ||
+          visibleCategories.some(categoryHasSections)) ? (
           <>
             <button type="button" onClick={expandAll}>
               Tout ouvrir
@@ -380,8 +450,7 @@ export function FiguresCatalog({
       ) : (
         visibleCategories.map((cat) => {
           const list = visible.filter((f) => f.category === cat);
-          const hasSections =
-            cat === "Débuter" || cat === TWINTIP_AVANCE_CATEGORY;
+          const hasSections = categoryHasSections(cat);
           const isOpen = searching || !collapsed.has(cat);
           return (
             <section
@@ -393,7 +462,7 @@ export function FiguresCatalog({
                   type="button"
                   className="figure-section-toggle"
                   aria-expanded={isOpen}
-                  onClick={() => toggleCategory(cat)}
+                  onClick={() => toggleFold(cat)}
                 >
                   <span className="figure-section-chevron" aria-hidden>
                     {isOpen ? "▾" : "▸"}

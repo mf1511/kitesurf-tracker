@@ -6,13 +6,12 @@ import { prisma } from "@/lib/prisma";
 import SkillTreeCanvas from "@/components/skill-tree-canvas";
 import SkillTreeMindmap from "@/components/skill-tree-mindmap";
 import { getCategoryOrder } from "@/lib/category-order";
-import { resolveDebuterSection, sortDebuterSections } from "@/lib/debuter";
 import {
-  isTwintipAvanceImportFigure,
-  resolveTwintipAvanceSection,
-  sortTwintipAvanceSections,
-  TWINTIP_AVANCE_CATEGORY,
-} from "@/lib/twintip-avance";
+  categoryHasSections,
+  resolveFigureSection,
+  sortFigureSections,
+} from "@/lib/figure-sections";
+import { isTwintipAvanceImportFigure } from "@/lib/twintip-avance";
 import {
   isCompleted,
   isUnlocked,
@@ -83,31 +82,23 @@ export default async function SkillTreePage({
         prereqIds: f.prerequisites.map((p) => p.id),
       }));
 
-      const resolveSection =
-        cat === "Débuter"
-          ? (f: (typeof list)[number]) =>
-              resolveDebuterSection(f.description, f.order)
-          : cat === TWINTIP_AVANCE_CATEGORY
-          ? (f: (typeof list)[number]) =>
-              resolveTwintipAvanceSection(f.description, f.order)
-          : null;
-      const sortSections =
-        cat === "Débuter"
-          ? sortDebuterSections
-          : cat === TWINTIP_AVANCE_CATEGORY
-          ? sortTwintipAvanceSections
-          : null;
-
       let sections: MindmapSectionInput[] | undefined;
-      if (resolveSection && sortSections) {
+      if (categoryHasSections(cat)) {
         const bySec = new Map<string, MindmapFigureInput[]>();
         list.forEach((f, idx) => {
-          const sec = resolveSection(f) ?? "Autres";
+          const sec =
+            resolveFigureSection(
+              cat,
+              f.description,
+              f.order,
+              f.slug,
+              f.name
+            ) ?? "Autres";
           const arr = bySec.get(sec) ?? [];
           arr.push(mapped[idx]);
           bySec.set(sec, arr);
         });
-        sections = sortSections([...bySec.keys()]).map((name) => ({
+        sections = sortFigureSections(cat, [...bySec.keys()]).map((name) => ({
           name,
           figures: bySec.get(name) ?? [],
         }));
@@ -183,20 +174,18 @@ export default async function SkillTreePage({
     xp: xpForCategory(f.category),
     prereqIds: f.prerequisites.filter((p) => catIds.has(p.id)).map((p) => p.id),
     order: f.order,
-    section:
-      category === "Débuter"
-        ? resolveDebuterSection(f.description, f.order)
-        : category === TWINTIP_AVANCE_CATEGORY
-        ? resolveTwintipAvanceSection(f.description, f.order)
-        : null,
+    section: resolveFigureSection(
+      category,
+      f.description,
+      f.order,
+      f.slug,
+      f.name
+    ),
   }));
 
-  const sectionOrder =
-    category === "Débuter"
-      ? sortDebuterSections
-      : category === TWINTIP_AVANCE_CATEGORY
-      ? sortTwintipAvanceSections
-      : null;
+  const sectionOrder = categoryHasSections(category)
+    ? (secs: string[]) => sortFigureSections(category, secs)
+    : null;
 
   const layout = sectionOrder
     ? layoutDebuterChains(
@@ -219,7 +208,7 @@ export default async function SkillTreePage({
       </Link>
       <h1>Arbre de progression</h1>
       <p className="figures-lead">
-        {category === "Débuter" || category === TWINTIP_AVANCE_CATEGORY
+        {categoryHasSections(category)
           ? "Parcours linéaire par module — "
           : "Chaque figure débloque les suivantes — "}
         {doneInCat}/{catFigures.length} validées dans ce monde.

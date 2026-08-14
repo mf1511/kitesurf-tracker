@@ -119,7 +119,7 @@ merge	Kiteloops & loops	kite-loop-simple	Kiteloop	Your first kiteloops in kitesu
 tuto	Tutoriels	—	—	5 erreurs à ne pas faire pour progresser sereinement en kite	https://www.youtube.com/watch?v=kBmmYRNhMPQ	
 tuto	Tutoriels	—	—	Comment progresser en kitesurf ? - Épisode 1: Bien préparer sa session	https://www.youtube.com/watch?v=4oUW9yGyt6Q	
 tuto	Tutoriels	—	—	Comment progresser en kitesurf ? - Épisode 3 : J'analyse ma session	https://www.youtube.com/watch?v=zJgZFH8SnM4	
-tuto	Tutoriels	—	—	How to improve your kitesurfing skills? - Episode 2: A light wind session	https://www.youtube.com/watch?v=8bthsRJRvqM	
+merge	Débuter	debuter-le-vent-leger	Le vent léger	How to improve your kitesurfing skills? - Episode 2: A light wind session	https://www.youtube.com/watch?v=8bthsRJRvqM	
 merge	Bases et transitions	edging-control	Edging & contrôle de vitesse	Managing your speed effectively when kitesurfing	https://www.youtube.com/watch?v=OIJVHPSa944	
 merge	Débuter	debuter-greer-son-aile	Gréer son aile	Setting Up and Packing Away Your Kitesurfing Gear (Instructor Tips)	https://www.youtube.com/watch?v=3zczEcD0yYA	
 tuto	Tutoriels	—	—	Understanding the different kite materials	https://www.youtube.com/watch?v=A8zYA3ItWZ4	

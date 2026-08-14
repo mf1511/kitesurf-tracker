@@ -148,7 +148,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-backroll",
       "name": "Kitefoil : backroll",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -159,7 +159,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-footswap",
       "name": "Kitefoil : footswap",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -170,7 +170,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-footswap",
       "name": "Kitefoil : footswap",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -181,7 +181,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-frontroll",
       "name": "Kitefoil : frontroll",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -192,7 +192,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-intro",
       "name": "Kitefoil : introduction",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -203,7 +203,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-jibe",
       "name": "Kitefoil : jibe",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -214,7 +214,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-jibe",
       "name": "Kitefoil : jibe",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -225,7 +225,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-pump",
       "name": "Kitefoil : pump",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -236,7 +236,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-sit",
       "name": "Kitefoil : sit",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -247,7 +247,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-tack",
       "name": "Kitefoil : tack",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -258,7 +258,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-tack",
       "name": "Kitefoil : tack",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -269,7 +269,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-upwind",
       "name": "Kitefoil : upwind / downwind",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -280,7 +280,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "kitefoil-yaw",
       "name": "Kitefoil : yaw",
       "category": "Kitefoil",
-      "description": "Module kitefoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -291,7 +291,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-360",
       "name": "Wingfoil : 360",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -302,7 +302,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-360",
       "name": "Wingfoil : 360",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -313,7 +313,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-360",
       "name": "Wingfoil : 360",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -324,7 +324,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-360",
       "name": "Wingfoil : 360",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -335,7 +335,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-air-jibe",
       "name": "Wingfoil : air jibe",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -346,7 +346,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-backwind",
       "name": "Wingfoil : backwind",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -357,7 +357,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-backwind-360",
       "name": "Wingfoil : backwind 360",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -368,7 +368,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-backwing",
       "name": "Wingfoil : backwing",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -379,7 +379,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-balance",
       "name": "Wingfoil : équilibre & stance",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -390,7 +390,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-balance",
       "name": "Wingfoil : équilibre & stance",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -401,7 +401,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-balance",
       "name": "Wingfoil : équilibre & stance",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -412,7 +412,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-balance",
       "name": "Wingfoil : équilibre & stance",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -423,7 +423,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-balance",
       "name": "Wingfoil : équilibre & stance",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -434,7 +434,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-balance",
       "name": "Wingfoil : équilibre & stance",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -445,7 +445,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-control",
       "name": "Wingfoil : contrôle hauteur/vitesse",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -456,7 +456,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-duck-jibe",
       "name": "Wingfoil : duck jibe",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -467,7 +467,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-footswap",
       "name": "Wingfoil : footswap",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -478,7 +478,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-footswap",
       "name": "Wingfoil : footswap",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -489,7 +489,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-footswap",
       "name": "Wingfoil : footswap",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -500,7 +500,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-gear",
       "name": "Wingfoil : matos",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -511,7 +511,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-gear",
       "name": "Wingfoil : matos",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -522,7 +522,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-gear",
       "name": "Wingfoil : matos",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -533,7 +533,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-gear",
       "name": "Wingfoil : matos",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -544,7 +544,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-heineken-jibe",
       "name": "Wingfoil : Heineken jibe",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -555,7 +555,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-intro",
       "name": "Wingfoil : introduction",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -566,7 +566,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-intro",
       "name": "Wingfoil : introduction",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -577,7 +577,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-jibe",
       "name": "Wingfoil : jibe",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -588,7 +588,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-jibe",
       "name": "Wingfoil : jibe",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -599,7 +599,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-jibe",
       "name": "Wingfoil : jibe",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -610,7 +610,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-jump",
       "name": "Wingfoil : jump",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -621,7 +621,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-pump",
       "name": "Wingfoil : pump / décollage",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -632,7 +632,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-pump",
       "name": "Wingfoil : pump / décollage",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -643,7 +643,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-raley",
       "name": "Wingfoil : raley",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -654,7 +654,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-safety",
       "name": "Wingfoil : sécurité / chutes",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -665,7 +665,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-stinkbug",
       "name": "Wingfoil : stinkbug start",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -676,7 +676,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-tack",
       "name": "Wingfoil : tack",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -687,7 +687,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-tack",
       "name": "Wingfoil : tack",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -698,7 +698,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-tack",
       "name": "Wingfoil : tack",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -709,7 +709,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-toeside",
       "name": "Wingfoil : toeside",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -720,7 +720,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-wave",
       "name": "Wingfoil : vague",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Vague » — Kitesurf College."
     }
   },
   {
@@ -731,7 +731,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-wave",
       "name": "Wingfoil : vague",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Vague » — Kitesurf College."
     }
   },
   {
@@ -742,7 +742,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "wingfoil-wave",
       "name": "Wingfoil : vague",
       "category": "Wingfoil",
-      "description": "Module wingfoil — Kitesurf College."
+      "description": "Module « Vague » — Kitesurf College."
     }
   },
   {
@@ -753,7 +753,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "strapless-gybe",
       "name": "Strapless : gybe & footswap",
       "category": "Strapless",
-      "description": "Module strapless — Kitesurf College."
+      "description": "Module « Navigation » — Kitesurf College."
     }
   },
   {
@@ -764,7 +764,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "strapless-pop",
       "name": "Strapless : pop / ollie",
       "category": "Strapless",
-      "description": "Module strapless — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -775,7 +775,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "strapless-quick-start",
       "name": "Strapless : quick start",
       "category": "Strapless",
-      "description": "Module strapless — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -786,7 +786,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "strapless-serie-complete",
       "name": "Strapless : série complète",
       "category": "Strapless",
-      "description": "Module strapless — Kitesurf College."
+      "description": "Module « Freestyle » — Kitesurf College."
     }
   },
   {
@@ -797,7 +797,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "strapless-tack",
       "name": "Strapless : tack",
       "category": "Strapless",
-      "description": "Module strapless — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -808,7 +808,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "strapless-tack",
       "name": "Strapless : tack",
       "category": "Strapless",
-      "description": "Module strapless — Kitesurf College."
+      "description": "Module « Transitions » — Kitesurf College."
     }
   },
   {
@@ -819,7 +819,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "strapless-white-water",
       "name": "Strapless : white water",
       "category": "Strapless",
-      "description": "Module strapless — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
@@ -830,19 +830,14 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
       "slug": "strapless-white-water",
       "name": "Strapless : white water",
       "category": "Strapless",
-      "description": "Module strapless — Kitesurf College."
+      "description": "Module « Premiers vols » — Kitesurf College."
     }
   },
   {
     "youtubeId": "4FoA9elNLj4",
     "title": "How to kitesurf: 313 handle pass",
     "url": "https://www.youtube.com/watch?v=4FoA9elNLj4",
-    "create": {
-      "slug": "handle-pass-313",
-      "name": "313 (handle pass)",
-      "category": "Handle passes & mobes",
-      "description": "Module Handle passes & mobes — Kitesurf College."
-    }
+    "mergeSlug": "three-one-three"
   },
   {
     "youtubeId": "RFSeTqBhY20",
@@ -851,8 +846,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-backstalling-how-to-spot-it-fix-it",
       "name": "Backstalling - how to spot it & fix it",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
@@ -868,8 +863,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-checking-lines-to-make-your-kite-fly-correctly",
       "name": "Checking lines to make your kite fly correctly",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Régler son matériel » — Kitesurf College."
     }
   },
   {
@@ -879,8 +874,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-first-14-tricks-for-kiteboarders",
       "name": "First 14 Tricks for Kiteboarders",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Bonus",
+      "description": "Bonus — Kitesurf College."
     }
   },
   {
@@ -890,42 +885,15 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-foul-hook-miss-hook-and-re-hook-tutorial",
       "name": "Foul Hook, Miss Hook and Re-Hook Tutorial",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
-  },
-  {
-    "youtubeId": "IuGxLLzXO6A",
-    "title": "Getting passed waves (Twintip Edition)",
-    "url": "https://www.youtube.com/watch?v=IuGxLLzXO6A",
-    "create": {
-      "slug": "tuto-getting-passed-waves",
-      "name": "Getting passed waves",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
-  },
-  {
-    "youtubeId": "tCVbaTKTSsY",
-    "title": "How to Butter Slide (kiteboard tutorial)",
-    "url": "https://www.youtube.com/watch?v=tCVbaTKTSsY",
-    "create": {
-      "slug": "tuto-how-to-butter-slide",
-      "name": "How to Butter Slide",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « La sécurité » — Kitesurf College."
     }
   },
   {
     "youtubeId": "gd257WOYOAA",
     "title": "How to do a Running Start (twintip kiteboard tutorial)",
     "url": "https://www.youtube.com/watch?v=gd257WOYOAA",
-    "create": {
-      "slug": "tuto-how-to-do-a-running-start",
-      "name": "How to do a Running Start",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "beach-start"
   },
   {
     "youtubeId": "AZssXDnrGjQ",
@@ -934,8 +902,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-how-to-fly-a-kite",
       "name": "How to fly a kite",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
@@ -948,23 +916,13 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "youtubeId": "u6G8ajDZL_Q",
     "title": "How to kitesurf downwind",
     "url": "https://www.youtube.com/watch?v=u6G8ajDZL_Q",
-    "create": {
-      "slug": "tuto-how-to-kitesurf-downwind",
-      "name": "How to kitesurf downwind",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "debuter-la-descente-sous-le-vent"
   },
   {
     "youtubeId": "oE9ynbq1qTQ",
     "title": "How to Kitesurf: Set-Up (LEI, inflatable kite)",
     "url": "https://www.youtube.com/watch?v=oE9ynbq1qTQ",
-    "create": {
-      "slug": "tuto-how-to-kitesurf-set-up",
-      "name": "How to Kitesurf: Set-Up",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "debuter-greer-son-aile"
   },
   {
     "youtubeId": "9pK4a1ZZ0S8",
@@ -973,20 +931,15 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-how-to-kitesurf-trainer-kite-tutorial",
       "name": "How to Kitesurf: Trainer Kite Tutorial",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
     "youtubeId": "3b0jtlMlAdU",
     "title": "Kite boarding in light wind (detailed kitesurf tutorial)",
     "url": "https://www.youtube.com/watch?v=3b0jtlMlAdU",
-    "create": {
-      "slug": "tuto-kite-boarding-in-light-wind",
-      "name": "Kite boarding in light wind",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "debuter-le-vent-leger"
   },
   {
     "youtubeId": "NrSzKBdMX0E",
@@ -995,8 +948,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-kite-control-101",
       "name": "Kite Control 101",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
@@ -1006,8 +959,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-kite-control-ii",
       "name": "Kite Control II",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
@@ -1017,8 +970,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-kite-front-stalls",
       "name": "Kite Front Stalls",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
@@ -1028,8 +981,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-kite-shapes-explained",
       "name": "Kite Shapes Explained",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Le choix du matériel » — Kitesurf College."
     }
   },
   {
@@ -1039,8 +992,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-kitesurf-depower-systems",
       "name": "Kitesurf Depower Systems",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Le choix du matériel » — Kitesurf College."
     }
   },
   {
@@ -1050,8 +1003,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-kitesurfing-one-handed-board-rescues",
       "name": "Kitesurfing one handed & board rescues",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « À l'eau » — Kitesurf College."
     }
   },
   {
@@ -1061,8 +1014,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-lesson-mistakes",
       "name": "Erreurs de cours & tips",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Adapter sa pratique » — Kitesurf College."
     }
   },
   {
@@ -1072,30 +1025,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-making-your-kiting-gear-last-longer",
       "name": "Making your kiting gear last longer",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
-  },
-  {
-    "youtubeId": "DZCNVJPZ1ew",
-    "title": "OLD SCHOOL 101 CHAPTER 1, Basic Jump & Kite Control Training",
-    "url": "https://www.youtube.com/watch?v=DZCNVJPZ1ew",
-    "create": {
-      "slug": "tuto-old-school-101",
-      "name": "Old School 101",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
-  },
-  {
-    "youtubeId": "L6izeovGtMM",
-    "title": "OLD SCHOOL 101 CHAPTER 4, Altering Rotation",
-    "url": "https://www.youtube.com/watch?v=L6izeovGtMM",
-    "create": {
-      "slug": "tuto-old-school-101",
-      "name": "Old School 101",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Le choix du matériel » — Kitesurf College."
     }
   },
   {
@@ -1105,8 +1036,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-parking-a-kite-at-12",
       "name": "Parking a kite at 12",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
@@ -1116,8 +1047,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-power-kite-parts-and-terminology",
       "name": "Power Kite Parts and Terminology",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
@@ -1127,8 +1058,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-power-kite-principles-part-1-becoming-an-indepen",
       "name": "Power Kite Principles Part 1 - becoming an independent kiter",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
@@ -1138,8 +1069,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-power-kite-principles-part-2-technical-kite-info",
       "name": "Power Kite Principles Part 2: technical kite info",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Les bases essentielles » — Kitesurf College."
     }
   },
   {
@@ -1158,45 +1089,25 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "youtubeId": "fjh8q3C5bZE",
     "title": "Relaunch Basics (how to kitesurf / kiteboard tutorial, Part 1)",
     "url": "https://www.youtube.com/watch?v=fjh8q3C5bZE",
-    "create": {
-      "slug": "tuto-relaunch-basics",
-      "name": "Relaunch Basics",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "water-relaunch"
   },
   {
     "youtubeId": "8PgfRJHSTLs",
     "title": "Relaunch Part II, Advanced (kiteboard tutorial)",
     "url": "https://www.youtube.com/watch?v=8PgfRJHSTLs",
-    "create": {
-      "slug": "tuto-relaunch-part-ii-advanced",
-      "name": "Relaunch Part II, Advanced",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "water-relaunch"
   },
   {
     "youtubeId": "VCZp3YLMxsA",
     "title": "The Wind Window (an introduction to kiteboarding and power kiting)",
     "url": "https://www.youtube.com/watch?v=VCZp3YLMxsA",
-    "create": {
-      "slug": "tuto-the-wind-window",
-      "name": "The Wind Window",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "debuter-la-fenetre-de-vol"
   },
   {
     "youtubeId": "F1aXHQmpblc",
     "title": "Setting trim & stopper (for different heights & wind speeds)",
     "url": "https://www.youtube.com/watch?v=F1aXHQmpblc",
-    "create": {
-      "slug": "tuto-trim-stopper",
-      "name": "Trim & stopper",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "debuter-le-trim"
   },
   {
     "youtubeId": "TM7oXdd0d4Q",
@@ -1205,31 +1116,21 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-trim-system-comparison-steering-line-trim-vs-cen",
       "name": "Trim System Comparison: Steering Line Trim Vs. Centre Line Trim",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Régler son matériel » — Kitesurf College."
     }
   },
   {
     "youtubeId": "Uo6R01SJmHo",
     "title": "Tuning Bar & Lines (checking kite lines are equal length)",
     "url": "https://www.youtube.com/watch?v=Uo6R01SJmHo",
-    "create": {
-      "slug": "tuto-tuning-bar-lines",
-      "name": "Tuning Bar & Lines",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "debuter-regler-sa-barre"
   },
   {
     "youtubeId": "LWEi_kZoACk",
     "title": "Twintips explained (freeride, freestyle, rocker, outline etc)",
     "url": "https://www.youtube.com/watch?v=LWEi_kZoACk",
-    "create": {
-      "slug": "tuto-twintips-explained",
-      "name": "Twintips explained",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "debuter-la-planche"
   },
   {
     "youtubeId": "_hudNYbga-Q",
@@ -1244,8 +1145,8 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "create": {
       "slug": "tuto-wind-weather-conditions",
       "name": "Wind, Weather & Conditions",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
+      "category": "Débuter",
+      "description": "Module « Adapter sa pratique » — Kitesurf College."
     }
   },
   {

@@ -7,6 +7,8 @@ export const DEBUTER_SECTIONS = [
   "À l'eau",
   "La sécurité",
   "Adapter sa pratique",
+  "La pratique solo",
+  "Les sauts à une main",
 ] as const;
 
 export type DebuterSection = (typeof DEBUTER_SECTIONS)[number];
@@ -19,6 +21,8 @@ const SECTION_BY_INDEX: Record<number, DebuterSection> = {
   5: "À l'eau",
   6: "La sécurité",
   7: "Adapter sa pratique",
+  8: "La pratique solo",
+  9: "Les sauts à une main",
 };
 
 /** Alias issus de l’export Drive (ex. « À l_eau ») */

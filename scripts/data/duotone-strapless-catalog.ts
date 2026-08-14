@@ -19,7 +19,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-waterstart",
       "name": "Strapless : waterstart",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Premiers vols » — Duotone Academy."
     }
   },
   {
@@ -42,7 +42,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-switch-toeside",
       "name": "Strapless : switch to toeside",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Navigation » — Duotone Academy."
     }
   },
   {
@@ -65,7 +65,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-backroll-tack",
       "name": "Strapless : backroll tack",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Transitions » — Duotone Academy."
     }
   },
   {
@@ -88,7 +88,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-hang-ten",
       "name": "Strapless : hang ten",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Navigation » — Duotone Academy."
     }
   },
   {
@@ -99,7 +99,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-ollie-toeside",
       "name": "Strapless : ollie toeside",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -110,7 +110,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-ollie-180",
       "name": "Strapless : ollie 180",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -121,7 +121,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-toeside-tack",
       "name": "Strapless : toeside tack",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Transitions » — Duotone Academy."
     }
   },
   {
@@ -132,7 +132,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-board-off-transition",
       "name": "Strapless : board-off transition",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Transitions » — Duotone Academy."
     }
   },
   {
@@ -143,7 +143,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-handstand-360",
       "name": "Strapless : handstand 360",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -154,7 +154,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-indy-toeside-fs3",
       "name": "Strapless : indy toeside FS3",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -165,7 +165,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-jesus-christ",
       "name": "Strapless : jesus christ",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -206,7 +206,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-board-off-360",
       "name": "Strapless : board-off 360",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -217,7 +217,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-toeside-air-360",
       "name": "Strapless : toeside air 360",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -234,7 +234,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-backside-360",
       "name": "Strapless : backside 360",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -245,7 +245,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-front",
       "name": "Strapless : front (frontside air)",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -256,7 +256,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-frontroll",
       "name": "Strapless : frontroll",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -267,7 +267,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-front-to-blind",
       "name": "Strapless : front to blind",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -278,7 +278,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-backroll-board-off-360",
       "name": "Strapless : backroll board-off 360",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -289,7 +289,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-313",
       "name": "Strapless : 313",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -300,7 +300,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-crazy-horse",
       "name": "Strapless : crazy horse",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   },
   {
@@ -323,7 +323,7 @@ export const DUOTONE_STRAPLESS_LESSONS: DuotoneStraplessLesson[] = [
       "slug": "strapless-flat-3",
       "name": "Strapless : flat 3",
       "category": "Strapless",
-      "description": "Duotone Academy — Strapless."
+      "description": "Module « Freestyle » — Duotone Academy."
     }
   }
 ];

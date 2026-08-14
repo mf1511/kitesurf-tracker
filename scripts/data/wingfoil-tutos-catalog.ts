@@ -26,7 +26,7 @@ export const WINGFOIL_TUTOS_LESSONS: WingfoilTutosLesson[] = [
       "slug": "wingfoil-spot-zone",
       "name": "Wingfoil : zone de navigation",
       "category": "Wingfoil",
-      "description": "Tutos Wingfoil playlist."
+      "description": "Module « Premiers vols » — Tutos Wingfoil."
     }
   },
   {
@@ -37,7 +37,7 @@ export const WINGFOIL_TUTOS_LESSONS: WingfoilTutosLesson[] = [
       "slug": "wingfoil-wing-handling",
       "name": "Wingfoil : manipuler la wing",
       "category": "Wingfoil",
-      "description": "Tutos Wingfoil playlist."
+      "description": "Module « Premiers vols » — Tutos Wingfoil."
     }
   },
   {
@@ -48,7 +48,7 @@ export const WINGFOIL_TUTOS_LESSONS: WingfoilTutosLesson[] = [
       "slug": "wingfoil-first-flight",
       "name": "Wingfoil : préparer le 1er vol",
       "category": "Wingfoil",
-      "description": "Tutos Wingfoil playlist."
+      "description": "Module « Premiers vols » — Tutos Wingfoil."
     }
   },
   {
@@ -59,7 +59,7 @@ export const WINGFOIL_TUTOS_LESSONS: WingfoilTutosLesson[] = [
       "slug": "wingfoil-change-direction",
       "name": "Wingfoil : changer de direction",
       "category": "Wingfoil",
-      "description": "Tutos Wingfoil playlist."
+      "description": "Module « Navigation » — Tutos Wingfoil."
     }
   },
   {
@@ -82,7 +82,7 @@ export const WINGFOIL_TUTOS_LESSONS: WingfoilTutosLesson[] = [
       "slug": "wingfoil-carve",
       "name": "Wingfoil : carving",
       "category": "Wingfoil",
-      "description": "Tutos Wingfoil playlist."
+      "description": "Module « Navigation » — Tutos Wingfoil."
     }
   },
   {

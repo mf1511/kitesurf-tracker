@@ -136,8 +136,6 @@ export default async function DashboardPage() {
       // Formations en tête
       if (a.cat === "Débuter") return -1;
       if (b.cat === "Débuter") return 1;
-      if (a.cat === "Twintip avancé") return -1;
-      if (b.cat === "Twintip avancé") return 1;
       if (a.pct === 100 && b.pct !== 100) return 1;
       if (b.pct === 100 && a.pct !== 100) return -1;
       if (a.pct === 0 && b.pct > 0) return 1;

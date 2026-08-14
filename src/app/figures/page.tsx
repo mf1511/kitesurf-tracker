@@ -4,11 +4,7 @@ import { redirect } from "next/navigation";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { FiguresCatalog } from "@/components/figures-catalog";
-import { resolveDebuterSection } from "@/lib/debuter";
-import {
-  resolveTwintipAvanceSection,
-  TWINTIP_AVANCE_CATEGORY,
-} from "@/lib/twintip-avance";
+import { resolveFigureSection } from "@/lib/figure-sections";
 import { getCachedFiguresCatalog } from "@/lib/figures-catalog-cache";
 import { getCategoryOrder } from "@/lib/category-order";
 import { isUnlocked, sortCategories, xpForCategory } from "@/lib/gamification";
@@ -51,12 +47,13 @@ export default async function FiguresPage({
     name: f.name,
     category: f.category,
     description: f.description,
-    section:
-      f.category === "Débuter"
-        ? resolveDebuterSection(f.description, f.order)
-        : f.category === TWINTIP_AVANCE_CATEGORY
-        ? resolveTwintipAvanceSection(f.description, f.order)
-        : null,
+    section: resolveFigureSection(
+      f.category,
+      f.description,
+      f.order,
+      f.slug,
+      f.name
+    ),
     order: f.order,
     completed: doneIds.has(f.id),
     locked: !isUnlocked(f, doneIds),

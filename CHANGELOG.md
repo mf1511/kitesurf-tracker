@@ -3,11 +3,19 @@
 ## 2026-08-14
 
 ### ✨ Added
+- Wave / Surface / Old school / Kiteloops / Unhooked / Handle passes / Toeside : sous-modules + ordre pédagogique
+- Strapless : sous-modules **Premiers vols** / **Navigation** / **Transitions** / **Freestyle**
+- Wingfoil : sous-modules **Premiers vols** / **Navigation** / **Transitions** / **Freestyle** / **Vague**
+- Kitefoil : sous-modules **Premiers vols** / **Navigation** / **Transitions** / **Freestyle** / **Vague**
+- Bases et transitions : sous-modules **Transitions** / **Riding**
+- Sauts & Big Air : sous-modules **Backroll** / **Frontroll** / **Raleys** / **Passes** / **Avancé**
 - Admin : réordonnancement ↑↓ des **catégories** et des **figures** (SQL `022-app-settings.sql`)
 - Admin : sous-sections **Débuter** / **Twintip avancé** repliables
 - Arbre de progression : mode **Mindmap** (`/figures/arbre?mode=mindmap`) — hub + catégories + figures
 
 ### 🚀 Improved
+- Catalogue figures : sous-modules indentés sous leur catégorie
+- Catalogue figures : fold/unfold des **sous-modules** (comme les catégories)
 - Catalogue figures : état fold/unfold des catégories conservé à la navigation (`sessionStorage`)
 - Mindmap : remplissage LTR des cards catégorie / sous-module + check vert à 100 %
 - Mindmap : branchage unifié (prérequis → arbre, sinon chaîne ordonnée) — plus de grille / éventail
@@ -15,6 +23,15 @@
 - Mindmap : arbre gauche→droite aligné + bouton **Réorganiser** (zoom 100 %, vue hub)
 
 ### 🔧 Changed
+- Toeside freestyle → **Sauts & Big Air** (Raleys / Passes / Avancé) ; catégorie Toeside retirée
+- Sauts & Big Air : spins / tantrum rangés dans **Backroll** / **Frontroll** (plus de sous-modules Bases / Spins)
+- Freestyle : merges 313 / S-bend / board-flip / Hasselhoff ; Snake loop + Kiteloop 3 → Kiteloops ; Sauts : sous-modules **Bases** / **Spins**
+- **Handle passes & mobes** + **Extrême / compétition** fusionnés en **Figures avancées** (sous-modules conservés)
+- Tutoriels : merges vers Débuter / Beachstart + 23 fiches déplacées ; **First 14 Tricks** → Bonus ; 3 fiches College retirées ; catégorie Tutoriels vidée
+- Figures **Twintip avancé** → **Bases et transitions** ; catégorie Twintip avancé retirée
+- **Lâcher une main** → Débuter / Les sauts à une main
+- Sous-module **La pratique solo** (4 figures) déplacé de Twintip avancé → **Débuter**
+- **La flèche bis** + **Le rôle des lignes bis** mergés dans les figures Débuter (sans bis)
 - **Body drag upwind**, **Water relaunch**, **Controlled stop** → Débuter / À l'eau
 - Tuto **How to Kitesurf: Bodydrag Tutorial** mergé dans **La nage tractée** (`body-drag`)
 - Catégories **Foil / Hydrofoil** + **Kitefoil** fusionnées sous **Kitefoil** ; doublons `tack-foil` → `kitefoil-tack`, `jibe-foil` → `kitefoil-jibe`
