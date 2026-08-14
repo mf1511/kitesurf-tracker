@@ -35,7 +35,7 @@ const CAT = {
   HANDLEPASS: "Handle passes & mobes",
   TOESIDE: "Toeside freestyle",
   WAVE: "Wave riding / strapless",
-  FOIL: "Foil / Hydrofoil",
+  FOIL: "Kitefoil",
   EXTREME: "Extrême / compétition",
 };
 
@@ -1135,12 +1135,12 @@ const figures: FigureSeed[] = [
     ["Micro-ajustements pied avant/arrière", "Kite stable", "Éviter les pump excessifs"],
     ["water-start-foil"]
   ),
-  f("tack-foil", "Tack foil", CAT.FOIL,
+  f("kitefoil-tack", "Kitefoil : tack", CAT.FOIL,
     "Virement de bord face au vent en foil.",
     ["Remonter au vent", "Passer le nose dans le vent", "Repartir sur l'autre bord"],
     ["foil-balance"]
   ),
-  f("jibe-foil", "Jibe foil", CAT.FOIL,
+  f("kitefoil-jibe", "Kitefoil : jibe", CAT.FOIL,
     "Empannage foil (vent arrière).",
     ["Arrondir la courbe downwind", "Changer de bord en vol", "Rester foiling"],
     ["foil-balance"]
@@ -1148,7 +1148,7 @@ const figures: FigureSeed[] = [
   f("foil-transition", "Foil transition 180", CAT.FOIL,
     "Transition 180 en restant en vol.",
     ["Petit hop ou carve 180", "Garder le foil chargé", "Repartir"],
-    ["jibe-foil", "tack-foil"]
+    ["kitefoil-jibe", "kitefoil-tack"]
   ),
   f("foil-360", "Foil 360", CAT.FOIL,
     "Rotation 360° complète en foil.",

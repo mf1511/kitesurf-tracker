@@ -26,56 +26,31 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "youtubeId": "Gpmf7IVsmFg",
     "title": "2 ways to Self Launch: Anchor & Kite Drag Methods (kiteboard / kitesurf tutorial)",
     "url": "https://www.youtube.com/watch?v=Gpmf7IVsmFg",
-    "create": {
-      "slug": "securite-decollage-atterrissage",
-      "name": "Décollage & atterrissage solo",
-      "category": "Sécurité",
-      "description": "Module sécurité — Kitesurf College."
-    }
+    "mergeSlug": "debuter-le-decollage-de-l-aile"
   },
   {
     "youtubeId": "Q6enZTVhVpA",
     "title": "5 Ways to Self-Land (Kiteboarding Tutorial)",
     "url": "https://www.youtube.com/watch?v=Q6enZTVhVpA",
-    "create": {
-      "slug": "securite-decollage-atterrissage",
-      "name": "Décollage & atterrissage solo",
-      "category": "Sécurité",
-      "description": "Module sécurité — Kitesurf College."
-    }
+    "mergeSlug": "debuter-latterrissage-de-l-aile"
   },
   {
     "youtubeId": "ihA0MhiL2BM",
     "title": "How to Kitesurf: Launch Tutorial",
     "url": "https://www.youtube.com/watch?v=ihA0MhiL2BM",
-    "create": {
-      "slug": "securite-decollage-atterrissage",
-      "name": "Décollage & atterrissage solo",
-      "category": "Sécurité",
-      "description": "Module sécurité — Kitesurf College."
-    }
+    "mergeSlug": "debuter-le-decollage-de-l-aile"
   },
   {
     "youtubeId": "LQW54aZKaro",
     "title": "Kitesurf Drift Launch",
     "url": "https://www.youtube.com/watch?v=LQW54aZKaro",
-    "create": {
-      "slug": "securite-decollage-atterrissage",
-      "name": "Décollage & atterrissage solo",
-      "category": "Sécurité",
-      "description": "Module sécurité — Kitesurf College."
-    }
+    "mergeSlug": "debuter-le-decollage-de-l-aile"
   },
   {
     "youtubeId": "B78nQ-_Rt_0",
     "title": "Launching a kite safely (with assistant, inflatable power kite)",
     "url": "https://www.youtube.com/watch?v=B78nQ-_Rt_0",
-    "create": {
-      "slug": "securite-decollage-atterrissage",
-      "name": "Décollage & atterrissage solo",
-      "category": "Sécurité",
-      "description": "Module sécurité — Kitesurf College."
-    }
+    "mergeSlug": "debuter-le-decollage-de-l-aile"
   },
   {
     "youtubeId": "DtDJNxgb6rI",
@@ -884,12 +859,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "youtubeId": "e8qMLUbrUu4",
     "title": "Basic Relaunches (How to Kitesurf / Kiteboarding tutorial, Part 1)",
     "url": "https://www.youtube.com/watch?v=e8qMLUbrUu4",
-    "create": {
-      "slug": "tuto-basic-relaunches",
-      "name": "Basic Relaunches",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "water-relaunch"
   },
   {
     "youtubeId": "IA5Z9tsdR7I",
@@ -972,12 +942,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "youtubeId": "xKsawlnMOvw",
     "title": "How to Kitesurf: Bodydrag Tutorial",
     "url": "https://www.youtube.com/watch?v=xKsawlnMOvw",
-    "create": {
-      "slug": "tuto-how-to-kitesurf-bodydrag-tutorial",
-      "name": "How to Kitesurf: Bodydrag Tutorial",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "body-drag"
   },
   {
     "youtubeId": "u6G8ajDZL_Q",
@@ -1181,23 +1146,13 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "youtubeId": "ze_AQUMCbxo",
     "title": "How to Raley, unhooked kiteboarding tutorial",
     "url": "https://www.youtube.com/watch?v=ze_AQUMCbxo",
-    "create": {
-      "slug": "tuto-raley",
-      "name": "Raley",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "raley-front"
   },
   {
     "youtubeId": "TF2n-VEjUTE",
     "title": "Raley Tutorial (Kiteboarding / Kitesurfing)",
     "url": "https://www.youtube.com/watch?v=TF2n-VEjUTE",
-    "create": {
-      "slug": "tuto-raley",
-      "name": "Raley",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "raley-front"
   },
   {
     "youtubeId": "fjh8q3C5bZE",
@@ -1280,12 +1235,7 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "youtubeId": "_hudNYbga-Q",
     "title": "How to Kitesurf: Water Re-Launch (Basics)",
     "url": "https://www.youtube.com/watch?v=_hudNYbga-Q",
-    "create": {
-      "slug": "tuto-water-relaunch",
-      "name": "Water relaunch",
-      "category": "Tutoriels",
-      "description": "Tutoriel — Kitesurf College."
-    }
+    "mergeSlug": "water-relaunch"
   },
   {
     "youtubeId": "_6wI48iJ4lc",

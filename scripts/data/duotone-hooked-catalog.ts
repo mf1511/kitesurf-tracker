@@ -717,11 +717,6 @@ export const DUOTONE_HOOKED_LESSONS: DuotoneHookedLesson[] = [
     "youtubeId": "OXwSnznJ93Y",
     "title": "The five coolest Kiteboarding transitions",
     "url": "https://www.youtube.com/watch?v=OXwSnznJ93Y",
-    "create": {
-      "slug": "tuto-five-coolest-transitions",
-      "name": "The five coolest transitions",
-      "category": "Tutoriels",
-      "description": "Duotone Academy — Hooked."
-    }
+    "mergeSlug": "transition-simple"
   }
 ];

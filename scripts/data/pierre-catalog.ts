@@ -87,12 +87,12 @@ function shortTutoName(title: string): string {
 /** Catalogue embarqué (snapshot TSV validé) — source de vérité pour l’import */
 export const PIERRE_LESSONS: PierreLesson[] = loadPierreCatalogFromTsv(`
 action	category	target_slug	target_name	video	url	note
-create-securite	Sécurité	securite-decollage-atterrissage	Décollage & atterrissage solo	Décoller et poser sans stress en kitesurf	https://www.youtube.com/watch?v=dVp5Z32f8OQ	
-create-securite	Sécurité	securite-largage	Largage (kite release)	Kite release = End of session?	https://www.youtube.com/watch?v=EFIA62t90H8	
-create-securite	Sécurité	securite-recommandations	Sécurité : recommandations	Kitesurfing safety (my recommendations)	https://www.youtube.com/watch?v=kvOlLoQ87UA	
+merge	Débuter	debuter-le-decollage-de-l-aile	Le décollage de l'aile	Décoller et poser sans stress en kitesurf	https://www.youtube.com/watch?v=dVp5Z32f8OQ	
+merge	Débuter	debuter-larguer-puis-poser	Larguer puis poser	Kite release = End of session?	https://www.youtube.com/watch?v=EFIA62t90H8	
+merge	Débuter	debuter-pratiquer-en-securite	Pratiquer en sécurité	Kitesurfing safety (my recommendations)	https://www.youtube.com/watch?v=kvOlLoQ87UA	
 create-securite	Sécurité	securite-arret-urgence	Arrêt d'urgence	L' ARRÊT D' URGENCE : une BASE pour bien CRANTER en kitesurf	https://www.youtube.com/watch?v=4IKKCu-JgTc	
-create-securite	Sécurité	securite-suicide-leash	Suicide leash & sécurité	Le suic*de leash peut-il optimiser votre sécurité en kitesurf ?	https://www.youtube.com/watch?v=e_05U6veRSM	
-create-securite	Sécurité	securite-decollage-atterrissage	Décollage & atterrissage solo	Take off and land your kite alone	https://www.youtube.com/watch?v=shmw3tnr7I8	
+merge	Débuter	debuter-le-leash-d-aile	Le leash d'aile	Le suic*de leash peut-il optimiser votre sécurité en kitesurf ?	https://www.youtube.com/watch?v=e_05U6veRSM	
+merge	Débuter	debuter-le-decollage-de-l-aile	Le décollage de l'aile	Take off and land your kite alone	https://www.youtube.com/watch?v=shmw3tnr7I8	
 merge	Surface tricks & drags	darkslide	Darkslide	1 technique, 3 figures ! (Darkslide / One Foot Drag / Jesus Walk)	https://www.youtube.com/watch?v=FodZHSt1epg	
 merge	Débuter	transition-simple	La transition	A seamless TRANSITION in KITESURFING (learning and progression)	https://www.youtube.com/watch?v=RySoz7jbg6g	
 merge	Débuter	water-start	Le waterstart	An effective waterstart! (The cornerstone of your kitesurfing skills)	https://www.youtube.com/watch?v=8CZS0HxjNRA	
@@ -120,8 +120,8 @@ tuto	Tutoriels	—	—	5 erreurs à ne pas faire pour progresser sereinement en 
 tuto	Tutoriels	—	—	Comment progresser en kitesurf ? - Épisode 1: Bien préparer sa session	https://www.youtube.com/watch?v=4oUW9yGyt6Q	
 tuto	Tutoriels	—	—	Comment progresser en kitesurf ? - Épisode 3 : J'analyse ma session	https://www.youtube.com/watch?v=zJgZFH8SnM4	
 tuto	Tutoriels	—	—	How to improve your kitesurfing skills? - Episode 2: A light wind session	https://www.youtube.com/watch?v=8bthsRJRvqM	
-tuto	Tutoriels	—	—	Managing your speed effectively when kitesurfing	https://www.youtube.com/watch?v=OIJVHPSa944	
-tuto	Tutoriels	—	—	Setting Up and Packing Away Your Kitesurfing Gear (Instructor Tips)	https://www.youtube.com/watch?v=3zczEcD0yYA	
+merge	Bases et transitions	edging-control	Edging & contrôle de vitesse	Managing your speed effectively when kitesurfing	https://www.youtube.com/watch?v=OIJVHPSa944	
+merge	Débuter	debuter-greer-son-aile	Gréer son aile	Setting Up and Packing Away Your Kitesurfing Gear (Instructor Tips)	https://www.youtube.com/watch?v=3zczEcD0yYA	
 tuto	Tutoriels	—	—	Understanding the different kite materials	https://www.youtube.com/watch?v=A8zYA3ItWZ4	
-tuto	Tutoriels	—	—	Understanding the Kitesurfing Wind Window (With an Umbrella)	https://www.youtube.com/watch?v=C821MDUl5iE	
+merge	Débuter	debuter-la-fenetre-de-vol	La fenêtre de vol	Understanding the Kitesurfing Wind Window (With an Umbrella)	https://www.youtube.com/watch?v=C821MDUl5iE	
 `);

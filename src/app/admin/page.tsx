@@ -4,16 +4,26 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import AdminFiguresPanel from "@/components/admin-figures-panel";
+import { getCategoryOrder } from "@/lib/category-order";
+import { resolveDebuterSection } from "@/lib/debuter";
+import { sortCategories } from "@/lib/gamification";
+import {
+  resolveTwintipAvanceSection,
+  TWINTIP_AVANCE_CATEGORY,
+} from "@/lib/twintip-avance";
 
 export default async function AdminPage() {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
   if (session.user.role !== "admin") redirect("/dashboard");
 
-  const figures = await prisma.figure.findMany({
-    orderBy: [{ category: "asc" }, { order: "asc" }],
-    include: { _count: { select: { prerequisites: true, videos: true } } },
-  });
+  const [figures, categoryOrder] = await Promise.all([
+    prisma.figure.findMany({
+      orderBy: [{ category: "asc" }, { order: "asc" }],
+      include: { _count: { select: { prerequisites: true, videos: true } } },
+    }),
+    getCategoryOrder(),
+  ]);
 
   const rows = figures.map((f) => ({
     id: f.id,
@@ -25,7 +35,17 @@ export default async function AdminPage() {
     adminDone: f.adminDone,
     prerequisites: f._count.prerequisites,
     videos: f._count.videos,
+    // Sous-module Débuter / Twintip (null sinon)
+    section:
+      f.category === "Débuter"
+        ? resolveDebuterSection(f.description, f.order)
+        : f.category === TWINTIP_AVANCE_CATEGORY
+        ? resolveTwintipAvanceSection(f.description, f.order)
+        : null,
   }));
+
+  const present = Array.from(new Set(figures.map((f) => f.category)));
+  const initialCategoryOrder = sortCategories(present, categoryOrder);
 
   return (
     <div className="admin-page">
@@ -41,7 +61,10 @@ export default async function AdminPage() {
         </div>
       </div>
 
-      <AdminFiguresPanel initialFigures={rows} />
+      <AdminFiguresPanel
+        initialFigures={rows}
+        initialCategoryOrder={initialCategoryOrder}
+      />
     </div>
   );
 }

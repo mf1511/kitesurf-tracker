@@ -35,7 +35,6 @@ export function returnLabel(path: string | null | undefined, fallback = "← Ret
   const p = path.split("?")[0] || path;
   if (p.startsWith("/figures/arbre")) return "← Arbre de progression";
   if (p === "/figures") return "← Toutes les figures";
-  if (p === "/favoris") return "← Mes favoris";
   if (p.startsWith("/trips/")) return "← Séjour";
   if (p === "/trips") return "← Séjours";
   if (p.startsWith("/community/")) return "← Profil ami";

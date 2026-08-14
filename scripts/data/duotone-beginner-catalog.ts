@@ -21,7 +21,7 @@ export const DUOTONE_BEGINNER_LESSONS: DuotoneBeginnerLesson[] = [
     "youtubeId": "jwiaM0rUzSI",
     "title": "BEGINNER - Safety Release - Duotone Academy",
     "url": "https://www.youtube.com/watch?v=jwiaM0rUzSI",
-    "mergeSlug": "securite-largage"
+    "mergeSlug": "debuter-larguer-puis-poser"
   },
   {
     "youtubeId": "FhK4Li6Jn00",

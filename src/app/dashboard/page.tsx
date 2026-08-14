@@ -12,6 +12,7 @@ import {
 import { tripStatus } from "@/lib/trips";
 import { getFavoriteSpot } from "@/lib/spots";
 import { getUserSessions, formatDuration } from "@/lib/sessions";
+import { getCategoryOrder } from "@/lib/category-order";
 import { degToCompass, fetchSpotForecast, rateWind, type SpotForecast } from "@/lib/weather";
 import BadgeSlider from "@/components/badge-slider";
 import { figureHref } from "@/lib/nav-return";
@@ -29,7 +30,8 @@ export default async function DashboardPage() {
   const userId = session.user.id;
   const now = new Date();
 
-  const [figures, myTrips, myObjectives, favoriteSpot, lastSessions] = await Promise.all([
+  const [figures, myTrips, myObjectives, favoriteSpot, lastSessions, categoryOrder] =
+    await Promise.all([
     prisma.figure.findMany({
       where: { active: true },
       include: {
@@ -61,6 +63,7 @@ export default async function DashboardPage() {
     }),
     getFavoriteSpot(userId),
     getUserSessions(userId, 3),
+    getCategoryOrder(),
   ]);
 
   // Météo du spot favori — best effort (coords optionnelles)
@@ -81,7 +84,8 @@ export default async function DashboardPage() {
 
   const stats = computeGameStats(figures);
   const categories = sortCategories(
-    Array.from(new Set(figures.map((f) => f.category)))
+    Array.from(new Set(figures.map((f) => f.category))),
+    categoryOrder
   );
   const doneIds = new Set(
     figures.filter((f) => f.progress.length > 0).map((f) => f.id)

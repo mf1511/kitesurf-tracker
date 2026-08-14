@@ -383,3 +383,9 @@ model SessionGear {
   @@unique([sessionId, gearId])
   @@index([gearId])
 }
+
+/// Réglages app (ex. ordre des catégories catalogue)
+model AppSetting {
+  key   String @id
+  value String
+}

@@ -5,6 +5,7 @@ import {
   sortCategories,
   xpForCategory,
 } from "@/lib/gamification";
+import { getCategoryOrder } from "@/lib/category-order";
 import { getUserSessions, getSessionStats } from "@/lib/sessions";
 
 /** Amis acceptés uniquement (pas soi-même) */
@@ -73,8 +74,10 @@ export async function getFriendProfile(meId: string, friendId: string) {
     figures.filter((f) => f.progress.length > 0).map((f) => f.id)
   );
 
+  const categoryOrder = await getCategoryOrder();
   const categories = sortCategories(
-    Array.from(new Set(figures.map((f) => f.category)))
+    Array.from(new Set(figures.map((f) => f.category))),
+    categoryOrder
   );
   const byCategory = categories.map((cat) => {
     const inCat = figures.filter((f) => f.category === cat);

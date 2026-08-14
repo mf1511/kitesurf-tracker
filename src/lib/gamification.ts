@@ -33,7 +33,6 @@ const CATEGORY_XP: Record<string, number> = {
   "Handle passes & mobes": 40,
   "Toeside freestyle": 40,
   "Wave riding / strapless": 25,
-  "Foil / Hydrofoil": 25,
   "Extrême / compétition": 50,
 };
 
@@ -97,7 +96,8 @@ export function xpForCategory(category: string): number {
   return CATEGORY_XP[category] ?? DEFAULT_XP;
 }
 
-const CATEGORY_ORDER = [
+/** Ordre par défaut des mondes (fallback si AppSetting absent) */
+export const DEFAULT_CATEGORY_ORDER = [
   "Débuter",
   "Twintip avancé",
   "Bonus",
@@ -108,11 +108,14 @@ const CATEGORY_ORDER = [
   "Strapless",
 ] as const;
 
-/** Ordre d’affichage des mondes : formations d’abord, puis alpha FR */
-export function sortCategories(categories: string[]): string[] {
+/** Ordre d’affichage des mondes : order fourni, sinon DEFAULT, puis alpha FR */
+export function sortCategories(
+  categories: string[],
+  order: readonly string[] = DEFAULT_CATEGORY_ORDER
+): string[] {
   return [...categories].sort((a, b) => {
-    const ia = CATEGORY_ORDER.indexOf(a as (typeof CATEGORY_ORDER)[number]);
-    const ib = CATEGORY_ORDER.indexOf(b as (typeof CATEGORY_ORDER)[number]);
+    const ia = order.indexOf(a);
+    const ib = order.indexOf(b);
     if (ia !== -1 || ib !== -1) {
       if (ia === -1) return 1;
       if (ib === -1) return -1;

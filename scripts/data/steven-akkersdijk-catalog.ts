@@ -105,7 +105,7 @@ export const STEVEN_LESSONS: StevenLesson[] = [
     title:
       "First turns on a foil | Gybes and Footswitch // Kite Foil SA Masterclass",
     url: "https://www.youtube.com/watch?v=sPaT4SceTyk",
-    mergeSlug: "jibe-foil",
+    mergeSlug: "kitefoil-jibe",
   },
   {
     youtubeId: "6il4XjeETAA",
@@ -130,14 +130,14 @@ export const STEVEN_LESSONS: StevenLesson[] = [
     youtubeId: "ukC-MmFO9Qg",
     title: 'How to spice up your foiling "Roll tack" // SA Masterclass',
     url: "https://www.youtube.com/watch?v=ukC-MmFO9Qg",
-    mergeSlug: "tack-foil",
+    mergeSlug: "kitefoil-tack",
   },
   {
     youtubeId: "BnKmSnBpciI",
     title:
       "How to turn on a foil | Tack and Rolltack // Kite Foil SA masterclass",
     url: "https://www.youtube.com/watch?v=BnKmSnBpciI",
-    mergeSlug: "tack-foil",
+    mergeSlug: "kitefoil-tack",
   },
   {
     youtubeId: "Um3N8a_Y-P8",

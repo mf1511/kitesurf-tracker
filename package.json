@@ -24,7 +24,9 @@
     "import:duotone-foil": "tsx scripts/import-duotone-foil-videos.ts",
     "import:duotone-unhooked": "tsx scripts/import-duotone-unhooked-videos.ts",
     "import:duotone-wave": "tsx scripts/import-duotone-wave-videos.ts",
-    "import:duotone-beginner": "tsx scripts/import-duotone-beginner-videos.ts"
+    "import:duotone-beginner": "tsx scripts/import-duotone-beginner-videos.ts",
+    "import:wingfoil-tutos": "tsx scripts/import-wingfoil-tutos-videos.ts",
+    "import:ucpa-kitesurf": "tsx scripts/import-ucpa-kitesurf-videos.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"

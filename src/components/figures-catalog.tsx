@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import FigureCheckbox from "@/components/FigureCheckbox";
 import FigureFavoriteButton from "@/components/figure-favorite-button";
 import { sortDebuterSections } from "@/lib/debuter";
@@ -31,39 +31,103 @@ export type CatalogFigure = {
   favorite: boolean;
 };
 
-type SortId = "default" | "name" | "xp-asc" | "xp-desc";
-
-const SORTS: { id: SortId; label: string }[] = [
-  { id: "default", label: "Ordre conseillé" },
-  { id: "name", label: "Nom A→Z" },
-  { id: "xp-asc", label: "XP croissant" },
-  { id: "xp-desc", label: "XP décroissant" },
-];
-
 /** Minuscules sans accents pour la recherche */
 function normalize(s: string): string {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 }
 
-/** Catalogue figures : recherche instantanée, filtres catégorie/acquises, tri */
+const COLLAPSED_KEY = "figures-catalog-collapsed";
+
+function readCollapsed(): Set<string> {
+  if (typeof window === "undefined") return new Set();
+  try {
+    const raw = sessionStorage.getItem(COLLAPSED_KEY);
+    if (!raw) return new Set();
+    const parsed = JSON.parse(raw) as unknown;
+    if (!Array.isArray(parsed)) return new Set();
+    return new Set(parsed.filter((x): x is string => typeof x === "string"));
+  } catch {
+    return new Set();
+  }
+}
+
+function writeCollapsed(set: Set<string>) {
+  try {
+    sessionStorage.setItem(COLLAPSED_KEY, JSON.stringify([...set]));
+  } catch {
+    /* ignore */
+  }
+}
+
+/** Catalogue figures : recherche instantanée, filtres catégorie/acquises */
 export function FiguresCatalog({
-  figures,
+  figures: initialFigures,
   categories,
   initialCategory,
+  initialFavoritesOnly = false,
 }: {
   figures: CatalogFigure[];
   categories: string[];
   initialCategory?: string;
+  /** Pré-active le filtre favoris (?favorites=1) */
+  initialFavoritesOnly?: boolean;
 }) {
+  // État local pour que le filtre Favoris réagisse au toggle étoile
+  const [figures, setFigures] = useState(initialFigures);
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState(initialCategory ?? "");
+  /** Vide = toutes les catégories ; sinon filtre multi-sélection */
+  const [selectedCats, setSelectedCats] = useState<string[]>(() =>
+    initialCategory && categories.includes(initialCategory)
+      ? [initialCategory]
+      : []
+  );
+  const [catOpen, setCatOpen] = useState(false);
+  const catSelectRef = useRef<HTMLDivElement>(null);
   const [hideDone, setHideDone] = useState(false);
-  const [sort, setSort] = useState<SortId>("default");
+  const [favoritesOnly, setFavoritesOnly] = useState(initialFavoritesOnly);
+  /** Catégories repliées — restaurées depuis sessionStorage */
+  const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
+
+  // Sync si le serveur renvoie un nouveau catalogue
+  useEffect(() => {
+    setFigures(initialFigures);
+  }, [initialFigures]);
+
+  // Restaure fold après mount (évite mismatch SSR)
+  useEffect(() => {
+    setCollapsed(readCollapsed());
+  }, []);
+
+  function setCollapsedPersist(next: Set<string>) {
+    setCollapsed(next);
+    writeCollapsed(next);
+  }
+
+  // Ferme le dropdown au clic extérieur / Escape
+  useEffect(() => {
+    if (!catOpen) return;
+    function onPointer(e: MouseEvent) {
+      if (!catSelectRef.current?.contains(e.target as Node)) setCatOpen(false);
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setCatOpen(false);
+    }
+    document.addEventListener("mousedown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [catOpen]);
 
   const visible = useMemo(() => {
     const q = normalize(query.trim());
     let list = figures;
-    if (category) list = list.filter((f) => f.category === category);
+    if (selectedCats.length > 0) {
+      const set = new Set(selectedCats);
+      list = list.filter((f) => set.has(f.category));
+    }
+    if (favoritesOnly) list = list.filter((f) => f.favorite);
     if (hideDone) list = list.filter((f) => !f.completed);
     if (q) {
       list = list.filter(
@@ -72,21 +136,53 @@ export function FiguresCatalog({
           (f.section != null && normalize(f.section).includes(q))
       );
     }
+    // Ordre pédagogique (order) puis nom
+    return [...list].sort(
+      (a, b) => a.order - b.order || a.name.localeCompare(b.name, "fr")
+    );
+  }, [figures, query, selectedCats, hideDone, favoritesOnly]);
 
-    if (sort === "name") list = [...list].sort((a, b) => a.name.localeCompare(b.name, "fr"));
-    if (sort === "xp-asc") list = [...list].sort((a, b) => a.xp - b.xp);
-    if (sort === "xp-desc") list = [...list].sort((a, b) => b.xp - a.xp);
-    if (sort === "default") {
-      list = [...list].sort((a, b) => a.order - b.order || a.name.localeCompare(b.name, "fr"));
-    }
-    return list;
-  }, [figures, query, category, hideDone, sort]);
+  function setFavorite(id: string, favorite: boolean) {
+    setFigures((prev) =>
+      prev.map((f) => (f.id === id ? { ...f, favorite } : f))
+    );
+  }
 
-  // Regroupement par catégorie (+ sous-sections Débuter) en ordre conseillé
-  const grouped = sort === "default";
-  const visibleCategories = grouped
-    ? categories.filter((c) => visible.some((f) => f.category === c))
-    : [];
+  function toggleCat(cat: string) {
+    setSelectedCats((prev) =>
+      prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+    );
+  }
+
+  const catTriggerLabel =
+    selectedCats.length === 0
+      ? "Toutes les catégories"
+      : selectedCats.length === 1
+        ? selectedCats[0]
+        : `${selectedCats.length} catégories`;
+
+  // Regroupement par catégorie (+ sous-sections Débuter / Twintip avancé)
+  const visibleCategories = categories.filter((c) =>
+    visible.some((f) => f.category === c)
+  );
+
+  // Pendant une recherche, tout reste ouvert pour voir les matches
+  const searching = normalize(query.trim()).length > 0;
+
+  function toggleCategory(cat: string) {
+    const next = new Set(collapsed);
+    if (next.has(cat)) next.delete(cat);
+    else next.add(cat);
+    setCollapsedPersist(next);
+  }
+
+  function expandAll() {
+    setCollapsedPersist(new Set());
+  }
+
+  function collapseAll() {
+    setCollapsedPersist(new Set(visibleCategories));
+  }
 
   const renderCard = (f: CatalogFigure) => {
     const state = !f.active
@@ -104,6 +200,7 @@ export function FiguresCatalog({
             figureId={f.id}
             initialFavorite={f.favorite}
             size="sm"
+            onChange={(fav) => setFavorite(f.id, fav)}
           />
         ) : null}
         {f.active ? (
@@ -187,38 +284,52 @@ export function FiguresCatalog({
           onChange={(e) => setQuery(e.target.value)}
           aria-label="Rechercher une figure"
         />
-        <select
-          className="figures-sort"
-          value={sort}
-          onChange={(e) => setSort(e.target.value as SortId)}
-          aria-label="Trier les figures"
-        >
-          {SORTS.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div className="category-filters">
-        <button
-          type="button"
-          onClick={() => setCategory("")}
-          className={!category ? "active" : ""}
-        >
-          Toutes
-        </button>
-        {categories.map((cat) => (
+        <div className="figures-cat-select" ref={catSelectRef}>
           <button
             type="button"
-            key={cat}
-            onClick={() => setCategory(cat === category ? "" : cat)}
-            className={category === cat ? "active" : ""}
+            className={`figures-cat-trigger${selectedCats.length ? " has-selection" : ""}${catOpen ? " open" : ""}`}
+            aria-haspopup="listbox"
+            aria-expanded={catOpen}
+            onClick={() => setCatOpen((o) => !o)}
           >
-            {cat}
+            <span className="figures-cat-trigger-label">{catTriggerLabel}</span>
+            <span className="figures-cat-chevron" aria-hidden>
+              {catOpen ? "▴" : "▾"}
+            </span>
           </button>
-        ))}
+          {catOpen ? (
+            <div className="figures-cat-menu" role="listbox" aria-multiselectable>
+              <div className="figures-cat-menu-actions">
+                <button type="button" onClick={() => setSelectedCats([])}>
+                  Toutes
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedCats([...categories])}
+                >
+                  Tout cocher
+                </button>
+              </div>
+              <ul className="figures-cat-options">
+                {categories.map((cat) => {
+                  const checked = selectedCats.includes(cat);
+                  return (
+                    <li key={cat}>
+                      <label className={checked ? "checked" : ""}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleCat(cat)}
+                        />
+                        <span>{cat}</span>
+                      </label>
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="figure-done-filter">
@@ -236,36 +347,73 @@ export function FiguresCatalog({
         >
           Masquer les validées
         </button>
+        <button
+          type="button"
+          onClick={() => setFavoritesOnly((v) => !v)}
+          className={favoritesOnly ? "active" : ""}
+          aria-pressed={favoritesOnly}
+        >
+          Favoris
+        </button>
+        {visibleCategories.length > 1 && !searching ? (
+          <>
+            <button type="button" onClick={expandAll}>
+              Tout ouvrir
+            </button>
+            <button type="button" onClick={collapseAll}>
+              Tout replier
+            </button>
+          </>
+        ) : null}
       </div>
 
       {visible.length === 0 ? (
         <p className="quest-empty">
           {query
             ? `Aucune figure ne correspond à « ${query} ».`
+            : favoritesOnly
+            ? "Aucun favori dans ce filtre — clique l’étoile sur une figure."
             : hideDone
             ? "Plus rien à afficher — tu as tout validé dans ce filtre."
             : "Aucune figure dans cette catégorie."}
         </p>
-      ) : grouped ? (
+      ) : (
         visibleCategories.map((cat) => {
           const list = visible.filter((f) => f.category === cat);
           const hasSections =
             cat === "Débuter" || cat === TWINTIP_AVANCE_CATEGORY;
+          const isOpen = searching || !collapsed.has(cat);
           return (
-            <section key={cat} className="figure-section">
-              <h2>{cat}</h2>
-              {hasSections ? (
-                renderSectionBlocks(list, cat)
-              ) : (
-                <div className="figure-grid">{list.map(renderCard)}</div>
-              )}
+            <section
+              key={cat}
+              className={`figure-section${isOpen ? "" : " is-collapsed"}`}
+            >
+              <h2>
+                <button
+                  type="button"
+                  className="figure-section-toggle"
+                  aria-expanded={isOpen}
+                  onClick={() => toggleCategory(cat)}
+                >
+                  <span className="figure-section-chevron" aria-hidden>
+                    {isOpen ? "▾" : "▸"}
+                  </span>
+                  <span>{cat}</span>
+                  <span className="figure-section-count">
+                    {list.length}
+                  </span>
+                </button>
+              </h2>
+              {isOpen ? (
+                hasSections ? (
+                  renderSectionBlocks(list, cat)
+                ) : (
+                  <div className="figure-grid">{list.map(renderCard)}</div>
+                )
+              ) : null}
             </section>
           );
         })
-      ) : (
-        <section className="figure-section">
-          <div className="figure-grid">{visible.map(renderCard)}</div>
-        </section>
       )}
     </>
   );

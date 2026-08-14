@@ -9,6 +9,7 @@ import {
   medalForPct,
   sortCategories,
 } from "@/lib/gamification";
+import { getCategoryOrder } from "@/lib/category-order";
 import { formatDuration } from "@/lib/sessions";
 import { XpChart, type XpPoint } from "@/components/xp-chart";
 import { ShareRecapButton } from "@/components/share-recap-button";
@@ -31,7 +32,7 @@ export default async function StatsPage() {
   const userId = session.user.id;
   const now = new Date();
 
-  const [figures, kiteSessions, me] = await Promise.all([
+  const [figures, kiteSessions, me, categoryOrder] = await Promise.all([
     prisma.figure.findMany({
       where: { active: true },
       include: {
@@ -48,6 +49,7 @@ export default async function StatsPage() {
       where: { id: userId },
       select: { name: true, email: true },
     }),
+    getCategoryOrder(),
   ]);
   if (!me) redirect("/login");
 
@@ -86,7 +88,8 @@ export default async function StatsPage() {
 
   // --- Répartition par catégorie ---
   const categories = sortCategories(
-    Array.from(new Set(figures.map((f) => f.category)))
+    Array.from(new Set(figures.map((f) => f.category))),
+    categoryOrder
   );
   // Débuter en premier, puis les autres par % décroissant
   const byCategory = [

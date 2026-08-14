@@ -10,34 +10,38 @@ import {
   TWINTIP_AVANCE_CATEGORY,
 } from "@/lib/twintip-avance";
 import { getCachedFiguresCatalog } from "@/lib/figures-catalog-cache";
+import { getCategoryOrder } from "@/lib/category-order";
 import { isUnlocked, sortCategories, xpForCategory } from "@/lib/gamification";
 
 export default async function FiguresPage({
   searchParams,
 }: {
-  searchParams: { category?: string };
+  searchParams: { category?: string; favorites?: string };
 }) {
   const session = await getServerSession(authOptions);
   if (!session?.user?.id) redirect("/login");
   const userId = session.user.id;
 
   // Catalogue partagé en cache + état perso (progress / favoris) en parallèle
-  const [figures, progressRows, favoriteRows] = await Promise.all([
-    getCachedFiguresCatalog(),
-    prisma.userProgress.findMany({
-      where: { userId, completed: true },
-      select: { figureId: true },
-    }),
-    prisma.figureFavorite.findMany({
-      where: { userId },
-      select: { figureId: true },
-    }),
-  ]);
+  const [figures, progressRows, favoriteRows, categoryOrder] =
+    await Promise.all([
+      getCachedFiguresCatalog(),
+      prisma.userProgress.findMany({
+        where: { userId, completed: true },
+        select: { figureId: true },
+      }),
+      prisma.figureFavorite.findMany({
+        where: { userId },
+        select: { figureId: true },
+      }),
+      getCategoryOrder(),
+    ]);
 
   const doneIds = new Set(progressRows.map((p) => p.figureId));
   const favoriteIds = new Set(favoriteRows.map((r) => r.figureId));
   const categories = sortCategories(
-    Array.from(new Set(figures.map((f) => f.category)))
+    Array.from(new Set(figures.map((f) => f.category))),
+    categoryOrder
   );
   const doneCount = figures.filter((f) => doneIds.has(f.id)).length;
 
@@ -62,6 +66,9 @@ export default async function FiguresPage({
     favorite: favoriteIds.has(f.id),
   }));
 
+  const favoritesOnly =
+    searchParams.favorites === "1" || searchParams.favorites === "true";
+
   return (
     <div className="figures-page">
       <h1>Toutes les figures</h1>
@@ -73,8 +80,8 @@ export default async function FiguresPage({
         <Link href="/figures/arbre" className="btn btn-ghost">
           🌳 Arbre de progression
         </Link>
-        <Link href="/favoris" className="btn btn-ghost">
-          Mes favoris
+        <Link href="/figures/arbre?mode=mindmap" className="btn btn-ghost">
+          Mindmap
         </Link>
       </div>
 
@@ -82,6 +89,7 @@ export default async function FiguresPage({
         figures={catalogFigures}
         categories={categories}
         initialCategory={searchParams.category}
+        initialFavoritesOnly={favoritesOnly}
       />
     </div>
   );

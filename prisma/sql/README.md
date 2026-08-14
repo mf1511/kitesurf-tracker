@@ -14,7 +14,10 @@ pars de zéro : dans ce cas utilise uniquement `supabase-full.sql`.
 | 007 | `007-gear.sql` | Matériel (`Gear`) |
 | 008 | `008-sessions-spots.sql` | Journal de sessions (`KiteSession`, `SessionGear`), spots météo (`Spot`), `User.weightKg` |
 | 009 | `009-notes-challenges.sql` | Carnet de progression (`FigureNote`) + défis entre amis (`Challenge`) |
+| … | … | … |
+| 021 | `021-figure-favorites.sql` | Favoris figures |
+| 022 | `022-app-settings.sql` | `AppSetting` (ordre des catégories) |
 
 Avant **006** : crée le bucket Storage public `figure-videos` dans le dashboard.
 
-Prochaine migration : `010-….sql`.
+Exécute les migrations manquantes dans l’ordre ; dernière : **022**.

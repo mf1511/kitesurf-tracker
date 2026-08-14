@@ -1,5 +1,39 @@
 # Changelog
 
+## 2026-08-14
+
+### ✨ Added
+- Admin : réordonnancement ↑↓ des **catégories** et des **figures** (SQL `022-app-settings.sql`)
+- Admin : sous-sections **Débuter** / **Twintip avancé** repliables
+- Arbre de progression : mode **Mindmap** (`/figures/arbre?mode=mindmap`) — hub + catégories + figures
+
+### 🚀 Improved
+- Catalogue figures : état fold/unfold des catégories conservé à la navigation (`sessionStorage`)
+- Mindmap : remplissage LTR des cards catégorie / sous-module + check vert à 100 %
+- Mindmap : branchage unifié (prérequis → arbre, sinon chaîne ordonnée) — plus de grille / éventail
+- Mindmap : nœuds de **sous-modules** (Débuter / Twintip avancé) entre catégorie et figures
+- Mindmap : arbre gauche→droite aligné + bouton **Réorganiser** (zoom 100 %, vue hub)
+
+### 🔧 Changed
+- **Body drag upwind**, **Water relaunch**, **Controlled stop** → Débuter / À l'eau
+- Tuto **How to Kitesurf: Bodydrag Tutorial** mergé dans **La nage tractée** (`body-drag`)
+- Catégories **Foil / Hydrofoil** + **Kitefoil** fusionnées sous **Kitefoil** ; doublons `tack-foil` → `kitefoil-tack`, `jibe-foil` → `kitefoil-jibe`
+- Merges catalogue : relaunch / fenêtre de vol / edging / raley / largage / recommandations / gréage / transitions / leash / décollage-atterrissage (vidéos land → atterrissage)
+
+## 2026-08-13
+
+### 🔧 Changed
+- Favoris figures : filtre **Favoris** sur `/figures` (page `/favoris` redirige vers `?favorites=1`)
+- Figures : activation de toutes celles qui ont ≥1 vidéo (147 activées)
+- Catalogue figures : filtres catégories en multi-select dropdown (à la place des chips)
+- Figures catégorie **Sécurité** → **Débuter** / sous-module **La sécurité** (orders 607–618)
+- Catalogue figures : suppression du filtre de tri « Ordre conseillé » (ordre pédagogique fixe)
+- Catalogue figures : catégories repliables (clic titre + Tout ouvrir / Tout replier)
+
+### ✨ Added
+- Import Tutos Kitesurf UCPA : `npm run import:ucpa-kitesurf` — 14 tutos playlist (merges Débuter / freestyle / strapless)
+- Import Tutos Wingfoil : `npm run import:wingfoil-tutos` — 10 tutos playlist (merge + créations)
+
 ## 2026-08-12
 
 ### 🚀 Improved

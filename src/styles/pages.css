@@ -772,6 +772,35 @@
   color: var(--aqua-deep);
   margin-bottom: 12px;
 }
+.figure-section.is-collapsed h2 { margin-bottom: 0; }
+.figure-section-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.figure-section-toggle:hover { opacity: 0.85; }
+.figure-section-chevron {
+  display: inline-block;
+  width: 1em;
+  color: var(--mist);
+  font-size: 0.85em;
+}
+.figure-section-count {
+  margin-left: auto;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--mist);
+}
 /* Sous-modules Débuter (dossiers de la formation) */
 .figure-subsection { margin: 0 0 18px; }
 .figure-subsection h3 {
@@ -1309,6 +1338,23 @@ span.prereq-chip.inactive.avance-new {
   gap: 12px;
   margin: 0 0 10px;
 }
+.admin-reorder-btns {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.admin-reorder-btns .btn {
+  padding: 2px 8px;
+  min-width: 32px;
+  line-height: 1.2;
+  font-size: 0.85rem;
+}
+.admin-reorder-hint {
+  margin: 0 0 14px;
+  font-size: 0.82rem;
+  color: var(--mist);
+  font-weight: 600;
+}
 .admin-cat-toggle {
   flex: 1;
   display: flex;
@@ -1362,6 +1408,43 @@ span.prereq-chip.inactive.avance-new {
 .admin-cat-block.is-collapsed .admin-cat-head { margin-bottom: 0; }
 .admin-no-video { color: var(--mist); font-weight: 600; }
 .admin-cat-block .admin-table-wrap { margin-top: 0; }
+
+.admin-subsections {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-left: 8px;
+}
+.admin-subsection-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0 0 8px;
+  padding: 6px 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: var(--navy);
+}
+.admin-subsection-toggle:hover .admin-subsection-title {
+  color: var(--aqua-deep);
+}
+.admin-subsection-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+.admin-subsection-label {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--mist);
+  margin: 0 0 8px;
+}
+.admin-subsection.is-collapsed .admin-subsection-toggle {
+  margin-bottom: 0;
+}
 
 .admin-table-wrap {
   width: 100%;
@@ -3323,16 +3406,106 @@ button.linkish {
   border-color: var(--aqua-deep);
   box-shadow: 0 0 0 3px rgba(42, 155, 176, 0.18);
 }
-.figures-sort {
+
+/* Multi-select catégories (remplace les chips) */
+.figures-cat-select {
+  position: relative;
+  flex: 0 1 240px;
+  min-width: 160px;
+}
+.figures-cat-trigger {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   padding: 10px 14px;
   border-radius: 999px;
   border: 1px solid var(--line-strong);
   background: var(--card-solid);
-  color: var(--navy-soft);
+  color: var(--navy);
   font-family: inherit;
-  font-size: 0.82rem;
+  font-size: 0.88rem;
   font-weight: 700;
   cursor: pointer;
+  text-align: left;
+}
+.figures-cat-trigger.has-selection,
+.figures-cat-trigger.open {
+  border-color: var(--aqua-deep);
+  box-shadow: 0 0 0 3px rgba(42, 155, 176, 0.14);
+}
+.figures-cat-trigger-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.figures-cat-chevron {
+  color: var(--mist);
+  font-size: 0.75rem;
+  flex-shrink: 0;
+}
+.figures-cat-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  left: 0;
+  z-index: 40;
+  max-height: min(360px, 60vh);
+  display: flex;
+  flex-direction: column;
+  border-radius: 16px;
+  border: 1px solid var(--line-strong);
+  background: var(--card-solid);
+  box-shadow: 0 12px 32px rgba(15, 40, 60, 0.14);
+  overflow: hidden;
+}
+.figures-cat-menu-actions {
+  display: flex;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.figures-cat-menu-actions button {
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--aqua-deep);
+  background: transparent;
+  border: none;
+  padding: 4px 6px;
+  cursor: pointer;
+}
+.figures-cat-menu-actions button:hover {
+  text-decoration: underline;
+}
+.figures-cat-options {
+  list-style: none;
+  margin: 0;
+  padding: 6px 0;
+  overflow-y: auto;
+}
+.figures-cat-options label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  font-size: 0.86rem;
+  font-weight: 600;
+  color: var(--navy-soft);
+  cursor: pointer;
+}
+.figures-cat-options label:hover,
+.figures-cat-options label.checked {
+  background: rgba(42, 155, 176, 0.08);
+  color: var(--navy);
+}
+.figures-cat-options input {
+  accent-color: var(--aqua-deep);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
 }
 
 /* ---------- Fiche figure : carnet perso ---------- */
@@ -3650,6 +3823,179 @@ button.linkish {
   color: #c0392b;
 }
 
+/* Toggle Arbre / Mindmap */
+.arbre-mode-toggle {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 16px;
+}
+.arbre-mode-toggle .btn.is-active {
+  border-color: var(--aqua-deep);
+  background: color-mix(in srgb, var(--aqua-deep) 14%, var(--card));
+  color: var(--navy);
+}
+
+/* Mindmap */
+.mindmap-wrap { margin-top: 8px; }
+.mindmap-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.mindmap-zoom {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+.mindmap-zoom-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--card-solid);
+  color: var(--navy);
+  font-size: 1.1rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+.mindmap-zoom-pct {
+  min-width: 3.4em;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--mist);
+}
+.mindmap-zoom-fit { padding: 4px 10px; }
+.mindmap-viewport { height: min(72vh, 720px); }
+.mindmap-scaler { position: relative; }
+.mindmap-canvas { transform-origin: 0 0; }
+.mindmap-node {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line-strong);
+  background: var(--card-solid);
+  color: var(--navy);
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-decoration: none;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+  z-index: 1;
+}
+.mindmap-node.hub {
+  justify-content: center;
+  background: linear-gradient(135deg, var(--aqua-deep), #3db8c9);
+  color: #fff;
+  border-color: transparent;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: default;
+  z-index: 2;
+}
+.mindmap-node.category {
+  border-width: 2px;
+  border-color: var(--mm, var(--aqua-deep));
+}
+.mindmap-node.section {
+  border-width: 1.5px;
+  border-color: var(--mm, var(--aqua-deep));
+  font-size: 0.74rem;
+}
+.mindmap-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  background: color-mix(in srgb, var(--success) 40%, transparent);
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  transition: width 0.28s ease;
+}
+.mindmap-node.category > :not(.mindmap-fill),
+.mindmap-node.section > :not(.mindmap-fill) {
+  position: relative;
+  z-index: 1;
+}
+.mindmap-node.is-complete {
+  border-color: var(--success);
+}
+.mindmap-node.is-complete .mindmap-fill {
+  background: color-mix(in srgb, var(--success) 48%, transparent);
+}
+.mindmap-node.is-complete .mindmap-cat-chevron,
+.mindmap-node.is-complete .mindmap-cat-count {
+  color: var(--success);
+}
+.mindmap-node.category.is-collapsed,
+.mindmap-node.section.is-collapsed { opacity: 0.92; }
+.mindmap-cat-chevron {
+  color: var(--mist);
+  font-size: 0.7rem;
+}
+.mindmap-cat-count {
+  margin-left: auto;
+  font-size: 0.7rem;
+  color: var(--mist);
+  font-weight: 700;
+}
+.mindmap-node-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mindmap-node.figure.done {
+  border-color: color-mix(in srgb, var(--success) 55%, var(--line-strong));
+  background: color-mix(in srgb, var(--success) 10%, var(--card-solid));
+}
+.mindmap-node.figure.open {
+  border-color: color-mix(in srgb, var(--aqua-deep) 50%, var(--line-strong));
+}
+.mindmap-node.figure.locked { opacity: 0.55; }
+.mindmap-node.figure.inactive {
+  opacity: 0.45;
+  cursor: default;
+  flex-direction: column;
+  align-items: flex-start;
+  white-space: normal;
+  border-style: dashed;
+}
+.mindmap-edge {
+  stroke-width: 1.6;
+  stroke-dasharray: 4 5;
+  opacity: 0.7;
+  stroke: var(--mm, var(--aqua-deep));
+}
+.mindmap-node.color-0,
+.mindmap-edge.color-0 { --mm: #2a9bb0; }
+.mindmap-node.color-1,
+.mindmap-edge.color-1 { --mm: #3d8b6e; }
+.mindmap-node.color-2,
+.mindmap-edge.color-2 { --mm: #c47a2c; }
+.mindmap-node.color-3,
+.mindmap-edge.color-3 { --mm: #3b6ea5; }
+.mindmap-node.color-4,
+.mindmap-edge.color-4 { --mm: #8b5a3c; }
+.mindmap-node.color-5,
+.mindmap-edge.color-5 { --mm: #5c7a3a; }
+.mindmap-node.color-6,
+.mindmap-edge.color-6 { --mm: #b85c4a; }
+.mindmap-node.color-7,
+.mindmap-edge.color-7 { --mm: #4a6d8c; }
+
 /* ============ PHASE 5 — défis entre amis ============ */
 .challenges-card { margin-bottom: 28px; }
 .community-lead {
@@ -3780,8 +4126,10 @@ button.linkish {
 /* ---------- Mobile : stats / défis / onboarding / arbre ---------- */
 @media (max-width: 768px) {
   .figures-toolbar { flex-direction: column; }
-  .figures-search,
-  .figures-sort { font-size: 16px; min-height: 48px; }
+  .figures-search { font-size: 16px; min-height: 48px; }
+  .figures-cat-select { flex: 1 1 auto; width: 100%; min-width: 0; }
+  .figures-cat-trigger { min-height: 48px; font-size: 16px; }
+  .figures-cat-menu { left: 0; right: 0; }
 
   .week-recap-stats { grid-template-columns: repeat(2, 1fr); }
   .stats-cat-row { grid-template-columns: minmax(110px, 1.2fr) 1fr 44px; gap: 8px; }

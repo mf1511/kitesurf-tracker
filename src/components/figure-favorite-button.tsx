@@ -11,11 +11,14 @@ export default function FigureFavoriteButton({
   initialFavorite,
   size = "md",
   showLabel = false,
+  onChange,
 }: {
   figureId: string;
   initialFavorite: boolean;
   size?: Size;
   showLabel?: boolean;
+  /** Sync parent (ex. filtre Favoris du catalogue) */
+  onChange?: (favorite: boolean) => void;
 }) {
   const toast = useToast();
   const [favorite, setFavorite] = useState(initialFavorite);
@@ -25,6 +28,7 @@ export default function FigureFavoriteButton({
     if (busy) return;
     const prev = favorite;
     setFavorite(!prev);
+    onChange?.(!prev);
     setBusy(true);
     try {
       const res = await fetch(`/api/figures/${figureId}/favorite`, {
@@ -32,13 +36,16 @@ export default function FigureFavoriteButton({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Erreur");
-      setFavorite(!!data.favorite);
+      const next = !!data.favorite;
+      setFavorite(next);
+      onChange?.(next);
       toast(
-        data.favorite ? "Ajoutée aux favoris" : "Retirée des favoris",
+        next ? "Ajoutée aux favoris" : "Retirée des favoris",
         "success"
       );
     } catch {
       setFavorite(prev);
+      onChange?.(prev);
       toast("Impossible de mettre à jour le favori", "error");
     } finally {
       setBusy(false);
