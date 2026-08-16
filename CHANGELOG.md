@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-08-16
+
+### 🚀 Improved
+- Mindmap : plus d’espace sur les derniers nœuds (colonnes prérequis + pastilles « Bientôt »)
+- Mindmap : pointillés plus coupés par les cards (gouttière entre colonnes + traits au-dessus)
+
 ## 2026-08-14
 
 ### ✨ Added

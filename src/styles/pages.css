@@ -3895,6 +3895,8 @@ button.linkish {
 .mindmap-viewport { height: min(72vh, 720px); }
 .mindmap-scaler { position: relative; }
 .mindmap-canvas { transform-origin: 0 0; }
+/* Traits au-dessus des figures : pas de pointillés coupés par une card */
+.mindmap-canvas .skill-tree-edges { z-index: 2; }
 .mindmap-node {
   position: absolute;
   display: inline-flex;
@@ -3924,16 +3926,19 @@ button.linkish {
   font-size: 0.95rem;
   font-weight: 800;
   cursor: default;
-  z-index: 2;
+  z-index: 3;
 }
+.mindmap-node.figure { z-index: 1; }
 .mindmap-node.category {
   border-width: 2px;
   border-color: var(--mm, var(--aqua-deep));
+  z-index: 3;
 }
 .mindmap-node.section {
   border-width: 1.5px;
   border-color: var(--mm, var(--aqua-deep));
   font-size: 0.74rem;
+  z-index: 3;
 }
 .mindmap-fill {
   position: absolute;

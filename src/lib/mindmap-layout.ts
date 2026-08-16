@@ -101,9 +101,15 @@ const CAT_H = 36;
 const SEC_W = 188;
 const SEC_H = 34;
 const FIG_H = 30;
+/** Feuilles inactives : label + « Bientôt » */
+const FIG_H_SOON = 44;
 const ROW_H = 40;
+/** DAG (dernières colonnes) : un peu plus d’air que la chaîne */
+const DAG_ROW_H = 50;
 const CHAIN_GAP = 20;
-const DAG_COL_W = 196;
+const FIG_W_MAX = 196;
+/** Colonne DAG = largeur max pastille + gouttière (évite le recouvrement) */
+const DAG_COL_W = FIG_W_MAX + 56;
 /** Au-delà, la chaîne sans prérequis passe à la ligne (ordre conservé) */
 const CHAIN_WRAP = 8;
 const GAP_HUB_CAT = 72;
@@ -126,7 +132,11 @@ function sortFigs(figs: MindmapFigureInput[]) {
 }
 
 function estimateFigWidth(label: string) {
-  return Math.min(220, Math.max(140, 12 + label.length * 7.2));
+  return Math.min(FIG_W_MAX, Math.max(140, 12 + label.length * 7.2));
+}
+
+function figHeight(f: MindmapFigureInput) {
+  return f.active === false ? FIG_H_SOON : FIG_H;
 }
 
 function pushFig(
@@ -136,7 +146,8 @@ function pushFig(
   w: number,
   category: string,
   colorIndex: number,
-  nodes: MindmapNode[]
+  nodes: MindmapNode[],
+  h = figHeight(f)
 ) {
   nodes.push({
     kind: "figure",
@@ -152,7 +163,7 @@ function pushFig(
     x,
     y,
     w,
-    h: FIG_H,
+    h,
   });
 }
 
@@ -233,14 +244,16 @@ function placeDag(
     maxRows = Math.max(maxRows, list.length);
     list.forEach((f, row) => {
       const w = estimateFigWidth(f.name);
+      const h = figHeight(f);
       pushFig(
         f,
         x0 + c * DAG_COL_W,
-        y0 + row * ROW_H + (ROW_H - FIG_H) / 2,
+        y0 + row * DAG_ROW_H + (DAG_ROW_H - h) / 2,
         w,
         category,
         colorIndex,
-        nodes
+        nodes,
+        h
       );
       const parents = (f.prereqIds ?? []).filter((p) => ids.has(p));
       if (parents.length === 0) {
@@ -252,7 +265,7 @@ function placeDag(
       }
     });
   }
-  return maxRows * ROW_H;
+  return maxRows * DAG_ROW_H;
 }
 
 /** Même règle partout : prérequis → arbre, sinon chaîne ordonnée */
