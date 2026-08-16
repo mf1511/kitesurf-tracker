@@ -75,10 +75,7 @@ export default async function FiguresPage({
 
       <div className="offline-pack-bar">
         <Link href="/figures/arbre" className="btn btn-ghost">
-          🌳 Arbre de progression
-        </Link>
-        <Link href="/figures/arbre?mode=mindmap" className="btn btn-ghost">
-          Mindmap
+          🌳 Mindmap
         </Link>
       </div>
 

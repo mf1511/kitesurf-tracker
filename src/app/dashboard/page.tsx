@@ -427,7 +427,7 @@ export default async function DashboardPage() {
           {worlds.map((w) => (
             <li key={w.cat}>
               <Link
-                href={`/figures/arbre?category=${encodeURIComponent(w.cat)}`}
+                href="/figures/arbre"
                 className="dash-world-row"
               >
                 <span className="dash-world-label">

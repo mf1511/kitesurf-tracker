@@ -2,6 +2,9 @@
 
 ## 2026-08-16
 
+### 🔧 Changed
+- Arbre de progression : plus que la **mindmap** (onglet Arbre retiré)
+
 ### 🚀 Improved
 - Mindmap : plus d’espace sur les derniers nœuds (colonnes prérequis + pastilles « Bientôt »)
 - Mindmap : pointillés plus coupés par les cards (gouttière entre colonnes + traits au-dessus)

@@ -3845,18 +3845,6 @@ button.linkish {
   color: #c0392b;
 }
 
-/* Toggle Arbre / Mindmap */
-.arbre-mode-toggle {
-  display: flex;
-  gap: 8px;
-  margin: 0 0 16px;
-}
-.arbre-mode-toggle .btn.is-active {
-  border-color: var(--aqua-deep);
-  background: color-mix(in srgb, var(--aqua-deep) 14%, var(--card));
-  color: var(--navy);
-}
-
 /* Mindmap */
 .mindmap-wrap { margin-top: 8px; }
 .mindmap-toolbar {
