@@ -1510,6 +1510,7 @@ span.prereq-chip.inactive.avance-new {
 .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .admin-form label { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; color: var(--mist); font-weight: 700; }
 .admin-form input,
+.admin-form select,
 .admin-form textarea {
   background: var(--surface);
   border: 1px solid var(--line-strong);
@@ -1521,6 +1522,7 @@ span.prereq-chip.inactive.avance-new {
   resize: vertical;
 }
 .admin-form input:focus,
+.admin-form select:focus,
 .admin-form textarea:focus { outline: none; border-color: var(--aqua-deep); }
 .admin-label { font-size: 0.85rem; color: var(--mist); margin: 0 0 8px; font-weight: 700; }
 .admin-block { border-top: 1px solid var(--line); padding-top: 16px; }

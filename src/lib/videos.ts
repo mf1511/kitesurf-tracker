@@ -1,8 +1,11 @@
 /** Bucket Supabase Storage pour les tutos figures */
 export const FIGURE_VIDEOS_BUCKET = "figure-videos";
 
-/** Taille max par fichier (100 Mo) */
+/** Taille max Storage (100 Mo) */
 export const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
+
+/** Au-dessus, l’admin recompresse tout seul (sous la limite Storage 100 Mo) */
+export const VIDEO_COMPRESS_TARGET_BYTES = 80 * 1024 * 1024;
 
 /** MIME autorisés */
 export const ALLOWED_VIDEO_MIMES = new Set([

@@ -32,6 +32,8 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.10",
+    "@ffmpeg/util": "^0.12.2",
     "@prisma/client": "^5.20.0",
     "@supabase/supabase-js": "^2.49.8",
     "bcryptjs": "^2.4.3",

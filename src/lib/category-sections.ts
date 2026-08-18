@@ -19,6 +19,11 @@ export function withModule(desc: string, section: string): string {
   return `Module « ${section} » — ${desc}`;
 }
 
+/** Retire le préfixe Module « … » — (figure hors sous-module) */
+export function stripModule(desc: string): string {
+  return desc.replace(/Module\s*«\s*[^»]+\s*»\s*—\s*/u, "").trim();
+}
+
 export function sortNamedSections(
   order: readonly string[],
   sections: string[]

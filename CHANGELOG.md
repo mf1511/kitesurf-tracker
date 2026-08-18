@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-08-18
+
+### 🔧 Changed
+- Admin : création / édition de figure — select **catégorie** + **sous-catégorie**
+- Admin : upload vidéo dès la **création** d’une figure
+- Admin : compression auto des vidéos **> 80 Mo** avant upload
+- SQL `023` : limite bucket `figure-videos` portée à **100 Mo** (le Pro ne change pas `file_size_limit`)
+
 ## 2026-08-16
 
 ### 🔧 Changed

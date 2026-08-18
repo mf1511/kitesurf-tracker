@@ -1,7 +1,14 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
+import { uploadAdminFigureVideo } from "@/lib/admin-figure-video-upload";
+import { stripModule, withModule } from "@/lib/category-sections";
+import {
+  resolveFigureSection,
+  sectionsForCategory,
+} from "@/lib/figure-sections";
+import { VIDEO_COMPRESS_TARGET_BYTES } from "@/lib/videos";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type FigureOption = { id: string; slug: string; name: string; category: string };
@@ -30,12 +37,39 @@ export default function AdminFigureForm({
   const [slug, setSlug] = useState(initial?.slug || "");
   const [name, setName] = useState(initial?.name || "");
   const [category, setCategory] = useState(initial?.category || categories[0] || "");
+  const [section, setSection] = useState(() => {
+    if (initial) {
+      return (
+        resolveFigureSection(
+          initial.category,
+          initial.description,
+          initial.order,
+          initial.slug,
+          initial.name
+        ) ?? ""
+      );
+    }
+    return sectionsForCategory(categories[0] || "")[0] ?? "";
+  });
   const [description, setDescription] = useState(initial?.description || "");
   const [stepsText, setStepsText] = useState((initial?.steps || []).join("\n"));
   const [order, setOrder] = useState(initial?.order ?? 0);
   const [prereqs, setPrereqs] = useState<Set<string>>(new Set(initial?.prerequisiteSlugs || []));
+  const [pendingVideos, setPendingVideos] = useState<File[]>([]);
+  const [uploadHint, setUploadHint] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const sectionOptions = useMemo(
+    () => sectionsForCategory(category),
+    [category]
+  );
+
+  function onCategoryChange(next: string) {
+    setCategory(next);
+    const nextSections = sectionsForCategory(next);
+    if (!nextSections.includes(section)) setSection(nextSections[0] ?? "");
+  }
 
   function togglePrereq(s: string) {
     setPrereqs((prev) => {
@@ -55,7 +89,9 @@ export default function AdminFigureForm({
       slug,
       name,
       category,
-      description,
+      description: section
+        ? withModule(description, section)
+        : stripModule(description),
       steps: stepsText.split("\n").map((s) => s.trim()).filter(Boolean),
       order: Number(order) || 0,
       prerequisiteSlugs: Array.from(prereqs),
@@ -70,13 +106,36 @@ export default function AdminFigureForm({
       body: JSON.stringify(payload),
     });
 
-    setLoading(false);
     if (!res.ok) {
+      setLoading(false);
       const data = await res.json().catch(() => ({}));
       setError(data.error || "Erreur lors de l'enregistrement");
       return;
     }
 
+    const created = (await res.json()) as { slug?: string };
+    const figureSlug = created.slug || slug;
+    if (mode === "create" && figureSlug && pendingVideos.length > 0) {
+      try {
+        for (const file of pendingVideos) {
+          await uploadAdminFigureVideo(figureSlug, file, (p) => {
+            setUploadHint(p.label);
+          });
+        }
+      } catch (err) {
+        setLoading(false);
+        setError(
+          err instanceof Error
+            ? `Figure créée, mais vidéo : ${err.message}`
+            : "Figure créée, upload vidéo échoué"
+        );
+        router.push(`/admin/figures/${figureSlug}/edit`);
+        router.refresh();
+        return;
+      }
+    }
+
+    setLoading(false);
     router.push("/admin");
     router.refresh();
   }
@@ -120,23 +179,54 @@ export default function AdminFigureForm({
       <div className="admin-grid">
         <label>
           Catégorie
-          <input
-            list="categories-list"
+          <select
             value={category}
-            onChange={(e) => setCategory(e.target.value)}
+            onChange={(e) => onCategoryChange(e.target.value)}
             required
-          />
-          <datalist id="categories-list">
+          >
             {categories.map((c) => (
-              <option key={c} value={c} />
+              <option key={c} value={c}>
+                {c}
+              </option>
             ))}
-          </datalist>
+          </select>
         </label>
+        {sectionOptions.length > 0 ? (
+          <label>
+            Sous-catégorie
+            <select
+              value={section}
+              onChange={(e) => setSection(e.target.value)}
+            >
+              <option value="">Autres (sans sous-module)</option>
+              {sectionOptions.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : (
+          <label>
+            Ordre d&apos;affichage
+            <input
+              type="number"
+              value={order}
+              onChange={(e) => setOrder(Number(e.target.value))}
+            />
+          </label>
+        )}
+      </div>
+      {sectionOptions.length > 0 ? (
         <label>
           Ordre d&apos;affichage
-          <input type="number" value={order} onChange={(e) => setOrder(Number(e.target.value))} />
+          <input
+            type="number"
+            value={order}
+            onChange={(e) => setOrder(Number(e.target.value))}
+          />
         </label>
-      </div>
+      ) : null}
 
       <label>
         Description
@@ -147,6 +237,28 @@ export default function AdminFigureForm({
           required
         />
       </label>
+
+      {mode === "create" ? (
+        <label className="admin-videos-upload">
+          <span>Vidéos (optionnel)</span>
+          <input
+            type="file"
+            accept="video/mp4,video/webm,video/quicktime"
+            multiple
+            onChange={(e) => {
+              const next = e.target.files ? Array.from(e.target.files) : [];
+              setPendingVideos(next);
+            }}
+          />
+          <span className="feed-meta">
+            mp4 / webm / mov — au-delà de{" "}
+            {VIDEO_COMPRESS_TARGET_BYTES / (1024 * 1024)} Mo, compression auto
+            {pendingVideos.length > 0
+              ? ` · ${pendingVideos.length} fichier${pendingVideos.length > 1 ? "s" : ""}`
+              : ""}
+          </span>
+        </label>
+      ) : null}
 
       <label>
         Étapes (une par ligne)
@@ -181,7 +293,13 @@ export default function AdminFigureForm({
 
       <div className="admin-actions">
         <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? "Enregistrement..." : mode === "create" ? "Créer la figure" : "Enregistrer"}
+          {loading
+            ? mode === "create" && pendingVideos.length > 0
+              ? uploadHint || "Création et upload..."
+              : "Enregistrement..."
+            : mode === "create"
+              ? "Créer la figure"
+              : "Enregistrer"}
         </button>
         {mode === "edit" && (
           <button type="button" className="btn btn-danger" onClick={handleDelete}>

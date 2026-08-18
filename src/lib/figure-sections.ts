@@ -2,59 +2,74 @@
 
 import {
   BASES_TRANSITIONS_CATEGORY,
+  BASES_TRANSITIONS_SECTIONS,
   resolveBasesTransitionsSection,
   sortBasesTransitionsSections,
 } from "@/lib/bases-transitions";
-import { resolveDebuterSection, sortDebuterSections } from "@/lib/debuter";
+import {
+  DEBUTER_SECTIONS,
+  resolveDebuterSection,
+  sortDebuterSections,
+} from "@/lib/debuter";
 import {
   HANDLE_PASSES_CATEGORY,
+  HANDLE_PASSES_SECTIONS,
   resolveHandlePassesSection,
   sortHandlePassesSections,
 } from "@/lib/handle-passes";
 import {
   KITEFOIL_CATEGORY,
+  KITEFOIL_SECTIONS,
   resolveKitefoilSection,
   sortKitefoilSections,
 } from "@/lib/kitefoil";
 import {
   KITELOOPS_CATEGORY,
+  KITELOOPS_SECTIONS,
   resolveKiteloopsSection,
   sortKiteloopsSections,
 } from "@/lib/kiteloops";
 import {
   OLD_SCHOOL_CATEGORY,
+  OLD_SCHOOL_SECTIONS,
   resolveOldSchoolSection,
   sortOldSchoolSections,
 } from "@/lib/old-school";
 import {
   resolveSautsBigAirSection,
   SAUTS_BIG_AIR_CATEGORY,
+  SAUTS_BIG_AIR_SECTIONS,
   sortSautsBigAirSections,
 } from "@/lib/sauts-big-air";
 import {
   resolveStraplessSection,
   sortStraplessSections,
   STRAPLESS_CATEGORY,
+  STRAPLESS_SECTIONS,
 } from "@/lib/strapless";
 import {
   resolveSurfaceTricksSection,
   sortSurfaceTricksSections,
   SURFACE_TRICKS_CATEGORY,
+  SURFACE_TRICKS_SECTIONS,
 } from "@/lib/surface-tricks";
 import {
   resolveUnhookedSection,
   sortUnhookedSections,
   UNHOOKED_CATEGORY,
+  UNHOOKED_SECTIONS,
 } from "@/lib/unhooked";
 import {
   resolveWaveRidingSection,
   sortWaveRidingSections,
   WAVE_RIDING_CATEGORY,
+  WAVE_RIDING_SECTIONS,
 } from "@/lib/wave-riding";
 import {
   resolveWingfoilSection,
   sortWingfoilSections,
   WINGFOIL_CATEGORY,
+  WINGFOIL_SECTIONS,
 } from "@/lib/wingfoil";
 
 type Resolver = (
@@ -154,4 +169,23 @@ export function sortFigureSections(
   sections: string[]
 ): string[] {
   return findSectioned(category)?.sort(sections) ?? sortDebuterSections(sections);
+}
+
+/** Liste des sous-modules connus pour une catégorie (admin / selects) */
+export function sectionsForCategory(category: string): string[] {
+  const lists: Record<string, readonly string[]> = {
+    Débuter: DEBUTER_SECTIONS,
+    [SAUTS_BIG_AIR_CATEGORY]: SAUTS_BIG_AIR_SECTIONS,
+    [BASES_TRANSITIONS_CATEGORY]: BASES_TRANSITIONS_SECTIONS,
+    [KITEFOIL_CATEGORY]: KITEFOIL_SECTIONS,
+    [WINGFOIL_CATEGORY]: WINGFOIL_SECTIONS,
+    [STRAPLESS_CATEGORY]: STRAPLESS_SECTIONS,
+    [WAVE_RIDING_CATEGORY]: WAVE_RIDING_SECTIONS,
+    [SURFACE_TRICKS_CATEGORY]: SURFACE_TRICKS_SECTIONS,
+    [OLD_SCHOOL_CATEGORY]: OLD_SCHOOL_SECTIONS,
+    [KITELOOPS_CATEGORY]: KITELOOPS_SECTIONS,
+    [UNHOOKED_CATEGORY]: UNHOOKED_SECTIONS,
+    [HANDLE_PASSES_CATEGORY]: HANDLE_PASSES_SECTIONS,
+  };
+  return [...(lists[category] ?? [])];
 }

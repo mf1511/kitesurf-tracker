@@ -2,7 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { formatBytes, MAX_VIDEO_BYTES } from "@/lib/videos";
+import { uploadAdminFigureVideo } from "@/lib/admin-figure-video-upload";
+import {
+  formatBytes,
+  VIDEO_COMPRESS_TARGET_BYTES,
+} from "@/lib/videos";
 import { useConfirm } from "@/components/ui/confirm-dialog";
 
 type AdminVideo = {
@@ -24,6 +28,7 @@ type UploadJob = {
   key: string;
   name: string;
   progress: number;
+  label?: string;
   error?: string;
 };
 
@@ -53,67 +58,21 @@ export default function AdminFigureVideos({ slug, initialVideos }: Props) {
       setJobs((j) => [...j, { key, name: file.name, progress: 0 }]);
 
       try {
-        if (!file.type.startsWith("video/")) {
-          throw new Error("Fichier non vidéo");
-        }
-        if (file.size > MAX_VIDEO_BYTES) {
-          throw new Error(`Max ${MAX_VIDEO_BYTES / (1024 * 1024)} Mo`);
-        }
-
-        const prep = await fetch(`/api/admin/figures/${slug}/videos`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            mimeType: file.type,
-            sizeBytes: file.size,
-            fileName: file.name,
-          }),
+        await uploadAdminFigureVideo(slug, file, (p) => {
+          const mapped =
+            p.phase === "compress" ? p.progress * 0.65 : 0.65 + p.progress * 0.35;
+          setJobs((j) =>
+            j.map((job) =>
+              job.key === key
+                ? { ...job, progress: mapped, label: p.label }
+                : job
+            )
+          );
         });
-        const prepData = await prep.json().catch(() => ({}));
-        if (!prep.ok) {
-          throw new Error(prepData.error || "Préparation upload échouée");
-        }
-
         setJobs((j) =>
-          j.map((job) => (job.key === key ? { ...job, progress: 0.15 } : job))
-        );
-
-        // Upload direct vers Supabase signed URL (évite la limite body Vercel)
-        const put = await fetch(prepData.upload.signedUrl, {
-          method: "PUT",
-          headers: { "Content-Type": file.type },
-          body: file,
-        });
-        if (!put.ok) {
-          // Nettoyage best-effort de la row orpheline
-          await fetch(`/api/admin/figures/${slug}/videos/${prepData.video.id}`, {
-            method: "DELETE",
-          }).catch(() => {});
-          throw new Error(`Upload Storage échoué (${put.status})`);
-        }
-
-        setJobs((j) =>
-          j.map((job) => (job.key === key ? { ...job, progress: 0.85 } : job))
-        );
-
-        const done = await fetch(
-          `/api/admin/figures/${slug}/videos/${prepData.video.id}/complete`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              sizeBytes: file.size,
-              mimeType: file.type,
-            }),
-          }
-        );
-        if (!done.ok) {
-          const d = await done.json().catch(() => ({}));
-          throw new Error(d.error || "Confirmation upload échouée");
-        }
-
-        setJobs((j) =>
-          j.map((job) => (job.key === key ? { ...job, progress: 1 } : job))
+          j.map((job) =>
+            job.key === key ? { ...job, progress: 1, label: "Terminé" } : job
+          )
         );
       } catch (err) {
         const message = err instanceof Error ? err.message : "Erreur upload";
@@ -200,8 +159,8 @@ export default function AdminFigureVideos({ slug, initialVideos }: Props) {
     <section className="admin-videos">
       <h2>Vidéos (Supabase Storage)</h2>
       <p className="community-lead">
-        Plusieurs fichiers mp4 / webm / mov par figure — max{" "}
-        {MAX_VIDEO_BYTES / (1024 * 1024)} Mo chacun. Upload admin uniquement.
+        Plusieurs fichiers mp4 / webm / mov. Tu poses le fichier : au-delà de{" "}
+        {VIDEO_COMPRESS_TARGET_BYTES / (1024 * 1024)} Mo, compression auto.
       </p>
 
       <label className="admin-videos-upload">
@@ -225,7 +184,10 @@ export default function AdminFigureVideos({ slug, initialVideos }: Props) {
               {job.error ? (
                 <span className="form-error">{job.error}</span>
               ) : (
-                <span>{Math.round(job.progress * 100)}%</span>
+                <span>
+                  {job.label ? `${job.label} ` : ""}
+                  {Math.round(job.progress * 100)}%
+                </span>
               )}
             </li>
           ))}
