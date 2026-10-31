@@ -17,7 +17,6 @@ export const KITELOOPS_SECTIONS = [
 
 export const KITELOOPS_FIGURES: SectionFigure[] = [
   { slug: "down-loop", section: "Bases", order: 101 },
-  { slug: "down-loop-transition", section: "Bases", order: 102 },
   { slug: "kite-loop-simple", section: "Bases", order: 103 },
   { slug: "heli-loop", section: "Bases", order: 104 },
   { slug: "kite-loop-pendant-saut", section: "En saut", order: 201 },

@@ -3,24 +3,32 @@ import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
 import {
+  createR2SignedUploadUrl,
+  isR2Enabled,
+} from "@/lib/r2";
+import {
   ALLOWED_VIDEO_MIMES,
-  FIGURE_VIDEOS_BUCKET,
   MAX_VIDEO_BYTES,
   extensionForMime,
   publicVideoUrl,
 } from "@/lib/videos";
 
-/** Liste les vidéos Storage d’une figure (admin) */
+/** Liste les vidéos d’une figure (admin) */
 export async function GET(
   _req: Request,
   { params }: { params: { slug: string } }
 ) {
   const session = await requireAdminSession();
   if (!session) {
-    return NextResponse.json({ error: "Accès réservé aux administrateurs" }, { status: 403 });
+    return NextResponse.json(
+      { error: "Accès réservé aux administrateurs" },
+      { status: 403 }
+    );
   }
 
-  const figure = await prisma.figure.findUnique({ where: { slug: params.slug } });
+  const figure = await prisma.figure.findUnique({
+    where: { slug: params.slug },
+  });
   if (!figure) {
     return NextResponse.json({ error: "Figure introuvable" }, { status: 404 });
   }
@@ -34,7 +42,7 @@ export async function GET(
 }
 
 /**
- * Prépare un upload : crée la row + signed upload URL Storage.
+ * Prépare un upload : crée la row + signed upload URL (R2 ou Supabase).
  * Body: { title?, mimeType, sizeBytes, fileName? }
  */
 export async function POST(
@@ -43,10 +51,15 @@ export async function POST(
 ) {
   const session = await requireAdminSession();
   if (!session?.user?.id) {
-    return NextResponse.json({ error: "Accès réservé aux administrateurs" }, { status: 403 });
+    return NextResponse.json(
+      { error: "Accès réservé aux administrateurs" },
+      { status: 403 }
+    );
   }
 
-  const figure = await prisma.figure.findUnique({ where: { slug: params.slug } });
+  const figure = await prisma.figure.findUnique({
+    where: { slug: params.slug },
+  });
   if (!figure) {
     return NextResponse.json({ error: "Figure introuvable" }, { status: 404 });
   }
@@ -74,7 +87,9 @@ export async function POST(
   }
   if (sizeBytes <= 0 || sizeBytes > MAX_VIDEO_BYTES) {
     return NextResponse.json(
-      { error: `Fichier trop volumineux (max ${MAX_VIDEO_BYTES / (1024 * 1024)} Mo)` },
+      {
+        error: `Fichier trop volumineux (max ${MAX_VIDEO_BYTES / (1024 * 1024)} Mo)`,
+      },
       { status: 400 }
     );
   }
@@ -85,7 +100,6 @@ export async function POST(
   });
   const nextOrder = (maxOrder._max.order ?? -1) + 1;
 
-  // Id + path avant insert pour signer l’upload
   const id = `vid_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 9)}`;
   const ext = extensionForMime(mimeType);
   const storagePath = `${figure.id}/${id}.${ext}`;
@@ -95,8 +109,8 @@ export async function POST(
     typeof body.title === "string" && body.title.trim()
       ? body.title.trim()
       : typeof body.fileName === "string" && body.fileName.trim()
-      ? body.fileName.replace(/\.[^.]+$/, "")
-      : null;
+        ? body.fileName.replace(/\.[^.]+$/, "")
+        : null;
 
   let video;
   try {
@@ -115,13 +129,24 @@ export async function POST(
     });
   } catch (err) {
     console.error("[admin videos POST] prisma", err);
-    return NextResponse.json({ error: "Impossible de créer la vidéo" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Impossible de créer la vidéo" },
+      { status: 500 }
+    );
   }
 
   try {
+    if (isR2Enabled()) {
+      const signedUrl = await createR2SignedUploadUrl(storagePath, mimeType);
+      return NextResponse.json({
+        video,
+        upload: { signedUrl, path: storagePath, provider: "r2" },
+      });
+    }
+
     const supabase = getSupabaseAdmin();
     const { data, error } = await supabase.storage
-      .from(FIGURE_VIDEOS_BUCKET)
+      .from("figure-videos")
       .createSignedUploadUrl(storagePath);
 
     if (error || !data) {
@@ -139,13 +164,14 @@ export async function POST(
         signedUrl: data.signedUrl,
         token: data.token,
         path: data.path,
+        provider: "supabase",
       },
     });
   } catch (err) {
-    console.error("[admin videos POST] supabase", err);
+    console.error("[admin videos POST] storage", err);
     await prisma.video.delete({ where: { id } }).catch(() => {});
     return NextResponse.json(
-      { error: "Configuration Supabase Storage manquante ou invalide" },
+      { error: "Configuration Storage manquante ou invalide" },
       { status: 500 }
     );
   }

@@ -131,6 +131,6 @@ export const DUOTONE_BEGINNER_LESSONS: DuotoneBeginnerLesson[] = [
     "youtubeId": "g8VBzOsKMyM",
     "title": "BEGINNER - Downloop jibe - Duotone Academy",
     "url": "https://www.youtube.com/watch?v=g8VBzOsKMyM",
-    "mergeSlug": "power-jibe"
+    "mergeSlug": "down-loop-transition"
   }
 ];

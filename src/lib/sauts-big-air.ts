@@ -18,7 +18,6 @@ export const SAUTS_BIG_AIR_SECTIONS = [
 
 export const SAUTS_BIG_AIR_FIGURES: SectionFigure[] = [
   { slug: "backroll-simple", section: "Backroll", order: 201 },
-  { slug: "backroll-transition", section: "Backroll", order: 202 },
   { slug: "half-backroll-transition", section: "Backroll", order: 203 },
   { slug: "backroll-to-toeside", section: "Backroll", order: 204 },
   { slug: "double-backroll", section: "Backroll", order: 205 },
@@ -91,6 +90,7 @@ export const SAUTS_UNSECTIONED_SLUGS = [
   "low-kite-jump-advanced",
   "jump-transition-grab",
   "toeside-ole",
+  "toeside-backflip",
 ] as const;
 
 export function resolveSautsBigAirSection(

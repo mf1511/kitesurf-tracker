@@ -108,6 +108,8 @@ function download(lesson: KitesurfCollegeLesson, ytDlp: string): string {
     "-o",
     outTpl,
     "--no-playlist",
+    "--extractor-args",
+    "youtube:player_client=android,ios,web",
   ];
   // Compte membre Kitesurf College (Netscape cookies.txt)
   if (cookies && existsSync(cookies)) {

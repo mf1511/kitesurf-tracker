@@ -1634,5 +1634,35 @@ export const KITESURF_COLLEGE_LESSONS: KitesurfCollegeLesson[] = [
     "title": "Waterstart II (extra waterstart tips)",
     "url": "https://www.youtube.com/watch?v=F-rZzXLqoKc",
     "mergeSlug": "water-start"
-  }
+  },
+  {
+    youtubeId: "X9sPeOSPwy8",
+    title: "Toeside Backflip (Kitesurf College)",
+    url: "https://www.youtube.com/watch?v=X9sPeOSPwy8",
+    mergeSlug: "toeside-backflip",
+  },
+  {
+    youtubeId: "87qJSa_zYjY",
+    title: "Toeside Backflip to Toeside (Progression)",
+    url: "https://www.youtube.com/watch?v=87qJSa_zYjY",
+    mergeSlug: "toeside-backflip",
+  },
+  {
+    youtubeId: "u8Sat6mx-dg",
+    title: "Raley to Blind pop-out (Progression)",
+    url: "https://www.youtube.com/watch?v=u8Sat6mx-dg",
+    mergeSlug: "raley-to-blind",
+  },
+  {
+    youtubeId: "6qz3VirxNvM",
+    title: "How to Downloop Transition, Twintip Tutorial (Basic + Carving turns)",
+    url: "https://www.youtube.com/watch?v=6qz3VirxNvM",
+    mergeSlug: "down-loop-transition",
+  },
+  {
+    youtubeId: "aanawRlsOxo",
+    title: "Backroll Transition (Kitesurf College)",
+    url: "https://www.youtube.com/watch?v=aanawRlsOxo",
+    mergeSlug: "backroll-transition",
+  },
 ];

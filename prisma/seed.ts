@@ -106,11 +106,6 @@ const figures: FigureSeed[] = [
     ["Ralentir en remontant au vent", "Board à plat, kite qui change de côté", "Reprendre une carre franche"],
     ["riding-upwind"]
   ),
-  f("power-jibe", "Power jibe", CAT.BASES,
-    "Module « Transitions » — Transition dynamique avec kite en traction — base du darkslide et des transitions avancées.",
-    ["Garder de la vitesse en entrée", "Envoyer le kite en downloop / power stroke", "Repartir chargé dans le nouveau sens"],
-    ["transition-simple"]
-  ),
   f("transition-180", "Transition 180° (switch)", CAT.BASES,
     "Module « Transitions » — Léger saut avec rotation 180° pour repartir en switch.",
     ["Charger la carre pour un petit pop", "Tourner épaules puis hanches à 180°", "Réceptionner switch, kite repiloté"],
@@ -223,7 +218,7 @@ const figures: FigureSeed[] = [
   f("darkslide", "Darkslide", CAT.SURFACE,
     "Module « Darkslide » — Glisser sur le dessus (dark side) de la board, tip dans l'eau, sortie souvent en kiteloop.",
     ["Vitesse + power jibe approach", "Retourner la board (fins vers le ciel)", "Glisser tip avant dans l'eau", "Sortir en kiteloop pour se redresser"],
-    ["power-jibe", "kite-loop-simple"]
+    ["down-loop-transition", "kite-loop-simple"]
   ),
   f("darkslide-backroll-out", "Darkslide backroll out", CAT.SURFACE,
     "Module « Darkslide » — Darkslide terminé par un backroll au lieu d'un simple kiteloop.",
@@ -262,6 +257,16 @@ const figures: FigureSeed[] = [
     ["Boost propre", "Amener la board à l'horizontale face au ciel", "Revenir en position de réception"],
     ["saut-droit"]
   ),
+  f("toeside-backflip", "Toeside Backflip", CAT.BIGAIR,
+    "Backflip depuis le toeside — pop talon arrière et rotation d’épaule, kite locké.",
+    [
+      "Toeside stable, vitesse moyenne+, carre forte",
+      "Kite locké (pas de steering), pop en tapant le pied arrière",
+      "Jeter l’épaule en arrière pour tourner",
+      "Progresser : pop toeside, puis kite plus haut, puis plus bas",
+    ],
+    ["toe-side-riding", "saut-droit"]
+  ),
   f("backroll-simple", "Backroll", CAT.BIGAIR,
     "Rotation dorsale 360° — premier trick de rotation incontournable.",
     ["Regarder par-dessus l'épaule avant", "Lever les talons, initier la rotation", "Repérer l'eau et envoyer le kite avant la réception"],
@@ -272,9 +277,13 @@ const figures: FigureSeed[] = [
     ["Regarder par-dessus l'épaule arrière", "Engager les orteils / genoux", "Compléter la rotation et sheet in à la réception"],
     ["saut-droit"]
   ),
-  f("backroll-transition", "Backroll transition", CAT.BIGAIR,
-    "Backroll utilisé comme transition de bord.",
-    ["Backroll en approche de transition", "Orienter la réception dans le nouveau sens", "Repiloter le kite"],
+  f("backroll-transition", "Backroll Transition", CAT.BASES,
+    "Module « Transitions » — Backroll utilisé comme transition de bord.",
+    [
+      "Ralentir, kite qui monte vers 12",
+      "Carre au vent + pop, barre droite pendant le backroll",
+      "Steerer pour changer de sens, board downwind à la réception",
+    ],
     ["backroll-simple", "jump-transition"]
   ),
   f("backroll-to-toeside", "Backroll to Toeside", CAT.BIGAIR,
@@ -463,12 +472,17 @@ const figures: FigureSeed[] = [
   f("down-loop", "Downloop", CAT.KITELOOP,
     "Module « Bases » — Loop du kite vers le bas / devant le rider (moins violent qu'un kiteloop back).",
     ["Kite en mouvement vers l'avant", "Engager un loop descendant", "Récupérer le kite en traction contrôlée"],
-    ["saut-droit", "power-jibe"]
+    ["saut-droit", "down-loop-transition"]
   ),
-  f("down-loop-transition", "Downloop transition", CAT.KITELOOP,
-    "Module « Bases » — Transition de bord en downloopant le kite.",
-    ["Approcher la transition avec vitesse", "Downlooper le kite", "Repartir chargé dans le nouveau sens"],
-    ["down-loop", "power-jibe"]
+  f("down-loop-transition", "Downloop transition", CAT.BASES,
+    "Module « Transitions » — Transition de bord en downloopant le kite (basic + carving).",
+    [
+      "Vitesse déjà downwind avant que le kite ne power",
+      "Swap pied avant, carre talon, downloop franc (petite boucle)",
+      "Suivre le kite, flip de barre quand la puissance retombe",
+      "Recarrer crosswind pour repartir",
+    ],
+    ["transition-simple"]
   ),
   f("kite-loop-simple", "Kiteloop", CAT.KITELOOP,
     "Module « Bases » — Loop complet du kite en bord de fenêtre — figure reine du big air.",

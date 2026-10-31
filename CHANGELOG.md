@@ -1,5 +1,24 @@
 # Changelog
 
+## 2026-10-31
+
+### ✨ Added
+- Stockage vidéos figures sur **Cloudflare R2** (S3-compatible) + fallback Supabase
+- Script `migrate:r2` / `scripts/migrate-videos-to-r2.ts` (Supabase → R2 + update URLs)
+- Doc setup : `docs/r2-setup.md`
+
+### 🔧 Changed
+- Upload / complete / delete admin vidéos branchés R2 si env R2_* présentes
+
+## 2026-08-21
+
+### ✨ Added
+- Figure **Toeside Backflip** (Sauts & Big Air / Autres) + tutos Kitesurf College et Progression
+- Vidéo Progression sur **Raley to blind**
+- **Downloop transition** déplacée dans Bases / Transitions + tuto College
+- Fusion **Downloop Jibe** (`power-jibe`) → **Downloop transition** (2 vidéos)
+- **Backroll Transition** déplacée dans Bases / Transitions + tuto College
+
 ## 2026-08-18
 
 ### 🔧 Changed

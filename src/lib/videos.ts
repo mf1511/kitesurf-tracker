@@ -1,4 +1,4 @@
-/** Bucket Supabase Storage pour les tutos figures */
+/** Nom logique legacy bucket Supabase (imports / docs) */
 export const FIGURE_VIDEOS_BUCKET = "figure-videos";
 
 /** Taille max Storage (100 Mo) */
@@ -20,8 +20,16 @@ export function extensionForMime(mime: string): string {
   return "mp4";
 }
 
-/** URL publique d’un objet Storage */
+/** True si l’URL publique R2 est configurée (sans importer le SDK AWS) */
+export function isR2PublicConfigured(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL?.trim());
+}
+
+/** URL publique d’un objet vidéo (R2 si base publique set, sinon Supabase Storage) */
 export function publicVideoUrl(storagePath: string): string {
+  const r2 = process.env.NEXT_PUBLIC_R2_PUBLIC_BASE_URL?.replace(/\/$/, "");
+  if (r2) return `${r2}/${storagePath}`;
+
   const base = process.env.NEXT_PUBLIC_SUPABASE_URL?.replace(/\/$/, "");
   if (!base) throw new Error("NEXT_PUBLIC_SUPABASE_URL manquant");
   return `${base}/storage/v1/object/public/${FIGURE_VIDEOS_BUCKET}/${storagePath}`;

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { requireAdminSession } from "@/lib/admin";
 import { getSupabaseAdmin } from "@/lib/supabase-admin";
-import { FIGURE_VIDEOS_BUCKET } from "@/lib/videos";
+import { deleteR2Object, isR2Enabled } from "@/lib/r2";
 import { invalidateFiguresCatalog } from "@/lib/figures-catalog-cache";
 
 async function loadOwnedVideo(slug: string, videoId: string) {
@@ -73,15 +73,20 @@ export async function DELETE(
     return NextResponse.json({ error: loaded.error }, { status: loaded.status });
   }
 
+  // Best-effort : R2 et/ou legacy Supabase (migration)
+  try {
+    if (isR2Enabled()) {
+      await deleteR2Object(loaded.video.storagePath);
+    }
+  } catch (err) {
+    console.error("[admin videos DELETE] r2", err);
+  }
   try {
     const supabase = getSupabaseAdmin();
     const { error } = await supabase.storage
-      .from(FIGURE_VIDEOS_BUCKET)
+      .from("figure-videos")
       .remove([loaded.video.storagePath]);
-    if (error) {
-      console.error("[admin videos DELETE] storage", error);
-      // On continue : la row DB doit partir même si le fichier est déjà absent
-    }
+    if (error) console.error("[admin videos DELETE] supabase", error);
   } catch (err) {
     console.error("[admin videos DELETE] supabase", err);
   }

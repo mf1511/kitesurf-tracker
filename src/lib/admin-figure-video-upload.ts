@@ -16,7 +16,7 @@ function putFile(
     const xhr = new XMLHttpRequest();
     xhr.open("PUT", url);
     xhr.setRequestHeader("Content-Type", file.type || "video/mp4");
-    xhr.setRequestHeader("x-upsert", "false");
+    // x-upsert = Supabase only ; omis pour R2 signed PUT
     xhr.upload.onprogress = (e) => {
       if (e.lengthComputable) onProgress?.(e.loaded / e.total);
     };
